@@ -1,0 +1,23 @@
+<?php 
+$baseurl =  $block->getBaseUrl(); 
+$customer =  $block->getCustomerSession();
+$getCompany = $block->getCustomerCompany();
+
+?>
+
+<div class="container-fluid">
+<div class="page-title main-category-title col-sm-8 col-lg-5">
+<h1>Account Info</h1>
+</div>
+<div class="breadcrumb-container col-sm-4 col-lg-5">
+<ul class="breadcrumb">
+<li class="Home">
+<a href="<?php echo $baseurl; ?>" title="Home"><?php echo __('Home') ?></a>
+</li>
+<li class="My Account">
+<strong><?php echo __('My Account') ?></strong>
+</li>
+</ul>
+</div>
+ </div>
+</div>

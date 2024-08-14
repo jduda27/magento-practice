@@ -1,0 +1,65 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var \Magento\Framework\View\Element\Template $block */
+?>
+
+<form action="" method="post" id="form-validate" class="form send confirmation" data-mage-init='{"validation":{}}'>
+    <fieldset class="fieldset" data-hasrequired="<?= $block->escapeHtmlAttr(__('* Required Fields')) ?>">
+        <p class="field note"><?= $block->escapeHtml(__('Please enter your email below and we will send you the confirmation link.')) ?></p>
+        <div class="field email required">
+            <label for="email_address" class="label"><span><?= $block->escapeHtml(__('Email')) ?></span></label>
+            <div class="control">
+                <input type="email" name="email" id="email_address" class="input-text" value="<?= $block->escapeHtmlAttr($block->getEmail()) ?>" data-validate="{required:true, 'validate-email':true}" data-mage-init='{"mage/trim-input":{}}'>
+            </div>
+        </div>
+    </fieldset>
+    <div class="actions-toolbar">
+        <div class="primary">
+            <button type="submit" class="action submit send primary"><span><?= $block->escapeHtml(__('Send confirmation link')) ?></span></button>
+        </div>
+        <div class="secondary">
+            <a href="<?= $block->escapeUrl($block->getLoginUrl()) ?>" class="action back"><span><?= $block->escapeHtml(__('Back to Log In')) ?></span></a>
+        </div>
+    </div>
+</form>
+
+<style type="text/css">
+    .customer-account-confirmation form {
+    max-width: 480px;
+    margin: 0 auto;
+    display: block;
+    padding: 20px 0;
+
+}
+.customer-account-confirmation form.form.confirmation .actions-toolbar .primary{
+    float: right;
+}
+.customer-account-confirmation form.form.confirmation .actions-toolbar .primary button.action.send.primary {
+    padding: .75em 0 !important;
+    border-radius: 0 !important;
+    height: auto !important;
+    line-height: 1.42857;
+    margin-right: 1rem !important;
+    width: auto;
+}
+.customer-account-confirmation form .actions-toolbar .primary .action.send.primary {
+    border-top: 0 !important;
+    border-right: 0 !important;
+    border-left: 0 !important;
+    background: 0 0 !important;
+    border-bottom: 5px solid #bb9e4c !important;
+    text-transform: uppercase !important;
+    letter-spacing: 3px !important;
+    font-weight: 700 !important;
+    color: #333 !important;
+    margin: 0 !important;
+        margin-right: 0px;
+    font-size: 14px !important;
+    padding: 5px 0 !important;
+    border-radius: 0 !important;
+}
+</style>

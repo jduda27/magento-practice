@@ -1,0 +1,273 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<?php
+/**
+ * Product list toolbar
+ *
+ * @var $block \Magento\Catalog\Block\Product\ProductList\Toolbar
+ */
+
+// phpcs:disable Magento2.Security.IncludeFile.FoundIncludeFile
+// phpcs:disable PSR2.Methods.FunctionCallSignature.SpaceBeforeOpenBracket
+?>
+<?php 
+
+
+
+$tool_block = $this->getLayout()->createBlock("\Ntz\Productpage\Block\Product\View\ListProduct");
+
+$customerVariable =  $tool_block->getCustomVariableValue('availabilty_filter');
+$customerVariable =json_decode($customerVariable,true);
+$i =1;
+$storeUrl = $block->getUrl('*/*/*', array('_use_rewrite' => true, '_forced_secure' => true));
+$activeStockFilter ='';
+$urlPars = $block->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]);
+$parts = parse_url($urlPars);
+if (isset($parts['query'])) {
+    parse_str($parts['query'], $query);
+if ($query && is_array($query)) {
+    if (isset($query['stock'])) {
+        $activeStockFilter = $query['stock'];
+         unset($query['stock']); 
+         $params = http_build_query($query);  # code...
+         if ($params) {
+               $url = $storeUrl .'?'. $params .'&';
+         }else{
+          $url = $storeUrl .'?'. $params;
+        }
+    }else{
+          $url =   $urlPars .'&';
+    } 
+}
+}else{
+    $url = $storeUrl.'?';
+}
+
+?>
+<?php if ($block->getCollection()->getSize()) :?>
+<div class="toolbar-top">
+    <div class="toolbar col-sm-12 col-lg-10">
+<!--    <div class="toolbar toolbar-products" data-mage-init='<?php /* @noEscape */ //$block->getWidgetOptionsJson() ?>'>-->
+       <?php if ($block->isExpanded()) :?>
+            <?php include ($block->getTemplateFile('Magento_Catalog::product/list/toolbar/viewmode.phtml')) ?>
+        <?php endif; ?>
+
+        <?php include ($block->getTemplateFile('Magento_Catalog::product/list/toolbar/amount.phtml')) ?>
+        <?php if ($tool_block->checkAdvanceSearch() !='catalogsearch_advanced_result') {
+              ?>
+        <div class="block-title">
+            <?= $block->escapeHtml(__('Filter by')); ?>
+        </div>
+
+         <div class="block-title-availability">
+            <?= $block->escapeHtml(__('Availability')); ?>
+            
+            <div class="stock-availability-options">
+                <div class="block block-layered-nav amshopby-filters-left">
+                    <div class="block-content">
+                        <div class="filter-container">
+                            <dd class="filter-column ">
+                                <ol class="items">
+                                    <?php foreach ($customerVariable as $key => $value) { 
+
+                                     ?>
+                                        <li class="item">
+                                            <a class="stock-acnchor <?php echo $key; ?> am-filter-item-61642290416fbs<?= $i ?>" data-am-js="filter-item-default-" href="<?php echo $url ?>stock=<?php echo $key ?>" rel="nofollow">
+                                                <span><?php echo $key; ?> </span>
+                                                
+                                                <?php if ($tool_block->getStockFilterCount($value) !='search_page') { ?>
+                                                        <span class="count"> - <?php echo $tool_block->getStockFilterCount($value); ?> <span class="filter-count-label">items</span></span>
+                                                <?php } ?>
+                                            </a>
+                                        </li>
+                                    <?php 
+                                    $i++;
+                                    } ?>
+                                </ol>
+                            </dd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+         </div>
+        <?php } ?>           
+        <?= $block->getPagerHtml() ?>
+
+        <?php //include ($block->getTemplateFile('Magento_Catalog::product/list/toolbar/limiter.phtml')) ?>
+
+        <?php if ($block->isExpanded()) :?>
+            <?php include ($block->getTemplateFile('Magento_Catalog::product/list/toolbar/sorter.phtml')) ?>
+        <?php endif; ?>
+    </div>
+    
+    
+    
+</div>
+
+
+<?php endif ?>
+
+<script type="text/javascript">
+    require(['jquery'],function($){
+        $(document).ready(function(){
+            $(".stock-availability-options").hide();
+            
+            $(".block-title-availability").unbind().click(function () {
+                $(this).toggleClass("active");
+                $("#category-layered-navigation").slideUp();
+                $("#category-layered-navigation").removeClass("show");
+                $(".block-title").removeClass("active");
+                $(".stock-availability-options").css({"overflow": "auto", "height": "auto"});
+                $(".stock-availability-options").slideToggle(function () {
+                    $(this).toggleClass("show");
+                })
+            });
+            
+            $(".block-title").click(function () {
+                $(".stock-availability-options").slideUp().removeClass("show");
+                $(".stock-availability-options").removeClass("show");
+                $(".block-title-availability").removeClass("active");
+            });
+                var currentUrl = '<?php echo $urlPars; ?>';
+
+            var activeStockFilter = '<?php echo $activeStockFilter; ?>';
+        
+            if (activeStockFilter=='In stock') {
+                $(".am-filter-item-61642290416fbs1").addClass('active');
+                $(".am-filter-item-61642290416fbs1").addClass('am_shopby_link_selected');
+            }
+            if (activeStockFilter=='Within 30 Days') {
+                $(".am-filter-item-61642290416fbs1").addClass('active');
+                $(".am-filter-item-61642290416fbs2").addClass('active');
+                    $(".am-filter-item-61642290416fbs1").addClass('am_shopby_link_selected');
+                $(".am-filter-item-61642290416fbs2").addClass('am_shopby_link_selected');
+            }
+             if (activeStockFilter=='Within 60 Days') {
+                $(".am-filter-item-61642290416fbs1").addClass('active');
+                $(".am-filter-item-61642290416fbs2").addClass('active');
+                $(".am-filter-item-61642290416fbs3").addClass('active');
+                $(".am-filter-item-61642290416fbs1").addClass('am_shopby_link_selected');
+                $(".am-filter-item-61642290416fbs2").addClass('am_shopby_link_selected');
+                $(".am-filter-item-61642290416fbs3").addClass('am_shopby_link_selected');
+            }
+             if (activeStockFilter=='Within 90 Days') {
+                $(".am-filter-item-61642290416fbs1").addClass('active');
+                $(".am-filter-item-61642290416fbs2").addClass('active');
+                $(".am-filter-item-61642290416fbs3").addClass('active');
+                $(".am-filter-item-61642290416fbs4").addClass('active');
+                  $(".am-filter-item-61642290416fbs1").addClass('am_shopby_link_selected');
+                $(".am-filter-item-61642290416fbs2").addClass('am_shopby_link_selected');
+                $(".am-filter-item-61642290416fbs3").addClass('am_shopby_link_selected');
+                $(".am-filter-item-61642290416fbs4").addClass('am_shopby_link_selected');
+            }
+             if (activeStockFilter=='Within 120 Days') {
+                $(".am-filter-item-61642290416fbs1").addClass('active');
+                $(".am-filter-item-61642290416fbs2").addClass('active');
+                $(".am-filter-item-61642290416fbs3").addClass('active');
+                $(".am-filter-item-61642290416fbs4").addClass('active');
+                $(".am-filter-item-61642290416fbs5").addClass('active');
+                    $(".am-filter-item-61642290416fbs1").addClass('am_shopby_link_selected');
+                $(".am-filter-item-61642290416fbs2").addClass('am_shopby_link_selected');
+                $(".am-filter-item-61642290416fbs3").addClass('am_shopby_link_selected');
+                $(".am-filter-item-61642290416fbs4").addClass('am_shopby_link_selected');
+                 $(".am-filter-item-61642290416fbs5").addClass('am_shopby_link_selected');
+            }
+                
+        });
+    });
+</script>
+
+<style type="text/css">
+    .block-title-availability {
+    height: 37px;
+    margin: 0 20px 0 0;
+    padding: 6px .2rem;
+    line-height: normal;
+    font-family: "Gotham",sans-serif;
+    font-size: .875rem;
+    color: #fff;
+    float: left;
+    margin: 0 20px 0 0;
+    padding: 0.6rem 1rem 0.66rem;
+    cursor: pointer;
+    border: 1px solid #fff;
+    font-size: 0.875rem;
+    line-height: 0.875rem;
+    position: relative;
+    }
+.block-title-availability::after {
+    content: "+";
+    display: inline-block;
+    height: 10px;
+    margin-left: 5px;
+    width: 10px;
+    position: relative;
+}
+.stock-availability-options {
+    background: linear-gradient( to bottom, rgba(0, 0, 0, 0.8) 0, rgba(0, 0, 0, 0.8) 100% );
+    position: absolute;
+    float: left;
+    width: 300px;
+    top: 54px;
+    left: 0;
+    right: 0;
+    z-index: 11;
+    padding: 10px 0;
+    overflow: auto;
+    display: none;
+}
+.stock-availability-options .filter-container{
+    float:none!important;
+    display:block;
+}
+
+.stock-availability-options .block-content{
+    width: auto;
+    max-width: 100%;
+}
+
+.stock-availability-options .close-toggle{
+    display:none;
+}
+
+.stock-availability-options dd{
+    margin:0;
+}
+
+.block-title-availability.active:after{
+    content: "-";
+}
+
+#stock_filter_a{
+    display:none;
+}
+
+
+@media only screen and (min-width: 320px) and (max-width: 767px){
+    #amasty-shopby-product-list .toolbar-top .toolbar .block-title,
+    #amasty-shopby-product-list .toolbar-top .toolbar .block-title-availability,    
+    .category-products .toolbar-top .sorter .sort-by select{
+        font-size: .7rem;
+        margin-right: 5px;
+        font-weight: 300;
+    }
+    .category-products .toolbar-top .sorter .sort-by .sort-by-switcher.action.sorter-action{
+        padding:0;
+    }
+    .stock-availability-options{
+        top: 40px;
+    }
+    .toolbar-top #category-layered-navigation{
+        margin-bottom: 30px;
+    }
+    .close-toggle{
+        bottom: -40px;
+    }
+}
+
+</style>

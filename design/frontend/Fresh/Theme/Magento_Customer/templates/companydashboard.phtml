@@ -1,0 +1,103 @@
+<?php
+$getCompany = $block->getCustomerCompany();
+
+$customHelper = $this->helper('\Ntz\Productpage\Helper\Data');
+$hideSalesTax = $customHelper->getCustomVariableValue("show_sales_tax_policy_on_registration");
+ $salesTaxhideCountry = explode(',', $hideSalesTax);
+if($getCompany && $getCompany->getUserType() && strtolower($getCompany->getUserType())=='business'){
+	
+	$companyName = $getCompany->getCompanyName();
+	$legalName = $getCompany->getLegalName();
+	$email = $getCompany->getCompanyEmail();
+	$telephone = $getCompany->getTelephone();
+	$primaryContact = $getCompany->getPrimarySector();
+	$secondarySector = $getCompany->getSecondarySector();
+	$industryGroup = $getCompany->getIndustryGroup();
+	$secondaryindustryGroup = $getCompany->getSecondaryIndustryGroup();
+	$salestaxPolicy = $getCompany->getSalesTaxPolicy();
+	$website = $getCompany->getCompanyWebsite();
+	$socialWebsite = $getCompany->getCompanySocialWebsite();
+
+	$continents                 = $getCompany->getContinents();
+	$continentsCountry          = $getCompany->getContinentsCountry();
+	$vatRegistration            = $getCompany->getVatRegistration();
+	$eoriNumber                 = $getCompany->getEoriNumber();
+	$companyRegistrationNumber  = $getCompany->getCompanyRegistrationNumber();
+	?>
+	<div class="panel panel-default">
+		<div class="panel-head">
+			<h4 class="title">
+				<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseFive" title="Company Information" class="collapsed"><?= $block->escapeHtml(__('Company Information')) ?></a>
+			</h4>
+		</div>
+		<div id="collapseFive" class="panel-collapse collapse">
+			<div class="panel-body">
+				<div class="box">
+					<div>
+						<span>Company Name / DBA:</span>
+						<span><?php if(isset($companyName)): echo $companyName; endif; ?></span>
+					</div>
+					<div>
+						<span>Company Phone:</span>
+						<span><?php if(isset($telephone)): echo $telephone; endif; ?></span>
+					</div>
+					<div>
+						<span>Company Website:</span>
+						<span><?php if(isset($website)): echo $website; endif; ?></span>
+					</div>
+					<div>
+						<span>Company Social Website:</span>
+						<span><?php if(isset($socialWebsite)): echo $socialWebsite; endif; ?></span>
+					</div>
+					<div>
+						<span>Company Email:</span>
+						<span><?php if(isset($email)): echo $email; endif; ?></span>
+					</div>
+					<div>
+						<span>Primary Market Sector:</span>
+						<span><?php if(isset($primaryContact)): echo $primaryContact; endif; ?></span>
+					</div>
+					<div>
+						<span>Primary Customer Type:</span>
+						<span><?php if(isset($industryGroup)): echo $industryGroup; endif; ?></span>
+					</div>
+					<?php if(isset($secondarySector)): ?>
+						<div>
+							<span>Secondary Market Sector:</span>
+							<span><?php  echo $secondarySector; ?></span>
+						</div>
+					<?php endif; ?>
+					<?php if(isset($secondarySector)): ?>
+					<div>
+						<span>Secondary Customer Type:</span>
+						<span><?php if(isset($secondaryindustryGroup)): echo $secondaryindustryGroup; endif; ?></span>
+					</div>
+					<?php endif; ?>
+					 <?php if (empty($continentsCountry) || in_array($continentsCountry, $salesTaxhideCountry)) { ?>
+					<div>
+						<span>Sales Tax Policy:</span>
+						<span><?php if(isset($salestaxPolicy)): echo $salestaxPolicy; endif; ?></span>
+					</div>
+					  <?php  } 
+
+                        ?>
+					 <?php if ($continentsCountry && !in_array($continentsCountry, $salesTaxhideCountry)) { ?>
+					<div>
+						<span>VAT Registration:</span>
+						<span><?php if(isset($vatRegistration)): echo $vatRegistration; endif; ?></span>
+					</div>
+					<div>
+						<span>EORI Number:</span>
+						<span><?php if(isset($eoriNumber)): echo $eoriNumber; endif; ?></span>
+					</div>
+					<div>
+						<span>Company Registration Number:</span>
+						<span><?php if(isset($companyRegistrationNumber)): echo $companyRegistrationNumber; endif; ?></span>
+					</div>
+					<?php  } ?>
+				</div>
+			</div>
+		</div>
+	</div>
+<?php  } ?>
+

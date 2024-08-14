@@ -1,0 +1,230 @@
+<?php
+/**
+ * Copyright © Ulmod. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+$product = $block->getProduct();
+$mainImageData = $block->getMainImage();
+$thumbnailCollection = $block->getThumbCollection();
+$magnifyText = $block->blockConfig->getConfig('productimage/main_image/magnify_text');
+$customHelper = $this->helper('Ntz\Productpage\Helper\Data');
+$imageAltText = $customHelper->getCustomVariableValue('image_alt_txt'); 
+$imageAltTextArray =  json_decode($imageAltText,true);
+/* get src for main image */
+if ($block->blockConfig->getConfig('productimage/main_image/main_image_size')=='full') {
+    $mainSrc = $mainImageData['full'];
+} else {
+    $mainSrc = $mainImageData['custom'];
+}
+$altText = $product->getSku().' '.$product->getName();
+
+?>
+<div id="umprodimg" class="um-productimage-block group <?php echo $block->escapeHtml($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_position')) ?>-umprodimg-position">
+<?php if ($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_position') == 'above') { ?>
+    <?php if (count($thumbnailCollection) > 0) { ?>
+    <div id="more-views"<?php if (count($thumbnailCollection) == 0 || (count($thumbnailCollection) == 1 && $block->blockConfig->getConfig('productimage/thumbnails/thumbnails_showone') == 'false')) { echo 'style="display: none;"'; } ?> 
+		class="<?php echo $block->escapeHtml($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_position')) ?>-thumbnails-position <?php if ($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_scroll')!= 1) { ?>no-thumbnails-scroll<?php } ?>">
+    <?php if ($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_title') && $block->blockConfig->getConfig('productimage/thumbnails/thumbnails_position') != 'left' && $block->blockConfig->getConfig('productimage/thumbnails/thumbnails_position') != 'right') : ?>
+        <h2><?php echo $block->escapeHtml($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_title')) ?></h2>
+    <?php endif; ?>
+        <div id="thumbnails">
+        <?php foreach ($thumbnailCollection as $image): ?>
+            <?php if ($block->blockConfig->getConfig('productimage/main_image/main_image_size')=='full') {
+                $thumbDataImage = $image['full'];
+            } else {
+                $thumbDataImage = $image['custom_main'];
+            } ?>
+             <?php
+                $altText1='';
+                     $filename=[];
+
+
+             $fileParts = pathinfo($image['custom_thumb']); 
+                if (isset($fileParts['filename'])) {
+                 $filename=   explode('.', $fileParts['filename']);
+                 if(isset($filename[1]) && isset($imageAltTextArray[$filename[1]])){
+
+                    $altText1=   $imageAltTextArray[$filename[1]];
+                 }
+                }
+            ?>
+            <div>
+                <a href="#" data-image="<?php echo $block->escapeHtml($thumbDataImage); ?>" data-zoom-image="<?php echo $block->escapeHtml($image['full']); ?>" title="<?php echo $block->escapeHtml($image['caption']) ?>" 
+					data-zoom-image-title="<?php echo $block->escapeHtml($image['caption']) ?>"<?php if($image['type'] == 'external-video') { ?>data-video="<?php echo $block->escapeHtml($image['video']) ?>" class="external-video"<?php } ?>>
+                    <img src="<?php echo $block->escapeHtml($image['custom_thumb']) ?>" alt="<?php echo  $altText.' '.$altText1 ?>"/>
+
+                    <?php if($image['type'] == 'external-video') { ?>
+                    <div class="external-video-icon"></div>
+                    <?php } ?>
+                </a>
+            </div>
+        <?php endforeach; ?>
+        </div>
+    </div>
+<?php } } ?>
+
+    <div id="main-product-image-wrapper">
+        <div class="main-product-image-wrapper-inner">
+            <img loading="eager" id="main-product-image"<?php if($mainImageData['type'] == 'external-video') { ?> class="main-product-video"<?php } ?><?php if($mainImageData['video']) { echo 'data-video="'. $mainImageData['video'] .'"'; } ?>
+                src="<?php echo $block->escapeHtml($mainSrc); ?>" data-zoom-image="<?php echo $block->escapeHtml($mainImageData['full']) ?>" 
+                alt="<?php echo $block->escapeHtml($mainImageData['alt']) ?>" title="<?php echo $block->escapeHtml($mainImageData['title']) ?>" 
+                data-zoom-image-title="<?php echo $block->escapeHtml($mainImageData['caption']) ?>" />
+        </div>
+ 
+    	<?php if ($block->blockConfig->getConfig('productimage/main_image/enable_magnify')) : ?>
+    		<a id="um-pz-magnifying-link" class="um-pz-magnifying-link"  href="#">
+    			<img src="<?php echo $block->escapeUrl($this->getViewFileUrl('Ulmod_Productimage::images/magnify.png')); ?>">
+    			<?php echo $block->escapeHtml($magnifyText); ?>
+    		</a>
+    	<?php endif; ?>	
+	
+        <?php if ($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_position') == 'right' || $block->blockConfig->getConfig('productimage/thumbnails/thumbnails_position') == 'left') { ?>
+            <?php if (count($thumbnailCollection) > 0) { ?>
+            <div id="more-views"<?php if (count($thumbnailCollection) == 0 || (count($thumbnailCollection) == 1 && $block->blockConfig->getConfig('productimage/thumbnails/thumbnails_showone') == 'false')) { echo 'style="display: none;"'; } ?> 
+				class="<?php echo $block->escapeHtml($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_position')) ?>-thumbnails-position <?php if ($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_scroll')!= 1) { ?>no-thumbnails-scroll<?php } ?>">
+            <?php if ($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_title') && $block->blockConfig->getConfig('productimage/thumbnails/thumbnails_position') != 'left' && $block->blockConfig->getConfig('productimage/thumbnails/thumbnails_position') != 'right') : ?>
+                <h2><?php echo $block->escapeHtml($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_title')) ?></h2>
+            <?php endif; ?>
+                <div id="thumbnails">
+                <?php foreach ($thumbnailCollection as $image): ?>
+                    <?php if ($block->blockConfig->getConfig('productimage/main_image/main_image_size')=='full') {
+                        $thumbDataImage = $image['full'];
+                    } else {
+                        $thumbDataImage = $image['custom_main'];
+                    } ?>
+                    <div>
+                        <?php
+                            $altText1='';
+                            $filename=[];
+                         $fileParts = pathinfo($image['custom_thumb']); 
+                            if (isset($fileParts['filename'])) {
+                             $filename=   explode('.', $fileParts['filename']);
+                              if(isset($filename[1]) && isset($imageAltTextArray[$filename[1]])){
+
+                                    $altText1=   $imageAltTextArray[$filename[1]];
+                                }
+                            }
+                        ?>
+                        <a href="#" data-image="<?php echo $block->escapeHtml($thumbDataImage); ?>" data-zoom-image="<?php echo $block->escapeHtml($image['full']); ?>" 
+							title="<?php echo $block->escapeHtml($image['thumb_alt']) ?>" 
+							data-zoom-image-title="<?php echo $block->escapeHtml($image['caption']) ?>"<?php if($image['type'] == 'external-video') { ?> class="external-video"<?php } ?>>
+                            <img src="<?php echo $block->escapeHtml($image['custom_thumb']) ?>" alt="<?php echo $altText.' '.$altText1 ?>"/>
+                           <!--  <img src="<?php echo $block->escapeHtml($image['custom_thumb']) ?>" alt="<?php echo $altText.' '.$altText1.' '.$block->escapeHtml($image['thumb_alt']) ?>"/> -->
+                            <?php if($image['type'] == 'external-video') { ?>
+                            <div class="external-video-icon"></div>
+                            <?php } ?>
+                        </a>
+                    </div>
+                <?php endforeach; ?>
+                </div>
+            </div>
+        <?php } } ?>
+    </div>
+
+<?php if ($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_position') == 'below') { ?>
+    <?php if (count($thumbnailCollection) > 0) { ?>
+    <div id="more-views"<?php if (count($thumbnailCollection) == 0 || (count($thumbnailCollection) == 1 && $block->blockConfig->getConfig('productimage/thumbnails/thumbnails_showone') == 'false')) { echo 'style="display: none;"'; } ?> 
+		class="<?php echo $block->escapeHtml($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_position')) ?>-thumbnails-position <?php if ($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_scroll')!= 1) { ?>no-thumbnails-scroll<?php } ?>">
+    <?php if ($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_title') && $block->blockConfig->getConfig('productimage/thumbnails/thumbnails_position') != 'left' && $block->blockConfig->getConfig('productimage/thumbnails/thumbnails_position') != 'right') : ?>
+        <h2><?php echo $block->escapeHtml($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_title')) ?></h2>
+    <?php endif; ?>
+        <div id="thumbnails">
+        <?php foreach ($thumbnailCollection as $image): ?>
+            <?php if ($block->blockConfig->getConfig('productimage/main_image/main_image_size')=='full') {
+                $thumbDataImage = $image['full'];
+            } else {
+                $thumbDataImage = $image['custom_main'];
+            } ?>
+             <?php
+                $altText1='';
+                     $filename=[];
+
+
+             $fileParts = pathinfo($image['custom_thumb']); 
+                if (isset($fileParts['filename'])) {
+                 $filename=   explode('.', $fileParts['filename']);
+                  if(isset($filename[1]) && isset($imageAltTextArray[$filename[1]])){
+
+                    $altText1=   $imageAltTextArray[$filename[1]];
+                 }
+                }
+            ?>
+            <div>
+
+                <a href="#" data-image="<?php echo $block->escapeHtml($thumbDataImage); ?>" data-zoom-image="<?php echo $block->escapeHtml($image['full']); ?>" 
+					title="<?php echo $block->escapeHtml($image['thumb_alt']) ?>" data-zoom-image-title="<?php echo $block->escapeHtml($image['caption']) ?>"<?php if($image['type'] == 'external-video') { ?>data-video="<?php echo $block->escapeHtml($image['video']) ?>" 
+					class="external-video"<?php } ?>>
+                    <img loading="lazy" class="thumbnail-pdp" src="<?php echo $block->escapeHtml($image['custom_thumb']) ?>" alt="<?php echo  $altText.' '.$altText1 ?>"/>
+                    <!-- <img src="<?php echo $block->escapeHtml($image['custom_thumb']) ?>" alt="<?php echo  $altText.' '.$altText1.' '. $block->escapeHtml($image['thumb_alt']) ?>"/> -->
+                    <?php if($image['type'] == 'external-video') { ?>
+                    <div class="external-video-icon"></div>
+                    <?php } ?>
+                </a>
+            </div>
+        <?php endforeach; ?>
+        </div>
+    </div>
+<?php } } ?>
+
+</div>
+
+
+<!-- MOBILE SLIDER CODE STARTS -->
+<div id="umprodimg_mob" class="um-productimage-block group below-umprodimg-position" style="display:none;">
+    <div id="main-product-image-wrapper_mob">
+        <div class="main-product-image-wrapper-inner">
+            <img loading="eager" itemprop="image" id="main-product-image_mob"<?php if($mainImageData['type'] == 'external-video') { ?> class="main-product-video"<?php } ?><?php if($mainImageData['video']) { echo 'data-video="'. $mainImageData['video'] .'"'; } ?>
+                src="<?php echo $block->escapeHtml($mainSrc); ?>" data-zoom-image="<?php echo $block->escapeHtml($mainImageData['full']) ?>" 
+                alt="<?php echo $block->escapeHtml($mainImageData['alt']) ?>" title="<?php echo $block->escapeHtml($mainImageData['title']) ?>" 
+                data-zoom-image-title="<?php echo $block->escapeHtml($mainImageData['caption']) ?>" />
+        </div>
+ 
+    	<?php if ($block->blockConfig->getConfig('productimage/main_image/enable_magnify')) : ?>
+    		<a id="um-pz-magnifying-link_mob" class="um-pz-magnifying-link"  href="#">
+    			<img src="<?php echo $block->escapeUrl($this->getViewFileUrl('Ulmod_Productimage::images/magnify.png')); ?>">
+    			<?php echo $block->escapeHtml($magnifyText); ?>
+    		</a>
+    	<?php endif; ?>
+    </div>
+
+    <?php if (count($thumbnailCollection) > 0) { ?>
+    <div id="more-views_mob"<?php if (count($thumbnailCollection) == 0 || (count($thumbnailCollection) == 1 && $block->blockConfig->getConfig('productimage/thumbnails/thumbnails_showone') == 'false')) { echo 'style="display: none;"'; } ?>
+		class="below-thumbnails-position <?php if ($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_scroll')!= 1) { ?>no-thumbnails-scroll<?php } ?>">
+        <h2><?php echo $block->escapeHtml($block->blockConfig->getConfig('productimage/thumbnails/thumbnails_title')) ?></h2>
+        <div id="thumbnails_mob">
+        <?php foreach ($thumbnailCollection as $image): ?>
+            <?php if ($block->blockConfig->getConfig('productimage/main_image/main_image_size')=='full') {
+                $thumbDataImage = $image['full'];
+            } else {
+                $thumbDataImage = $image['custom_main'];
+            } ?>
+             <?php
+                $altText1='';
+                $filename=[];
+             $fileParts = pathinfo($image['custom_thumb']); 
+                if (isset($fileParts['filename'])) {
+                 $filename=   explode('.', $fileParts['filename']);
+                  if(isset($filename[1]) && isset($imageAltTextArray[$filename[1]])){
+
+                    $altText1=   $imageAltTextArray[$filename[1]];
+                 }
+                }
+            ?>
+            <div>
+                <a href="#" data-image="<?php echo $block->escapeHtml($thumbDataImage); ?>" data-zoom-image="<?php echo $block->escapeHtml($image['full']); ?>" 
+					title="<?php echo $block->escapeHtml($image['thumb_alt']) ?>" data-zoom-image-title="<?php echo $block->escapeHtml($image['caption']) ?>"<?php if($image['type'] == 'external-video') { ?>data-video="<?php echo $block->escapeHtml($image['video']) ?>" 
+					class="external-video"<?php } ?>>
+                    <img loading="lazy" class="thumbnail-pdp" src="<?php echo $block->escapeHtml($image['custom_thumb']) ?>" alt="<?php echo  $altText.' '.$altText1 ?>"/>
+                     <!-- <img src="<?php echo $block->escapeHtml($image['custom_thumb']) ?>" alt="<?php echo  $altText.' '.$altText1.' '. $block->escapeHtml($image['thumb_alt']) ?>"/> -->
+                    <?php if($image['type'] == 'external-video') { ?>
+                    <div class="external-video-icon"></div>
+                    <?php } ?>
+                </a>
+            </div>
+        <?php endforeach; ?>
+        </div>
+    </div>
+    <?php } ?>
+</div>
+<!-- MOBILE SLIDER CODE ENDS -->

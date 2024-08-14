@@ -1,0 +1,98 @@
+<?php
+/** @var \Meta\Conversion\Block\Pixel\AddToCart $block */
+$trackerUrl = $block->getTrackerUrl();
+?>
+<?php if ($block->getFacebookPixelID()): ?>
+    <!-- Added the new component below to track server events -->
+    <script>
+        window.addToCartData =
+            <?= /* @noEscape */ json_encode([
+                "url" => $block->escapeUrl($trackerUrl),
+                "eventName" => $block->getEventToObserveName(),
+                'fbAgentVersion' => $block->getFacebookAgentVersion(),
+                'fbPixelId' => $block->getFacebookPixelID(),
+                'source' => $block->getSource(),
+                'pluginVersion' => $block->getPluginVersion(),
+                'track' => 'track',
+                'event' => 'AddToCart'
+
+            ]); ?>
+    </script>
+    <script>
+        require([
+            'jquery',
+            'Meta_Conversion/js/metaPixelTracker'
+        ], function ($, metaPixelTracker) {
+
+            var product_info_url = '<?= /* @noEscape */ $block->getProductInfoUrl() ?>';
+
+            $(document).on('ajax:addToCart', function (event, data) {
+                if (!data.response.backUrl) {
+                    // check product data from swatch widget
+                    var swatchData = $('[data-role=swatch-options]').data('mage-SwatchRenderer');
+                    if (swatchData) {
+                        simpleProductId=jQuery(".config-simple-productid").val();
+
+                    } else {
+                        // In case product is added from category page get options using added product's id
+                        // Get id of last added product
+                        var productId = data.productIds[data.productIds.length - 1];
+                        var categorySwatchData = $('[data-role=swatch-option-'+productId+']')
+                            .data('mage-SwatchRenderer');
+                        if (categorySwatchData) {
+                            var simpleProductId = categorySwatchData.getProductId();
+                        } else {
+                            // else check product data from configurable options
+                            var configurableProduct = data.form.data().mageConfigurable;
+                            if(configurableProduct) {
+                                var simpleProductId = configurableProduct.simpleProduct;
+                            }
+                        }
+                    }
+                    // otherwise use the product sku
+                    var product_sku = data.sku;
+                    var form_key = jQuery("[name='form_key']").val();
+                    $.ajax({
+                        url: product_info_url,
+                        data: {
+                            product_sku: product_sku,
+                            product_id: simpleProductId,
+                            form_key: form_key
+                        },
+                        type: 'get',
+                        dataType: 'json',
+                        success: function (res) {
+                            var addToCartConfigPixel = {
+                                "url" : window.addToCartData.url,
+                                "payload": {
+                                    "eventName" : window.addToCartData.eventName,
+                                    "productId" : res.productId
+                                },
+                                "browserEventData": {
+                                    'fbAgentVersion': window.addToCartData.fbAgentVersion,
+                                    'fbPixelId': window.addToCartData.fbPixelId,
+                                    'source': window.addToCartData.source,
+                                    'pluginVersion': window.addToCartData.pluginVersion,
+                                    'track': window.addToCartData.track,
+                                    'event': window.addToCartData.event,
+                                    'payload': {
+                                        "content_name": res.name,
+                                        "content_ids": [res.id],
+                                        "value": res.value,
+                                        "currency": res.currency,
+                                        "content_type": res.content_type,
+                                        "contents": [{
+                                            "id": res.id,
+                                            "quantity": 1
+                                        }]
+                                    }
+                                }
+                            };
+                            metaPixelTracker(addToCartConfigPixel);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+<?php endif; ?>

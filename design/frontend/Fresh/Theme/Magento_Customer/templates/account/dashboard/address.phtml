@@ -1,0 +1,69 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var \Magento\Customer\Block\Account\Dashboard\Address $block */
+?>
+<?php 
+	
+$om = \Magento\Framework\App\ObjectManager::getInstance();  
+$customerSession = $om->get('Magento\Customer\Model\Session'); 
+$companyRepository = $om->get('\Magento\Company\Api\CompanyManagementInterface'); 
+$customerID  = $customerSession->getCustomer()->getId();
+$billingId = $customerSession->getCustomer()->getDefaultBilling();
+$company = $companyRepository->getByCustomerId($customerID);
+if ($company) {
+	$superUserId = $company->getSuperUserId();
+}
+
+?>
+<div class="panel panel-default">
+<div class="panel-head">
+<h4 class="title">
+<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" title="Addresses" class="collapsed"><?= $block->escapeHtml(__('Addresses')) ?></a>
+</h4>
+</div>
+<div id="collapseFour" class="panel-collapse  collapse" style="">
+<div class="panel-body">
+<div class="box">
+
+
+<div class="col2-set">
+<div class="col-1">
+    <div class="billing-address">
+<?php if ($superUserId==$customerID && empty($billingId)) { ?>
+    <div class="clearfix">
+<a class="add-billing-address" title="Add Billing Address" href="/customeraddress/address/newaddress"><?= $block->escapeHtml(__('Add Billing Address')) ?></a>
+</div>
+<?php } ?>
+</div>
+<p><strong><?= $block->escapeHtml(__('Default Billing Address')) ?></strong></p>
+<address style="color: lightgray;">
+<?= $block->getPrimaryBillingAddressHtml() ?>
+</address>
+</div>
+
+<div class="col-2">
+<div class="shipping-address">
+<?php if ($superUserId==$customerID ) { ?>
+    <div class="clearfix">
+<a class="manage-addresses-link" title="Manage Addresses" href="<?= $block->escapeUrl($block->getAddressBookUrl()) ?>"><?= $block->escapeHtml(__('Manage Addresses')) ?></a>
+</div>
+<?php } ?>
+</div>
+<p><strong><?= $block->escapeHtml(__('Default Shipping Address')) ?></strong></p>
+<address>
+<?= $block->getPrimaryShippingAddressHtml() ?><br>
+<?php if ($superUserId==$customerID) { ?>
+ <a class="action edit" title="Edit" href="<?= $block->escapeUrl($block->getPrimaryShippingAddressEditUrl()) ?>" data-ui-id="default-shipping-edit-link"><?= $block->escapeHtml(__('Edit')) ?></a>
+ <?php } ?>
+ </address>
+</div>
+<p>Please contact Customer Care at <a href="tel:+1(800) 338-2150">1 (800) 338-2150</a> or email at <a href = "mailto: salessupport@arteriorshome.com">salessupport@arteriorshome.com</a> to update your billing information.</p>
+</div>
+</div>
+</div>
+</div>
+</div>

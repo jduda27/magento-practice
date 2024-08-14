@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+    </head>
+    <body>
+        <!-- <referenceBlock ="product_list_toolbar" remove="true" /> -->
+        
+        <attribute name="class" value="page-products"/>
+        <referenceContainer name="columns.top">
+        <!-- to fix add to cart issue-->            
+                <block name="customer.section.config" class="Magento\Customer\Block\SectionConfig"
+                   template="Magento_Customer::js/section-config.phtml">
+                    <arguments>
+                        <argument name="sectionNamesProvider" xsi:type="object">Magento\Customer\Block\SectionNamesProvider</argument>
+                    </arguments>
+                </block>
+                <block name="customer.customer.data"
+                class="Magento\Customer\Block\CustomerData"
+                template="Magento_Customer::js/customer-data.phtml"/>
+         </referenceContainer>  
+
+           <referenceContainer name="content">
+            <container name="advanced-search" as="advanced-search" label="advanced-search" htmlTag="div" htmlClass="advanced-search container-fluid" before="catalogsearch_advanced_result">
+                <block class="Ntz\Productpage\Block\Product\View\Finishoption" name="advaced.category" template="Ntz_Productpage::product/view/catalogsearch.phtml" />
+               </container>
+            <block class="Magento\CatalogSearch\Block\Advanced\Result" name="catalogsearch_advanced_result" template="Magento_CatalogSearch::result.phtml">
+                <block class="Magento\CatalogSearch\Block\SearchResult\ListProduct" name="search_result_list" template="Magento_Catalog::product/list.phtml">
+                    <block class="Magento\Catalog\Block\Product\ProductList\Toolbar" name="product_list_toolbar" template="Magento_Catalog::product/list/toolbar.phtml">
+                        <block class="Magento\Theme\Block\Html\Pager" name="product_list_toolbar_pager"/>
+                    </block>
+                    <action method="setToolbarBlockName">
+                        <argument name="name" xsi:type="string">product_list_toolbar</argument>
+                    </action>
+                    <block class="Magento\Framework\View\Element\RendererList" name="category.product.type.details.renderers" as="details.renderers">
+                        <block class="Magento\Framework\View\Element\Template" name="category.product.type.details.renderers.default" as="default"/>
+                    </block>
+                    <block class="Magento\Catalog\Block\Product\ProductList\Item\Container" name="category.product.addto" as="addto">
+                        <block class="Magento\Wishlist\Block\Catalog\Product\ProductList\Item\AddTo\Wishlist" name="wishlist" as="wishlist" template="Magento_Wishlist::catalog/product/list/addto/wishlist.phtml"/>
+                    </block>
+                </block>
+                <action method="setListOrders"/>
+                <action method="setListModes"/>
+                <action method="setListCollection"/>
+            </block>
+
+        </referenceContainer>
+    </body>
+</page>

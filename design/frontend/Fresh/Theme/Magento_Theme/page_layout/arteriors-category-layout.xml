@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_layout.xsd">
+    <update handle="empty"/>
+    <referenceContainer name="page.wrapper">
+        <container name="header.container" as="header_container" label="Page Header Container" htmlTag="header" htmlClass="page-header" before="main.content"/>
+
+        <container name="page.top" as="page_top" label="After Page Header" after="header.top"/>
+           
+        <container name="main.content" htmlTag="main" htmlId="maincontent" htmlClass="layout layout-1-col" after="page.top">
+            <container name="columns.top" label="Before Main Columns"/>                
+            <container name="main" label="Main Content Container" htmlTag="div" htmlClass="main" />
+        </container>           
+
+        <container name="footer.wrap" as="footer_wrap" label="Footer Wrap" htmlTag="div" htmlClass="footer-wrap" before="before.body.end">
+            <container name="footer-container" as="footer" label="Page Footer Container" htmlTag="footer" htmlClass="row" />
+        </container>
+    </referenceContainer>
+</layout>

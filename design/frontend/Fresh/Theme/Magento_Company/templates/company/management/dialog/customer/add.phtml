@@ -1,0 +1,258 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+$objectManager =  \Magento\Framework\App\ObjectManager::getInstance();        
+$customerSession = $objectManager->get('Magento\Customer\Model\Session');
+$customFunction = $objectManager->get('Ntz\Customapi\Model\CustomModel\CustomApiManagement');
+$customCompanyFunction = $objectManager->get('Ntz\Company\Model\CustomModel\CustomApiManagement');
+
+
+    if($customerSession->isLoggedIn()) {
+            $currentId = $customerSession->getCustomerId(); // get ID
+            $customerID = $customFunction->getSuperUserId($currentId);
+            $customerData = $customCompanyFunction->getCustomerData($customerID);
+            $adminName =   $customerData->getFirstname().' '.$customerData->getLastname();
+    }
+?>
+<?php /** @var $block Magento\Company\Block\Company\Management\Add */ ?>
+
+<form class="form form-add-user" method="post" id="add-user-form"
+      action="<?= $block->escapeUrl($block->getUrl('*/customer/manage')) ?>"
+      data-mage-init='{"validation":{}}'>
+    <input type="hidden" name="target_id" />
+    <input type="hidden" class="customer_id_get" name="customer_id" />
+    <fieldset class="fieldset info">
+    
+    <div class="field email required">
+            <label class="label" for="email">
+                <span><?= $block->escapeHtml(__('Email')) ?></span>
+            </label>
+            
+            <div class="control">
+                <input type="email" name="email" id="email" value=""
+                       title="<?= $block->escapeHtmlAttr(__('Email')) ?>"
+                       data-role="email"
+                       maxlength="80"
+                       data-url-validate="<?= $block->escapeUrl($block->getUrl('*/customer/check')) ?>"
+                       class="input-text  email_address"  data-validate="{required:true, 'validate-email':true}">
+                
+            </div>
+        </div>
+    <div class="row">
+      <div class="col-sm-12 col-md-6">
+        <div class="field firstname required">
+          <label class="label" for="firstname">
+            <span><?= $block->escapeHtml(__('First Name')) ?></span>
+          </label>
+          <div class="control">
+            <input type="text" name="firstname" id="firstname" value=""
+                 title="<?= $block->escapeHtmlAttr(__('First Name')) ?>"
+                 class="input-text" data-validate="{required:true}">
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-sm-12 col-md-6">
+        <div class="field lastname required">
+          <label class="label" for="lastname">
+            <span><?= $block->escapeHtml(__('Last Name')) ?></span>
+          </label>
+          <div class="control">
+            <input type="text" name="lastname" id="lastname" value=""
+                 title="<?= $block->escapeHtmlAttr(__('Last Name')) ?>"
+                 class="input-text" data-validate="{required:true}">
+          </div>
+        </div>
+      </div>
+    </div> 
+    <div class="row">
+      <div class="col-sm-12 col-md-6">  
+        <div class="field role required">
+          <label class="label" for="roles">
+            <span><?= $block->escapeHtml(__('User Role')) ?></span>
+          </label>
+          <div class="control">
+            <select data-role="role-select" name="role" id="role">
+              <?php foreach ($block->getRoles() as $role) : ?>
+                <option value="<?= (int) $role->getId() ?>"><?= $block->escapeHtml($role->getRoleName()) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="control">
+      <input data-role="status-select" type="hidden" id="status-input" name="extension_attributes[company_attributes][status]" value="<?php echo 1 ;?>">
+      </div>
+    </div>
+    
+          <div class="field choice">
+            <input data-role="role-select" type="checkbox" name="primarycontact" id="primarycontact" data-role="primarycontact" value="1" title="<?= $block->escapeHtmlAttr(__('Primary Contact')) ?>"  > 
+              
+            <label class="label"  for="primarycontact"><span><?= $block->escapeHtml(__('Primary Contact')) ?></span></label>
+            <div for="primarycontact" style="display:none;" generated="true" class="mage-error" id="primarycontact-error"><?php echo __('You can not make yourself as primary contact.') ?></div>
+           </div>
+       
+    </fieldset>
+        
+</form>
+
+
+<style>
+    /*Email validate popup */
+    .company-users-index #maincontent{
+        position:unset;
+    }
+
+    .company-users-index .bg-overlay.active{
+        background-color: rgba(0,0,0,.5);
+        width: 100%;
+        height: 100%;
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index:999999!important;
+        transition-timing-function: cubic-bezier(.22,.61,.36,1);
+    }
+    .company-users-index .popup-overlay {
+        /*Hides pop-up when there is no "active" class*/
+        visibility: hidden;
+        position: fixed;
+        background: #ffffff;
+        border: 0px solid #666666;
+        width: 526px;
+        height: auto;
+        z-index: 2;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        padding:20px;
+        transition: transform .2s ease;
+        box-shadow: 0 0 12px 2px rgb(0 0 0 / 35%);
+        text-align: center;
+        max-width:100%;
+    }
+
+    .company-users-index .popup-overlay.active {
+        /*displays pop-up when "active" class is present*/
+        visibility: visible;
+    }
+
+    .company-users-index .popup-content {
+        /*Hides pop-up content when there is no "active" class */
+        visibility: hidden;
+    }
+
+    .company-users-index .popup-content.active {
+        /*Shows pop-up content when "active" class is present */
+        visibility: visible;
+    }
+    .company-users-index .dynamic_pop_content h4 {
+        font-size: 26px;
+        color:#58595b;
+    }
+    .company-users-index .dynamic_pop_content p.validate_text{
+        font-size: 16px;
+        color:#58595b;
+        word-wrap: break-word;
+    }
+    .company-users-index .dynamic_pop_content p.validate_text span {
+        font-weight: 500;
+    }
+
+    .company-users-index .popup-content .dynamic_pop_content .button_validate{
+        background: #58595b!important;
+        color: #fff;
+        border: 1px solid #58595b;
+        height: 40px;
+        line-height: 1.5;
+        width: auto;
+        margin: 0 10px;
+        padding: 7px 30px!important;
+        border-radius: 0;
+        font-size: 1rem;
+        letter-spacing: 0;
+        font-weight: 400;
+        font-family: "Gotham", sans-serif;
+        text-transform: uppercase;
+    }
+
+    .company-users-index .popup-content .dynamic_pop_content .button_validate:hover{
+        background: transparent!important;
+        color: #58595b;
+    }
+    </style>
+<script>
+        require([
+            'jquery',
+            'domReady!'
+        ], function ($) {
+        
+            $('input,select').on('change',function(){
+            
+              $('#status-input').val(1);
+     
+            }); 
+             $('input,select').on('focus',function(){
+              
+               if ($('#primarycontact').hasClass('mage-error')) {
+                $('#primarycontact-error').hide();
+                }
+            }); 
+          /* upgrade changes */
+            $('#primarycontact').on('change',function(){
+
+                if($(this).is(":checked")){
+                   $(this).attr('checked');
+                 
+              $(this).val(1);
+                }else{
+              $(this).val('');
+                }
+            });
+        });
+
+</script>
+<script>
+        require([
+            'jquery',
+            'domReady!'
+        ], function ($) {
+           
+           $('#primarycontact').on('change',function(){
+            var value = $('.customer_id_get').val();
+           var currentId = '<?php echo $currentId; ?>'
+                if(currentId==value){
+                  $('#primarycontact').attr('disabled','disabled');
+                  $('#primarycontact').removeAttr('checked');
+                  $('#primarycontact').val('');
+                  $('#primarycontact').addClass('mage-error');
+                  $('#primarycontact-error').show();
+                  $(this).val('');
+                }else{
+                  var adminName = '<?php echo $adminName; ?>'
+                  var primaryContactVal = $('#primarycontact').val();
+                  if (primaryContactVal ==1) {
+                    var r = confirm('The Shopping cart will be cleared for the company admin "'+adminName+'". Do you wish to continue?');
+                    if (r != true) {
+                       $('#primarycontact').removeAttr('checked');
+                       $('#primarycontact').val('');
+                    } 
+                  }        
+                }
+             });
+
+            $(document).on('click', 'button.mainsubmit', function (e) {
+
+            });
+
+
+        });
+       
+</script>
+

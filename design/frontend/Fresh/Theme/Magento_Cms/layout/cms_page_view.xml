@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+		<remove src="Amasty_HidePrice::css/amhideprice.css"/>
+		<remove src="Amasty_HidePrice::js/fancyambox/jquery.fancyambox.min.css"/>
+        <remove src="Amasty_Quickview::css/fancybox.min.css"/>
+		<remove src="Amasty_Quickview::css/quickview.css"/>
+     
+		<remove src="Amasty_Storelocator::vendor/chosen/chosen.min.css"/>
+		<remove src="mage/calendar.css"/>
+		<remove src="Magestorm_ReCaptcha::css/default.css"/>
+		<remove src="css/print.css"/>
+		<remove src="css/style-new.css"/>
+		
+		<remove src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"/>
+        <remove src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css"/>
+        <remove src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.green.min.css"/>
+		
+		
+		<remove src="css/style.css"/>
+		<css src="css/cms-style.css"/>
+		
+		<css src="css/styles-m.css"/>
+        <css src="css/styles-l.css" media="screen and (min-width: 768px)"/>
+    </head>
+</page>

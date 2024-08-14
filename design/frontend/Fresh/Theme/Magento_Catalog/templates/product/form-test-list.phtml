@@ -1,0 +1,117 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+use Magento\Framework\App\Action\Action;
+
+
+?>
+<?php
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundThis
+
+
+/**
+ * Product list template
+ *
+ * @var $block \Magento\Catalog\Block\Product\ListProduct
+ */
+?>
+<?php
+$_productCollection = $block->getLoadedProductCollection();
+$_helper = $this->helper(Magento\Catalog\Helper\Output::class);
+$customHelper = $this->helper('Ntz\Productpage\Helper\Data');
+
+
+$routeName = $this->getRequest()->getRouteName();
+$groupname = $customHelper->getCustomerGroupName(); //$block->getCustomerGroupName();
+$canShowPrice = $customHelper->getCanShowPrice(); // $block->getCanShowPrice();
+$canAddToCart = $customHelper->getCanAddToCart();
+$canAddToPortfolio = $customHelper->getCanAddToPortfolio();
+
+
+$new_category_id = $customHelper->getCustomVariableValue('new_category_id'); //$block->getCustomVariableValue('new_category_id');
+$essential_lighting_category_id = $customHelper->getCustomVariableValue('essential_lighting_category_id') ; //$block->getCustomVariableValue('essential_lighting_category_id');
+
+
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$customerSession = $objectManager->get('Magento\Customer\Model\Session');
+?>
+
+
+
+
+
+   
+                <form id="popup-register-form-test" class="popup-register-form" method="POST" action="" style="display:block">
+                    <div class="container" style="width:100%;">
+                        <fieldset class="fieldset" style="margin-bottom:0px">
+                            <div class="field">
+                                <div class="required">
+                                    <label><b><?php echo __('Name') ?></b></label>
+                                    <input type="text" name="firstname" required>
+                                </div>  
+                            
+                                <!--<label><b><?php //echo __('Last Name') ?></b></label>
+                                <input type="text" placeholder="<?php //echo __('Enter Last Name') ?>" name="lastname" required>-->
+                            
+                                <div class="required">
+                                    <label><b><?php echo __('Email') ?></b></label>
+                                    <input type="email" name="email" required>
+                                </div>  
+
+
+                                <div class="required">
+                                    <label><b><?php echo __('Phone') ?></b></label>
+                                    <input type="text" name="phone" required>
+                                </div>
+                                <div class="phone-note">(Please enter only numeric values eg. 1912345678)</div> 
+
+
+                                <!--<label><b><?php // echo __('Password') ?></b></label>
+                                <input type="password" placeholder="<?php // echo __('Enter Password') ?>" name="password" required>
+                                
+                                <label><b><?php // echo __('Password') ?></b></label>
+                                <input type="password" placeholder="<?php //echo __('Confirm Password') ?>" name="password_confirmation" required>-->
+                            </div>  
+                        </fieldset> 
+                            
+
+
+                        <button id="popup-submit-test" class="action login primary" type="submit"><?php echo __('Sign Up') ?></button>
+
+
+                        <div class="login-link"><span><?php echo __('Already have an Account?') ?></span>&nbsp;<a href="#"><?php echo __('Login') ?></a></div>
+                    </div>
+
+
+                    <div class="container" style="background-color:#f1f1f1; width:100%;">
+                        <button title="<?php echo __('Click to close') ?>" type="button" class="cancelbtn">Cancel</button>
+                    </div>
+                </form>
+            
+
+
+
+
+
+<style>
+    div.toolbar-top:not(:first-child) {
+        display: none !important;
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

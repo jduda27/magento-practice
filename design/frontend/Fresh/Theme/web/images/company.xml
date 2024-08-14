@@ -1,0 +1,36 @@
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://arterior.netsmartz.us/soap/default?services=companyCompanyRepositoryV1">
+   <SOAP-ENV:Body>
+      <ns1:companyCompanyRepositoryV1SaveRequest>
+          <company>
+            <status>1</status>
+            <companyName>test umesh dhawan company 6</companyName>
+            <legalName>test umesh dhawan company 6 legal name</legalName>
+            <companyEmail>ud13@yopmail.com</companyEmail>
+              <vatTaxId></vatTaxId>
+              <resellerId></resellerId>
+              <comment>test comment 13</comment>
+            <street>
+               <item>IT park chandigarh</item>
+            </street>
+            <city>chandigarh</city>
+            <countryId>IN</countryId>
+            <regionId>538</regionId>
+            <postcode>160101</postcode>
+            <telephone>8968957979</telephone>
+            <customerGroupId>1</customerGroupId>
+            <salesRepresentativeId>1</salesRepresentativeId>
+            <rejectReason/>
+            <rejectedAt/>
+            <superUserId>13</superUserId>
+             <extensionAttributes>
+                 <applicablePaymentMethod>0</applicablePaymentMethod>
+                 <availablePaymentMethods>amazonlogin,amazon_payment,banktransfer,cashondelivery,checkmo,payflow_advanced,payflowpro,payflow_link,authorizenet_acceptjs,braintree,cybersource,eway,authorizenet_directpost,klarna_kp,free,braintree_paypal,paypal_billing_agreement,payflow_express_bml,paypal_express_bml,paypal_express,payflow_express,hosted_pro,worldpay,companycredit,purchaseorder,braintree_paypal_vault,braintree_cc_vault,payflowpro_cc_vault</availablePaymentMethods>
+                 <useConfigSettings>1</useConfigSettings>
+                 <quoteConfig>
+                    <isQuoteEnabled>true</isQuoteEnabled>
+                 </quoteConfig>
+              </extensionAttributes>
+        </company>
+      </ns1:companyCompanyRepositoryV1SaveRequest>
+   </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

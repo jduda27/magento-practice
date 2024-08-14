@@ -1,0 +1,477 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var \Magento\Customer\Block\Form\Login\Info $block */
+?>
+<?= $block->getChildHtml('form_fields_before') ?>
+<?php /* Extensions placeholder */ ?>
+<?= $block->getChildHtml('customer.form.register.extra')  ?>
+<?php
+	$block_form = $this->getLayout()->createBlock('\Ntz\QuoteForm\Block\Index')->getFormData();
+    $block_register = $this->getLayout()->createBlock('\Magento\Customer\Block\Form\Register');
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $this->_resources = $objectManager->get('Magento\Framework\App\ResourceConnection');
+    $connection= $this->_resources->getConnection();
+    
+    $customHelper = $objectManager->get("\Ntz\Productpage\Helper\Data");
+    $configJson = $customHelper->getCustomVariableValue("arteriors_registration_config");
+    $businessCredentialVar = $customHelper->getCustomVariableValue("bc_file_extentions");
+    $errorMessage = $customHelper->getCustomVariableValue("bc_file_extentions_message");
+    $configValues = json_decode($configJson,true);
+    $user_types = isset($configValues["arteriors"]["user_type"]) ? $configValues["arteriors"]["user_type"] : array();
+    $primary_sectors = isset($configValues["arteriors"]["primary_sector"]) ? $configValues["arteriors"]["primary_sector"] : array();
+    $secondary_sectors = isset($configValues["arteriors"]["secondary_sector"]) ? $configValues["arteriors"]["secondary_sector"] : array();
+    $industry_group = isset($configValues["arteriors"]["industry_group"]) ? $configValues["arteriors"]["industry_group"] : array();
+    $roles = isset($configValues["arteriors"]["roles"]) ? $configValues["arteriors"]["roles"] : array();
+    $bc_txt = isset($configValues["arteriors"]["business_credentials"]["text"]) ? $configValues["arteriors"]["business_credentials"]["text"] : array();
+    $bc_opt = isset($configValues["arteriors"]["business_credentials"]["criteria"]) ? $configValues["arteriors"]["business_credentials"]["criteria"] : array();
+    $stp_txt = isset($configValues["arteriors"]["sales_tax_policy"]["text"]) ? $configValues["arteriors"]["sales_tax_policy"]["text"] : "";
+    $stp_opt = isset($configValues["arteriors"]["sales_tax_policy"]["options"]) ? $configValues["arteriors"]["sales_tax_policy"]["options"] : array();
+    
+    $themenames = $this->_resources->getTableName('core_config_data');
+    $sql = "Select * from ". $themenames ." WHERE path = 'general/store_information/phone'";
+    $phoneinfomation = $connection->fetchAll($sql);  /* Get store phone information */
+
+    $continentsCountries = $customHelper->getCustomVariableValue("registration_continents_countries");
+
+    $continentsCountriesVals = json_decode($continentsCountries,true);
+    $continentsVals = isset($continentsCountriesVals["Continents"]) ? $continentsCountriesVals["Continents"] : array();
+    $countiresVals = isset($continentsCountriesVals["Country"]) ? $continentsCountriesVals["Country"] : array();
+?>
+<?php if ($block->getRegistration()->isAllowed()) : ?>
+
+<div class="container-fluid account-login">
+<div class="row">
+<div class="block-new-customer new-users col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
+	<div class="inner">
+		<div class="content">
+			<div class="block-title">
+				<h2 id="block-new-customer-heading" role="heading" aria-level="2"><?= $block_register->escapeHtml(__('REGISTER')) ?></h2>
+				<p>Select the option that best fits your profile to begin.</p>
+				
+			</div>
+			<div class="block-content" aria-labelledby="block-new-customer-heading">
+				
+			
+                
+             <form class="form create account form-create-account customer"   action="<?= /* @escapeNotVerified */ $block_register->escapeUrl($block_register->getPostActionUrl()) ?>" method="post" id="reg-validate" enctype="multipart/form-data" autocomplete="off"  data-hasrequired="<?php /* @escapeNotVerified */ echo __('* Required Fields') ?>" data-mage-init='{"validation":{}}'>
+				<div class="radio-toolbar">
+					<input type="radio" id="tradecustomer" class="user_typec" name="user_type_c" value="business" checked>
+					<label for="tradecustomer">Trade</label>
+					<input type="radio" id="privatecustomer" class="user_typec" name="user_type_c" value="consumer">
+					<label for="privatecustomer">Individual</label>
+				</div>
+            <?= /* @noEscape */ $block_register->getChildHtml('form_fields_before_in_form') ?>
+            <?= /* @noEscape */ $block_register->getBlockHtml('formkey'); ?>
+			<p class="profile-opt"><?= $block_register->escapeHtml(__('Apply to our trade program for access to trade-only pricing, enhanced services, and exclusive opportunities.')) ?></p>
+            <fieldset class="fieldset address">               
+                <?= $block_register->getLayout()->createBlock('Magento\Customer\Block\Widget\Name')->setObject($block_form)->setForceUseCustomerAttributes(true)->toHtml(); ?>
+                <?php $_dob = $block_register->getLayout()->createBlock('Magento\Customer\Block\Widget\Dob'); ?>
+                <?php if ($_dob->isEnabled()): ?>
+                    <?= $_dob->setDate($block_form->getDob())->toHtml(); ?>
+                <?php endif; ?>
+                <?php $_taxvat = $block_register->getLayout()->createBlock('Magento\Customer\Block\Widget\Taxvat'); ?>
+                <?php if ($_taxvat->isEnabled()): ?>
+                    <?= $_taxvat->setTaxvat($block_form->getFormData()->getTaxvat())->toHtml(); ?>
+                <?php endif; ?>
+                <?php $_gender = $block_register->getLayout()->createBlock('Magento\Customer\Block\Widget\Gender'); ?>
+                <?php if ($_gender->isEnabled()): ?>
+                    <?= $_gender->setGender($block_form->getFormData()->getGender())->toHtml(); ?>
+                <?php endif; ?>
+                
+                <div class="field row email_row">
+                    <div class="col-sm-12 col-md-6 required pl-0">
+                        <label for="email_address" class="label"><span><?= /* @escapeNotVerified */ __('Email Address') ?></span></label>
+                        <div class="control">
+                            <input type="email" name="email" id="email_address" placeholder="Email Address" autocomplete="email" value="<?= $block_register->escapeHtml($block_form->getEmail()) ?>" title="<?= /* @escapeNotVerified */ __('Email') ?>" class="validate-customer-email input-text v-validate required-entry validate-email-api" data-validate="{required:true, 'validate-email':true,'validate-length':true}" maxlength="80">
+                           
+                        </div>
+                    </div>
+					<div class="col-sm-12 col-md-6 required  password pr-0">
+                        <label for="password" class="label"><span><?= /* @escapeNotVerified */ __('Desired Password') ?></span></label>
+                        <div class="control">
+                            <input type="password" placeholder="Password" name="password" id="password"
+                                   title="<?= /* @escapeNotVerified */ __('Password') ?>"
+                                   class="input-text v-validate required-entry"
+                                   data-password-min-length="<?= $block_register->escapeHtml($block_register->getMinimumPasswordLength()) ?>"
+                                   data-password-min-character-sets="<?= $block_register->escapeHtml($block_register->getRequiredCharacterClassesNumber()) ?>"
+                                   data-validate="{required:true,'validate-length':true,'validate-customer-password':true}"
+                                   autocomplete="off" maxlength="20">
+                            <div id="password-strength-meter-container" data-role="password-strength-meter" aria-live="polite">
+                            </div>
+                        </div>
+                    </div>
+				</div>    
+				 
+				 <div class="field row">
+						<div class="field col-sm-12 col-md-6 pl-0 required">
+							<label class="label" for="continents"><span><?= __("Location"); ?></span></label>
+							<div class="control">
+								<select class="v-validate required-entry valid" id="select_continents" name="continents">
+									<option value="">Select Continents</option>
+									<?php foreach ($continentsVals as $key => $continent) { ?>
+										 <option value="<?= $key ?>"><?= $continent ?></option>
+									<?php  } 
+									?>
+								</select>
+							</div>
+						</div>
+					   <div class="col-sm-12 col-md-6 required pr-0" >
+                        <label for="continents_country" class="label"><span><?= /* @escapeNotVerified */ __('Country') ?></span></label>
+                        <div class="control">
+                            <select class="v-validate required-entry valid"  id="select_continents_country" name="continents_country">
+        
+                            </select>
+                        </div>
+                    </div>
+				</div>
+
+				
+				<div class="field row">
+					<div class="col-sm-12 col-md-6 required pl-0 company_div" style="display: block;">
+                        <label for="company_name" class="label"><span><?= /* @escapeNotVerified */ __('Company Name') ?></span></label>
+                        <div class="control">
+                            <input type="text" name="company_name" placeholder="Company Name" id="company_name" autocomplete="company_name" title="<?= /* @escapeNotVerified */ __('Company Name') ?>" class="validate-company-name input-text v-validate required-entry" data-validate="{required:true}" maxlength="80" required>
+                            
+                        </div>
+                    </div>
+				
+                    <div class="field col-sm-12 col-md-6 pl-0 required consumer_div" style="display: none;">
+                        <label class="label" for="user_type"><span><?= __("I am a:"); ?></span></label>
+                        <div class="control">
+                            <select class="v-validate required-entry" name="user_type" id="user_type" onchange="updateRegisterForm(this);">
+                                <option value=""><?php echo /* @escapeNotVerified */ __('Select Account Type'); ?></option>
+                                <?php
+                                $prv_val_ut = $block_register->escapeHtml($block_form->getUserType());
+                                foreach ($user_types as $key => $val) {
+                                    if ($key !='business'){
+                                        $sel_ut = ($prv_val_ut == $key) ? "selected='selected'" : "";
+                                        echo "<option value='$key' $sel_ut>$val</option>";
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+				</div>
+				
+				<div class="field row">
+					<div class="field col-sm-12 col-md-12 col-lg-6 pl-0">
+							<fieldset class="fieldset create account checkboxes-box mb-0" >
+								<ul class="form-list mt-0">
+									<li class="control">
+										<input type="checkbox" name="is_subscribed1" title="Sign Up for Newsletter" value="1" id="is_subscribed1" checked="checked" class="checkbox">
+										<label class="checkbox-label" for="is_subscribed"><?php echo __('I would like to subscribe to email updates from Arteriors') ?></label>
+									</li>
+									<li class="control">
+										<input type="checkbox" id="terms_and_conditions1" name="terms_and_conditions1" value="1" title="Terms and conditions" class="checkbox input-text required-entry v-validate" data-validate="{required:true}">
+										<label class="checkbox-label" for="terms_and_conditions"><?php echo __('I agree to the') ?> <a target="_blank" href="<?php echo $block_register->getBaseUrl(); ?>termsofsale"><?php echo __('terms and conditions') ?></a><em style="color: #a94442;">*</em></label>
+									</li>
+									<li class="control last-check">
+										<input type="checkbox" id="purchasing_policy1" name="purchasing_policy1" value="1" title="Purchasing policy" class="checkbox input-text required-entry v-validate" data-validate="{required:true}">
+										<label class="checkbox-label" for="purchasing_policy"><?php echo __('I agree to the') ?> <a target="_blank" href="/privacy-policy"><?php echo __('purchasing policy') ?></a> <?php echo __('and understand all initial orders must be placed with a credit') ?> <?php echo __('card') ?><em style="color: #a94442;">*</em></label>
+									</li>
+								</ul>
+							</fieldset>
+						 </div>
+					<div class="field col-sm-12 col-md-12 col-lg-6 pr-0">
+						<div class="actions-toolbar">
+							<div class="primary">
+								<button type="submit" id="submit_button" class="action test btn-sign-up" title="<?= /* @escapeNotVerified */ __('Continue Registration') ?>"><span><?= /* @escapeNotVerified */ __('Continue Registration') ?></span></button>
+								<div class="clearfix"></div>
+							</div>
+							<div class="secondary">
+								<a class="action back" href="<?= $block_register->escapeUrl($block_register->getBackUrl()) ?>"><span><?= /* @escapeNotVerified */ __('Back') ?></span></a>
+							</div>
+						</div>
+						<input type="hidden" name="GroupId" value="86">
+					</div>
+					
+				</div>
+            </fieldset>                                             
+        </form>
+				 
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+</div>
+<?php endif; ?>
+</div>
+</div>
+
+<div class="bg-overlay">
+    <!--Creates the popup body-->
+    <div class="popup-overlay">
+        <!--Creates the popup content-->
+        <div class="popup-content">
+            <div class="dynamic_pop_content">
+                <h4>Confirm Email Address</h4>
+                <p class="validate_text"></p>
+                <input class="button_validate" type="button" value="Yes" data-value="1">
+                <input class="button_validate" type="button" value="No" data-value="0">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="login_block">
+<?php
+echo $this->getLayout()
+          ->createBlock('Magento\Cms\Block\Block')
+          ->setBlockId('login_page_block')
+          ->toHtml();
+?>
+</div>
+
+
+
+<script type="text/x-magento-init">
+    { ".v-validate": { "Ntz_CustomerLogin/js/ntz_validation": {} } }
+</script>
+<script type="text/javascript">require([ 'jquery', 'mage/mage', 'jquery/validate' ], function($){ var dataForm = $('.form-create-account'); dataForm.mage('validation', {}); 
+});</script>
+<script type="text/javascript">
+
+    /* Show/hide the company fields */
+    function updateRegisterForm(val){
+        if(jQuery(val).val()=="business") {
+            jQuery(".create.user-info").show();
+            jQuery(".additional_contacts").show();
+            jQuery(".business_credentials").show();
+            jQuery(".sales_tax_policy").show();
+
+        } else {
+            jQuery(".create.user-info").hide();
+            jQuery(".additional_contacts").hide();
+            jQuery(".business_credentials").hide();
+            jQuery(".sales_tax_policy").hide();
+         
+        }
+    }
+
+	require([
+    'jquery'
+], function($){
+	$(document).ready(function () {
+
+        $('.user_typec').on('change',function(){
+            var value = $( this ).val();
+            if (value.toLowerCase() != 'business'){
+                $('.company_div').css({"display":"none"});
+                $('.consumer_div').css({"display":"block"});
+            }else{
+                $('.company_div').css({"display":"block"});
+                $('.consumer_div').css({"display":"none"});
+            }
+        });
+});
+    });
+</script>
+<style>
+    .show_loader_custom{
+        display: block!important;
+    }
+</style>
+<script type="text/javascript">
+    require([
+        "jquery",
+        "mage/mage",
+        'jquery/validate',
+        'loader',
+        'mage/translate'
+    ],function($) {
+
+        $(document).ready(function() {
+
+            $('.validate-customer-email').on('change', function () {
+
+                $.validator.addMethod(
+                    'validate-customer-email', function (value) {
+
+                        var emailId = value;
+                        var returnValue =0;
+                        var customurl = '<?php echo $this->getUrl('company/index/validation') ?>';
+                         $('body').trigger('processStart');
+
+                        $.ajax({
+                            'async': false,
+                            url: customurl,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                'customer_email': emailId,
+                            },
+                            success: function(data) {
+
+                                if (data) {
+
+                                    returnValue = data['success'];
+                                    if(returnValue==0){
+                                        setTimeout(function(){
+                                            $('.validate-customer-email').parent().find('#email_address-error-msg').remove();
+                                        },1500);
+                                         $('body').trigger('processStop');
+
+                                    }
+                                    if(returnValue==1){
+                                        setTimeout(function(){
+                                            $('.validate-customer-email').parent().find('#email_address-error-msg').remove();
+                                        },1500);
+                                         $('body').trigger('processStop');
+
+                                    }
+                                    if(returnValue ==2){
+                                        returnValue = 1;
+                                    }
+
+                                }
+                            },
+                            error: function (xhr, status, errorThrown) {
+                                returnValue = 0;
+                            }
+                        });
+                        return (returnValue == 1);
+                    }, $.mage.__('Email Address already exist'));
+            });
+
+            $('button#submit_button').on('click', function (e) {
+
+                var dataForm = $('#reg-validate');
+                dataForm.mage('validation', {});
+
+                if (dataForm.validation('isValid')!== false) {
+                     $('body').trigger('processStart');
+                    e.preventDefault();
+                    var emailId = $('#email_address').val();
+                    var returnValue = 0;
+                    var customurl = '<?php echo $this->getUrl('company/index/emailvalidation') ?>';
+                    $.ajax({
+                        'async': true,
+                        url: customurl,
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            'customer_email': emailId,
+                        },
+                        success: function (data) {
+                            if (data) {
+                                returnValue = data['success'];
+
+                                if (returnValue == 2) {
+
+
+                                    $(".popup-overlay, .popup-content, .bg-overlay").addClass("active");
+                                    $("p.validate_text").html("Is your email address <span>" + emailId + "</span> valid?");
+                                    setTimeout(function(){
+                                     $('body').trigger('processStop');
+                                    },1000);
+                                    $('.dynamic_pop_content input.button_validate').on('click', function () {
+                                        if ($(this).data('value') == 0) {
+                                            $("#email_address-error-msg").remove();
+                                            $('<div id="email_address-error-msg" class="mage-error">Please Enter a valid E-Mail Address</div>').insertAfter('#email_address');
+                                            $(".popup-overlay, .popup-content, .bg-overlay").removeClass("active");
+                                            setTimeout(function(){
+                                                $('body').trigger('processStop');
+                                            },1000);
+                                            return false;
+                                        } else {
+                                            returnValue = 1;
+                                            //$('#email_address').removeClass('validate-email-api');
+                                            $("#email_address-error-msg").remove();
+                                            $('form.form-create-account').submit();
+                                            $('body').trigger('processStart');
+                                            $(".popup-overlay, .popup-content, .bg-overlay").removeClass("active");
+                                        }
+
+                                    });
+                                } else {
+                                   $('form.form-create-account').submit();
+                                    $('body').trigger('processStop');
+                                    return true;
+                                }
+                            }
+                        },
+                        error: function (xhr, status, errorThrown) {
+                            returnValue = 0;
+                        }
+                    });
+
+                }
+            });
+
+
+        });
+
+        $.validator.addMethod(
+            'validate-company-name', function (value) {
+
+                var companyName = $('.validate-company-name').val();
+                var returnValue= 0;;
+                var customurl = '<?php echo $this->getUrl('company/index/validation') ?>';
+                $.ajax({
+                    'async': false,
+                    url: customurl,
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        'company_name': companyName,
+                    },
+                    success: function(data) {
+                        if (data) {
+                            returnValue = data['success'];
+                            if(returnValue ==2){
+                                returnValue = 1;
+                            }
+                        }
+                    },
+                    error: function (xhr, status, errorThrown) {
+                        returnValue = 0;
+                    }
+                });
+                return (returnValue == 1);
+            }, $.mage.__('Company name already exist'));
+
+        $("#select_continents").on("change", function () {
+            if($(this).val() != "") {
+                var selectValues = '<?php echo json_encode($countiresVals); ?>';
+                $('#select_continents_country').empty();
+                var optionValue = JSON.parse(selectValues);
+                var key = $(this).val();
+                var valuesArray = optionValue[key];
+                $('#select_continents_country').append($("<option value>Select</option>"));
+                $.each(valuesArray, function(key, value) {
+                    $('#select_continents_country').append($("<option></option>").attr("value", key).text(value));
+                });
+            }else if($(this).val() == ""){
+                $('#select_continents_country').empty();
+            }
+        });
+        $('form.form-create-account').submit(function(){
+     var dataForm = $('#reg-validate');
+                dataForm.mage('validation', {});
+
+                if (dataForm.validation('isValid')!== false) {
+                    $('body').trigger('processStart');                   
+                }else{
+                    $('body').trigger('processStop');
+                }
+});
+    });
+
+</script>
+<script>
+require(['jquery'], function($){
+	$(document).ready(function () {
+		$( "#privatecustomer" ).click(function() {
+			$(".form > p").text("With an ever-expanding selection of premium lighting, furniture, wall décor and accessories, Arteriors redefines the spaces where we live, play and work. Follow our journey of ideation, innovation, and meticulous artistry.");
+		})
+		$( "#tradecustomer" ).click(function() {
+			$(".form > p").text("Apply to our trade program for access to trade-only pricing, enhanced services, and exclusive opportunities.");
+		})
+	})
+});
+</script>

@@ -1,0 +1,33 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<?php
+/**
+ * Create account form template
+ */
+/* @var $block \Magento\CustomAttributeManagement\Block\Form\Renderer\Text */
+?>
+<?php
+$fieldCssClass = 'field field-' . $block->getHtmlId();
+$fieldCssClass .= $block->isRequired() ? ' required' : '';
+?>
+<div class="<?= /* @noEscape */ $fieldCssClass ?> col-md-6 pl-0">
+    <label class="label" for="<?= $block->getHtmlId() ?>"><span><?= $block->escapeHtml($block->getLabel()) ?></span></label>
+    <div class="control">
+        <input type="text" id="<?= $block->getHtmlId() ?>" name="<?= $block->escapeHtmlAttr($block->getFieldName()) ?>"
+               value="<?= /* @noEscape */ $block->getEscapedValue() ?>"
+               class="input-text v-validate  <?= ($block->getHtmlId()=="phone" || $block->getHtmlId()=="address:mobile_phone") ? " " : "" ?> " 
+               <?php if($block->getHtmlId()=="phone" || $block->getHtmlId()=="address:mobile_phone"): ?>
+                maxlength="20"
+                <?php else: ?>
+                    maxlength="80"
+                <?php endif; ?>>
+        <?php if ($_message = $block->getAdditionalDescription()) : ?>
+        <div class="note"><?= /* @noEscape */ $_message ?></div>
+        <?php endif; ?>
+    </div>
+    <?php if($block->getHtmlId()=="address:mobile_phone") { echo "<div class='phone-note'>(Please enter only numeric values eg. 1912345678)</div>"; } ?>
+</div>

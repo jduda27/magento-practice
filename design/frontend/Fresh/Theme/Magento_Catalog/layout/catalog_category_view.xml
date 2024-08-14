@@ -1,0 +1,40 @@
+﻿<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+		<link as="style" src="css/owl/owl.carousel.min.css" defer="defer"/>
+        <link as="style" src="css/owl/owl.theme.default.min.css" defer="defer" />
+        <link as="style" src="css/owl/owl.theme.green.min.css" defer="defer" />
+        <script src="js/owl.carousel.js" />
+        <script src="Magento_Catalog::js/custom.js" />
+        
+    </head>
+ <body>
+        <referenceContainer name="columns.top">
+            <container name="category.view.container" htmlTag="div" htmlClass="category-view" after="-">
+                <!-- <block class="Magento\Catalog\Block\Category\View" name="category.image" template="Magento_Catalog::category/image.phtml"/>-->
+                <container name="category.view.container.outertop" htmlTag="div" htmlClass="container-fluid">    
+                    <container name="category.view.container.innertop" htmlTag="div" htmlClass="col-lg-12 col-md-12 col-sm-12 col-xs-12 no-padding-col">               
+                        <block class="Magento\Catalog\Block\Category\View" name="category.description" template="Magento_Catalog::category/description.phtml"/>
+                    </container>
+                </container>
+                <block class="Magento\Catalog\Block\Category\View" name="category.cms" template="Magento_Catalog::category/cms.phtml"/>
+                <!-- to fix add to cart issue-->			
+                <block name="customer.section.config" class="Magento\Customer\Block\SectionConfig"
+                   template="Magento_Customer::js/section-config.phtml">
+                    <arguments>
+                        <argument name="sectionNamesProvider" xsi:type="object">Magento\Customer\Block\SectionNamesProvider</argument>
+                    </arguments>
+                </block>
+                <block name="customer.customer.data" class="Magento\Customer\Block\CustomerData" template="Magento_Customer::js/customer-data.phtml"/>
+            </container>
+        </referenceContainer>
+
+       <!--  <referenceBlock name="messages" remove="true"/> -->
+    </body>
+</page>

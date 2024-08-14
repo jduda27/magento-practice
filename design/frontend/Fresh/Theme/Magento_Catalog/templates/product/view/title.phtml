@@ -1,0 +1,27 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/**
+ * @var $block \Magento\Theme\Block\Html\Title
+ */
+$cssClass = $block->getCssClass() ? ' ' . $block->getCssClass() : '';
+$titleHtml = '';
+if (trim($block->getPageHeading())) {
+    $titleHtml =$block->escapeHtml($block->getPageHeading());
+}
+?>
+<?php if ($titleHtml) : ?>
+<div class="page-title-wrapper<?= $block->escapeHtmlAttr($cssClass) ?>">
+    <p class="mobile-page-title"
+        <?php if ($block->getId()) : ?> id="<?= $block->escapeHtmlAttr($block->getId()) ?>" <?php endif; ?>
+        <?php if ($block->getAddBaseAttributeAria()) : ?>
+            aria-labelledby="<?= $block->escapeHtmlAttr($block->getAddBaseAttributeAria()) ?>"
+        <?php endif; ?>>
+        <?= /* @noEscape */ $titleHtml ?>
+    </p>
+    <?= $block->getChildHtml() ?>
+</div>
+<?php endif; ?>

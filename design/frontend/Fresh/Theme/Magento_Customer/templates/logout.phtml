@@ -1,0 +1,22 @@
+<div class="container-fluid breadcrumb-general">
+    <div class="page-title">
+        <h1>You are now logged out</h1>
+    </div>
+</div><?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var \Magento\Framework\View\Element\Template $block */
+?>
+<p><?= $block->escapeHtml(__('You have logged out and will be redirected to our homepage in 5 seconds.')) ?></p>
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "Magento_Customer/js/logout-redirect": {
+                "url": "<?= $block->escapeJs($block->escapeUrl($block->getUrl())) ?>"
+            }
+        }
+    }
+</script>

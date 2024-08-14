@@ -1,0 +1,102 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<?php
+/**
+ * Category view template
+ *
+ * @var $block \Magento\Catalog\Block\Category\View
+ */
+
+?>
+<style>
+.cat-grid{
+	margin:15px 0;
+}
+.cat-grid .col-xs-12 {
+	margin-bottom: 15px;
+	padding: 0 7px;
+}
+.cat-grid figure{
+	overflow:hidden;
+	outline:1px solid #ddd;
+}
+.cat-grid img{
+	filter: grayscale(100%);
+	transition: all .3s ease-in-out;
+	width:100%;
+}
+.cat-grid img:hover{
+	filter: grayscale(0);
+}
+</style>
+<div class="category-page">
+<?php
+$currentUrl = $block->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]) ;
+$_category = $block->getCurrentCategory();
+$_helper    = $this->helper('Magento\Catalog\Helper\Output');
+$customHelper = $this->helper('Ntz\Productpage\Helper\Data');
+if (!$block->isContentMode() || $block->isMixedMode()) :?>
+<?php
+ if (strpos($currentUrl, 'shop/lighting?') !== false || strpos($currentUrl, 'shop/furniture?') !== false || strpos($currentUrl, 'shop/accessories?') !== false || strpos($currentUrl, 'shop/wall?') !== false) {?>
+	<div class="category-products">
+	<?= $block->getProductListHtml() ?>
+	</div>
+<?php }
+else{
+	if($block->isContentMode()){
+		echo $block->getCmsBlockHtml();
+	} elseif ($_hasSubcategory = count($_category->getChildrenCategories() ) > 0){  ?>
+		<section class="cat-grid">
+			<div class="container">
+				<div class="row">
+					<?php
+						foreach($_category->getChildrenCategories() as $subcategorys){
+							 if ($subcategorys->getIsActive()) {
+								// $subcategory = $block->getChildCat($subcategory->getId());
+								 $subcategory = $customHelper->getChildCat($subcategorys->getId());
+								 if($subcategory->getIncludeInMenu()){
+
+								 if($_imgUrl = $subcategory->getImageUrl()){
+									 $_imgHtml = '<img src="' . $_imgUrl . '" alt="' . $this->helper('Magento\Catalog\Helper\Output')->categoryAttribute($subcategory, $subcategory->getName(), 'name') . '" title="' . $block->escapeHtml($subcategory->getName()) . '" class="category-image-photo" />';
+									 $image = $_helper->categoryAttribute($subcategory, $_imgHtml, 'image');
+								 }else{
+									 $image = '<img src="' . $this->getUrl('pub/media').'wysiwyg/placeholder.jpg' . '" alt="' . $this->helper('Magento\Catalog\Helper\Output')->categoryAttribute($subcategory, $subcategory->getName(), 'name') . '" title="' . $block->escapeHtml($subcategory->getName()) . '" class="category-image-photo" />';
+								 }
+						?>
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+						   <a href="<?php if($subcategorys->getUrl() =="https://m2dev.arteriorshome.com/guest-designers"){ echo $this->getBaseUrl();} else{ echo $subcategorys->getUrl();} ?>" title="<?php echo $subcategory->getName() ?>">
+						    <figure>
+								<?php echo $image ; ?>
+							</figure>
+						   </a>
+						</div>
+						<?php
+							 } }
+					}?>
+				</div>
+			</div>
+		</section>
+
+      <?php
+	} elseif($block->isMixedMode()){ ?>
+		<div class="category-products">
+		<?php echo $block->getProductListHtml(); ?>
+		</div>
+		<?php
+	} else { ?>
+		<div class="category-products">
+		<?php echo $block->getProductListHtml(); ?>
+		</div>
+		<?php
+	}
+
+}
+ ?>
+
+<?php endif; ?>
+</div>
+

@@ -1,0 +1,65 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<?php
+/** @var \Magento\Wishlist\Block\Customer\Wishlist\Items $block */
+$columns = $block->getColumns();
+?>
+        <table class="data-table" id="wishlist-table">
+        <thead>
+        <tr class="first last">
+            <th class=""><div class="checkbox-wrap select-all-wrap"> <input type="checkbox" name="" id="select-all" data-role="select-all" /><label class="select-label" for="select-all"></label></div></th>
+            <th class=""></th>
+            <th class="">Product Details and Comment</th>
+            <?php 
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $customerSession = $objectManager->get('Magento\Customer\Model\Session');
+            $customer_id = $customerSession->getCustomer()->getGroupId();
+            $id = "";
+            if($customer_id != "86"):
+            ?>
+            <th class="hide-cart-link a-center">Add to Cart</th>
+            <?php endif; ?>
+            <th class=""></th>
+        </tr>
+        </thead>               
+    <?php if (count($block->getItems())) : ?>
+    <tbody class="product-items">
+        <?php foreach ($block->getItems() as $item) :  ?>
+            <tr data-row="product-item" class="product-item" id="item_<?= $block->escapeHtmlAttr($item->getId()) ?>">  
+                    <?php 
+                    foreach ($columns as $key => $value) {
+                                if (!empty($columns[$key]->setItem($item)->toHtml())) {
+                                    echo  $columns[$key]->setItem($item)->toHtml();
+                                }      
+                           
+                         ?>
+                       
+                    <?php } ?>
+                
+             </tr>
+        <?php endforeach; ?>
+    </tbody>
+    </table>
+    <?php else : ?>
+        <div class="message info empty">
+            <span><?= $block->escapeHtml(__('This Portfolio has no Items')) ?></span>
+        </div>
+    <?php endif; ?>
+
+
+
+<?php foreach ($columns as $column) : ?>
+    <?= $column->getAdditionalHtml() ?>
+<?php endforeach; ?>
+
+<script type="text/x-magento-init">
+    {
+        "[data-role='select-all']": {
+            "Magento_MultipleWishlist/js/select-all-change": {}
+        }
+    }
+</script>

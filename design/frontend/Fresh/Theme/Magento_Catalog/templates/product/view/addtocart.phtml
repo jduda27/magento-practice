@@ -1,0 +1,88 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var $block \Magento\Catalog\Block\Product\View */
+
+?>
+
+<?php $_product = $block->getProduct(); ?>
+
+<?php $qty=$_product->getQty();  //echo $qty;?>
+<?php $buttonTitle = __('Add to Cart'); ?>
+<?php if ($_product->isSaleable()) :?>
+
+<div class="box-tocart dhj renderdata_ctbase hiding">
+    <div class="fieldset">
+        <?php if ($block->shouldRenderQuantity()) :?>
+			<label class="label" for="qty"><span><?= $block->escapeHtml(__('Qty')) ?></span></label>
+			<div class="sp-quantity field qty">
+				<div class="sp-minus fff"><a class="btn-ico" id="decreaseQty-btn"  href="javascript:void(0)" data-multi="-1">-</a></div>
+				<div class="sp-input">
+					<input type="number" id="qty" class="input-text qty quntity-input" name="qty" data-cart-item-id="<?= $block->escapeHtmlAttr($_product->getSku()) ?>" value="1" data-validate="<?= $block->escapeHtml(json_encode($block->getQuantityValidators())) ?>" data-role="cart-item-qty" min="0" />
+				</div>
+				<div class="sp-plus fff"><a class="btn-ico" id="increaseQty-btn" href="javascript:void(0)" data-multi="1">+</a></div>
+			</div>
+        <?php endif; ?>
+
+        <div class="actions">
+            <button type="submit"
+                    title="<?= $block->escapeHtmlAttr($buttonTitle) ?>"
+                    class="action primary tocart"
+                    id="product-addtocart-button" disabled>
+                <span><?= $block->escapeHtml($buttonTitle) ?></span>
+            </button>
+            <?= $block->getChildHtml('', true) ?>
+        </div>
+    </div>
+</div>
+<div  class="box-tocart dhj renderlink_ctbase hiding">
+    
+
+</div>
+
+   
+
+<?php endif; ?>
+
+<script type="text/x-magento-init">
+    {
+        "#product_addtocart_form": {
+            "Magento_Catalog/js/validate-product": {}
+        }
+    }
+</script>
+<script type="text/javascript">
+    require(['jquery'],function($){
+        $("button#product-addtocart-button").bind("click", function(event){
+            if ($("input#qty").valid() != true ) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    require(["jquery"
+        ],
+        function($){
+            var formKey = jQuery("[name='form_key']").val();
+            $("#increaseQty-btn").on("click",function(){
+                var currentQty = $("#qty").val();
+                var newAdd = parseInt(currentQty)+parseInt(1);
+                $("#qty").val(newAdd);
+                var updateQty = $("#qty").val();
+            });
+            $("#decreaseQty-btn").on("click",function(){
+                var currentQty = $("#qty").val();
+                if(currentQty>1){
+                    var newAdd = parseInt(currentQty)-parseInt(1);
+                    $("#qty").val(newAdd);
+                    var updateQty = $("#qty").val();
+                }
+
+            });
+        });
+</script>

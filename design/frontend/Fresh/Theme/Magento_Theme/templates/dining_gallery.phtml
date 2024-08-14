@@ -1,0 +1,181 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" src_type="url"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" src_type="url"/>
+<script type="text/javascript">
+    require(['jquery','domReady'], function($) {
+        $('body.cms-the-art-of-dining').addClass('gallery_custom_page');
+    });
+</script>
+<div class="bg-overlay">
+    <!--Creates the popup body-->
+    <div class="slider_wrapper">
+        <div class="popup-overlay">
+            <!--Creates the popup content-->
+            <div class="popup-content">
+                <div class="dynamic_pop_content">
+                    <img id="modal-slides" alt=""/>
+                </div>
+                <div class="popup-content-slider">
+                    <div class="dynamic_slider_pop_content">
+
+                    </div>
+                </div>
+                <a href="javascript:void(0);" class="prevm">&#10094;</a>
+                <a href="javascript:void(0);" class="nextm">&#10095;</a>
+                <!--popup's close button-->
+                <button class="close">X</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script id="mediaTemplate" type="text/x-jsrender">
+    <div class="candid-wall-cell">
+        <div class="candid-wall-overlay">
+        </div>
+        <div class="candid-wall-overlay-text">
+            <i class="candid-icon candid-fa-{{> Media.Source.toLowerCase() }}"></i>
+            <div>SHOP NOW</div>
+        </div>
+        <a class='media' data-media-index='{{> Index }}'>
+            <img data-original="{{> Media.Images.StandardResolution.Url }}"
+                 alt="{{> Title }}"
+                 style="display:inline-block;"
+                 class="lazy">
+        </a>
+    </div>
+</script>
+<script type="text/javascript">
+    require(['jquery','//api.getcandid.com/scripts/wall.js', '//api.getcandid.com/scripts/widget.js','Magento_Customer/js/customer-data'], function($,wall, widget,customerData) {
+        setTimeout(function (){
+            candid.wall('#container', {
+                id: '2509528b-e2a9-40f4-848f-f6f0099ef7af',
+                cluster: 'prod-3',
+                tag: 'art_of_dining',
+                layoutMode: 'masonry',
+                layout: 'standard',
+                theme: 'ct-basic-3',
+                overlayTheme: 'ct-crate',
+                scale:false,
+                scroll:true,
+                scrollY: /mobi/.test(navigator.userAgent) ? 50: 200
+            });
+            candid.overlay = function() {};
+            candid.showMedia = function (i, data, controlId, carouselIndex, offset) {
+                $('body').trigger('processStart');
+
+                var displaySettings = data.settings != null ? data.settings.DisplaySettings : null;
+                var options = candid.loadedOptions[controlId];
+                var m = data.data[i].Media;
+                var image_item_count=0;
+                document.getElementById("modal-slides").src = m.Images.StandardResolution.Url;
+                $('ul.products.item, .indexdataPop , .slider_products').remove();
+
+                $('body').trigger('processStart');
+                var arrayProductSku = [];
+                var x_coordinates = [];
+                var y_coordinates = [];
+                $('<input type="hidden" value="' + i + '" name="indexdata" class="indexdataPop">').insertAfter('.dynamic_pop_content');
+                /* all product tags assigned to this asset */
+                if (null != data.data[i].StreamEntry && null != data.data[i].StreamEntry.Tags) {
+                    for (var j = 0; j < data.data[i].StreamEntry.Tags.Items.length; j++)
+                        if (null != data.data[i].StreamEntry.Tags.Items[j].TagId) {
+                            var tag = candid.getTag(data.data[i].StreamEntry.Tags.Items[j].TagId);
+
+                            var tagType = JSON.stringify(tag.Type);
+                            var tagType = tagType.replaceAll('"', '');
+                            if(tag != null && tagType != "Placement") {
+                                var productId = JSON.stringify(tag.TagId);
+                                var productsku = productId.replaceAll('"', '');
+
+                                var tagType = JSON.stringify(tag.Type);
+                                var tagType = tagType.replaceAll('"', '');
+
+                                var product_id;
+                                var image_url;
+                                if (tagType != "Placement") {
+                                    image_item_count = image_item_count + 1;
+                                    var productName = JSON.stringify(tag.DisplayText);
+                                    var productName = productName.replaceAll('"', '');
+                                     var x_coordinates = (data.data[i].StreamEntry.Tags.Items[j].X);
+                                    var y_coordinates = (data.data[i].StreamEntry.Tags.Items[j].Y);
+
+                                    arrayProductSku.push({'sku':productsku,'x_coordinates':x_coordinates,'y_coordinates':y_coordinates,'productName':productName});
+
+                                    $(document).on('click tap touchstart', '.back_button', function () {
+                                        var sections = ['cart'];
+                                        customerData.invalidate(sections);
+                                        customerData.reload(sections, true);
+                                        $('.popup-content, .popup-overlay, .bg-overlay').addClass('active');
+                                        $('.popup-content-slider, .popup-overlay-slider, .bg-overlay').addClass('active');
+                                        $.fancybox.close();
+                                    })
+
+                                }
+                            }
+                        }
+                }
+
+              var data1 = {'data':arrayProductSku };
+                $.ajax({
+                    url: window.BASE_URL + "gallery/productdata/dining",
+                    type: 'POST',
+                    dataType: 'json',
+                    async: false,
+                    data: data1,
+                    beforeSend: function () { $('body').trigger('processStart'); },
+                    success: function (response) {
+                        var dataResponse = response.data;
+                        var image_item_count = 1;
+                       $.each(dataResponse,function(index,value){
+                           var product_id = value.product_id;
+                           var image_url = value.image_url;
+                           var x_coordinates = value.x_coordinates;
+                           var y_coordinates = value.y_coordinates;
+                           var productName = value.productName;
+                        $('.dynamic_pop_content').append('<ul class="products item"><li class="item"><span class="amquickview-hover" data-tag-id="' + product_id + '" style="left:' + x_coordinates + '%;top:' + y_coordinates + '%;"><span class="image_count coordinates-onimage'+product_id +'" data-product-id="' + product_id + '">' + image_item_count + '</span><a class="amquickview-link" id="amquickview-link-' + product_id + '" data-product-id="' + product_id + '">' + productName + '</a></span></li></ul>');
+
+                        var side_products = '<div class="item slider_products" id="ntz-candid-item' + image_item_count + '" data-tag-id="' + product_id + '"><a class="amquickview-link" id="amquickview-link-' + product_id + '" data-product-id="' + product_id + '"><img id="product-image"   src="' + image_url + '"  alt="' + productName + '"><h6> ' + productName + '</h6></a></div>';
+
+                        $('.dynamic_slider_pop_content').append(side_products);
+
+                        $('#amquickview-link-'+product_id+', .coordinates-onimage'+product_id).on('click', function () {
+                            var newProductId = $(this).data('product-id');
+                            $.fancybox.open({
+                                padding: 0,
+                                src: window.BASE_URL + 'catalog/product/view/amasty_quickview/1/uenc/aHR0cHM6Ly9uZXdkZXYuYXJ0ZXJpb3JzaG9tZS5jb20vZHVtbXktcHJvZHVjdC1wYWdlP3Q9NTQ4dDY5Z2Y%2C/?id=' + newProductId,
+                                type: 'iframe',
+                                opts: {
+                                    iframe: {
+                                        css: {
+                                            width: '1025px'
+                                        },
+                                        attr: {
+                                            'data-amquickview-js': 'iframe'
+                                        }
+                                    },
+                                    smallBtn: true,
+                                    toolbar: false,
+                                    baseClass: 'amquickview-fancybox-wrapper'
+                                }
+                            });
+                            $("<span class='back_button'>Back</span>").insertBefore(".fancybox-content iframe");
+                        });
+                          image_item_count++;
+                       });
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log("SKU is not defined");
+                        console.log(error);
+                    }
+                });
+                $(".popup-overlay, .popup-content, .bg-overlay").addClass("active");
+            };
+        },1500);
+    });
+</script>
+
+<div id="container"></div>
+
+<?php echo $this->getLayout()->createBlock("Magento\Framework\View\Element\Template")->setTemplate("Ntz_Inspiration::gallery_view_script.phtml")->toHtml() ?>
+

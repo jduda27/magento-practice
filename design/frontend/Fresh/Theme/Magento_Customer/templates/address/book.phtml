@@ -1,0 +1,102 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var \Magento\Customer\Block\Address\Book $block */
+ 
+$objectManager =  \Magento\Framework\App\ObjectManager::getInstance(); 
+$address1 = $objectManager->get("\Magento\Customer\Block\Address\Grid");
+$customerAddressView = $address1->getData('customer_address');
+
+?>
+<div class="container">
+    <div class="title-buttons">
+        <button type="button" role="add-address" title="<?= $block->escapeHtmlAttr(__('Add New Address')) ?>" class="button"><span><span><?= $block->escapeHtml(__('Add New Address')) ?><span></span></button>
+    </div>
+    <div class="col2-set addresses-list">
+        <div class="col-1 addresses-primary">
+            <h2><?= $block->escapeHtml(__('Default Addresses')) ?></h2>
+            <ol>
+                <li class="item">
+                <?php if ($_pAddsses = $block->getDefaultBilling()) : ?>
+                <h4><?= $block->escapeHtml(__('Default Billing Address')) ?></h4>
+                <address>
+                    <?= $block->getAddressHtml($block->getAddressById($_pAddsses)) ?>
+                </address>
+                <p class="required"><?php echo __('Please contact Customer Care at 1 (800) 338-2150 or email at salessupport@arteriorshome.com to update your billing information.') ?></p>
+                 <?php else : ?>
+                       <h4><?= $block->escapeHtml(__('Default Billing Address')) ?></h4>
+                            <p><?= $block->escapeHtml(__('You have no default billing address in your address book.')) ?></p>
+                <?php endif; ?>
+               </li>
+               <li class="item">
+                 <?php if ($_pAddsses = $block->getDefaultShipping()) : ?>
+                    <h4><?= $block->escapeHtml(__('Default Shipping Address')) ?></h4>
+                   <address>
+                         <?= $block->getAddressHtml($block->getAddressById($_pAddsses)) ?>
+                    </address>
+                    <p><a class="action edit" href="<?= $block->escapeUrl($block->getAddressEditUrl($_pAddsses)) ?>"> <?= $block->escapeHtml(__('Change Shipping Address')) ?>
+                            </a></p>
+                     <?php else : ?>
+                        <h4><?= $block->escapeHtml(__('Default Shipping Address')) ?></h4>
+                        <p><?= $block->escapeHtml(__('You have no default shipping address in your address book.')) ?></p> 
+               
+                <?php endif; ?>
+                </li>
+             </ol>
+        </div>
+        <div class="col-2 addresses-additional">
+             <?php if ($_pAddsses = $address1->getAdditionalAddresses()) : ?>
+            <h2><?= $block->escapeHtml(__('Additional Address Entries ')) ?></h2>
+            <ol>
+                <?php foreach ($_pAddsses as $address) : ?>
+                <li class="item">
+                <address>
+                    <?= $block->escapeHtml($address->getFirstname()) ?><span> </span><?= $block->escapeHtml($address->getLastname()) ?>
+                    </br>
+                    <?= $block->escapeHtml($address->getCompany()) ?></br>
+                    <?= $block->escapeHtml($address1->getStreetAddress($address)) ?></br>
+                    <?= $block->escapeHtml($address->getCity()) ?>,
+                    <?= $block->escapeHtml($address->getRegion()->getRegion()) ?>,
+                    <?= $block->escapeHtml($address->getPostcode()) ?></br>
+                    <?= $block->escapeHtml($address1->getCountryByCode($address->getCountryId())) ?></br>
+                    T: <?= $block->escapeHtml($address->getTelephone()) ?></br>
+                    F: <?= $block->escapeHtml($address->getFax()) ?></br>
+                </address>
+                <p><a class="action edit" href="<?= $block->escapeUrl($address1->getUrl('customer/address/edit', ['id' => $address->getId()])) ?>" title="Edit Address"><?= $block->escapeHtml(__('Edit Address')) ?></a> <span class="separator">|</span>
+                 <a  role="delete-address" href="#" class="link-remove" data-address="<?= $block->escapeHtmlAttr($address->getId()) ?>" title="Delete Address"><?= $block->escapeHtml(__('Delete Address')) ?></a>
+                </p>
+                </li> <br/>              
+                <?php endforeach; ?>
+            </ol>
+            <?php if ($block->getChildHtml('pager')) : ?>
+                        <div class="customer-addresses-toolbar toolbar bottom"><?= $block->getChildHtml('pager') ?></div>
+            <?php endif ?>
+            <?php else : ?>
+                  <h2>
+                  <?= $block->escapeHtml(__('Additional Address Entries')) ?></h2>  
+
+                <p class="empty"><?= $block->escapeHtml(__('You have no other address entries in your address book.')) ?></p>
+            <?php endif ?> 
+        </div>
+    </div>
+    <div class="buttons-set">
+    <p class="back-link"><a href="<?= $block->escapeUrl($block->getBackUrl()) ?>" title="Back"><small>« </small>Back</a></p>
+    </div>
+</div>
+<script type="text/x-magento-init">
+    {
+        ".main": {
+            "address": {
+                "deleteAddress": "p a[role='delete-address']",
+                "deleteUrlPrefix": "<?= $block->escapeJs($block->escapeUrl($address1->getDeleteUrl())) ?>id/",
+                "addAddress": "button[role='add-address']",
+                "addAddressLocation": "<?= $block->escapeJs($block->escapeUrl($address1->getAddAddressUrl())) ?>"
+               
+            }
+            
+        }
+    }
+</script>

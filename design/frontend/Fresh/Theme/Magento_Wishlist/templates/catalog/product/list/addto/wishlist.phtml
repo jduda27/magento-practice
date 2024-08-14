@@ -1,0 +1,19 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var Magento\Wishlist\Block\Catalog\Product\ProductList\Item\AddTo\Wishlist $block */
+?>
+<?php if ($block->getWishlistHelper()->isAllow()) : ?>
+    <a href="#"
+       class="action towishlist link-wishlist"
+       title="<?= $block->escapeHtmlAttr(__('Portfolio')) ?>"
+       aria-label="<?= $block->escapeHtmlAttr(__('Add to Portfolio')) ?>"
+       data-post='<?= /* @noEscape */ $block->getAddToWishlistParams($block->getProduct()) ?>'
+       data-action="add-to-wishlist"
+       role="button">
+        <i class="fa fa-star-o"></i>
+    </a>
+<?php endif; ?>

@@ -1,0 +1,60 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var \Magento\Customer\Block\Account\Dashboard\Info $block */
+?>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"  ></script> 
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"  ></script>
+<?php 
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$customerSession = $objectManager->create('Magento\Customer\Model\Session');
+$customerData = $customerSession->getCustomer()->getData();
+$customerRepository = $objectManager->get('Magento\Customer\Api\CustomerRepositoryInterface');
+$customer = $customerRepository->getById($customerSession->getCustomer()->getId());
+$stepFormBlock = $this->getLayout()->createBlock('Ntz\Arteriors\Block\Form\Stepform');
+$currentPosition = $stepFormBlock->getStepFormPosition();
+$currentPositionText = $stepFormBlock->getStepFormPositionText();
+$companyData = $stepFormBlock->getCustomerCompany();
+if (!empty($currentPositionText) && $currentPositionText != 'complete' && strtolower($companyData->getUserType()) == 'business' && $companyData->getSuperUserId()== $customerSession->getCustomer()->getId()) {
+?>
+<div class="reg_complete">
+	<h6>Attention: Your account registration is incomplete.</h6>
+	<p>Pending approval and official enrollment in our Trade Program, you would have access to trade-only pricing, enhanced services and exclusive opportunities. Your application is currently under review and an Arteriors Brand Ambassador will be in contact with you shortly.</p>
+	<button class="btn reg_complete_btn" type="button" onClick="document.location.href='create/'">Complete Your Registration</button>
+</div> 
+<?php } ?>
+<div class="panel panel-default">
+<div class="panel-head">
+<h4 class="title">
+<a  class="" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" title="Personal Information" class="collapsed"><?= $block->escapeHtml(__('Personal Information')) ?></a>
+</h4>
+</div>
+<div id="collapseOne" class="panel-collapse collapse in">
+<div class="panel-body">
+<div class="box">
+<div class="box-userinfo">
+<div>
+<span>Name:</span>
+<span><?= $block->escapeHtml($block->getName()) ?></span>
+</div>
+<div>
+<span>Email:</span>
+<span><?= $block->escapeHtml($block->getCustomer()->getEmail()) ?></span>
+</div>
+<div><?= $block->getChildHtml('customer.account.dashboard.info.extra'); ?></div>
+<div>
+<span>Password:</span>
+<span><a class="change-password" href="<?= $block->escapeUrl($block->getChangePasswordUrl()) ?>" class="action change-password"><?= $block->escapeHtml(__('Change Password')) ?> </a></span>
+</div>
+<a class="link-edit" href="<?= $block->escapeUrl($block->getUrl('customer/account/edit')) ?>">
+                    <span><?= $block->escapeHtml(__('edit')) ?></span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>

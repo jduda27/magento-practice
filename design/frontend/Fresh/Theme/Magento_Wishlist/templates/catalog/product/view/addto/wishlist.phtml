@@ -1,0 +1,24 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var \Magento\Wishlist\Block\Catalog\Product\View\AddTo\Wishlist $block */
+?>
+<div class="split-button split-button-created light clickable">
+
+<?php if ($block->isWishListAllowed()) : ?>
+    <a href="#"
+       class="action towishlist"
+       data-post='<?= /* @noEscape */ $block->getWishlistParams($block->getProduct()) ?>'
+       data-action="add-to-wishlist"><i title="Add to portfolio" class="fa fa-star-o"></i></a>
+<?php endif; ?>
+</div>
+<script type="text/x-magento-init">
+    {
+        "body": {
+            "addToWishlist": <?= /* @noEscape */ $block->getWishlistOptionsJson() ?>
+        }
+    }
+</script>

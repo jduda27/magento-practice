@@ -1,0 +1,184 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<?php
+/* @var $block \Magento\MultipleWishlist\Block\Customer\Wishlist\Management */
+?>
+<?php if ($block->getCurrentWishlist()) : ?>
+    <div class="block-wishlist-management">
+        <div class="sub-title clearfix">
+            <h2><?= $block->escapeHtml($block->getCurrentWishlist()->getName()) ?><span class="item-count"><?= $block->escapeHtml(__('(' . $block->getItemCount($block->getCurrentWishlist()) . ')')) ?>
+                </span></h2>
+            <a href="#" data-wishlist-edit='{
+               "url":"<?= $block->escapeUrl($block->getEditUrl($block->getCurrentWishlist()->getId())) ?>",
+               "name":"<?= $block->escapeHtmlAttr($block->escapeHtml($block->getCurrentWishlist()->getName())) ?>",
+               "title":"<?= $block->escapeHtmlAttr(__('Edit Portfolio')) ?>",
+               "isPublic":<?= /* @noEscape */ $block->getCurrentWishlist()->getVisibility() ? 'true' : 'false' ?>,
+               "formKey": "<?= $block->escapeHtmlAttr($block->getFormkey()) ?>"
+               }' title="<?= $block->escapeHtmlAttr(__('Edit Portfolio')) ?>" class="icon-software-pencil link-edit wishlist-edit">
+                   <?= $block->escapeHtml(__('')) ?>
+            </a>
+            <?php if ($block->canCreateWishlists($block->getWishlists())) : ?>
+              <button type="button"  class="button-wislist btn-custm">
+               <a href="#"
+                           id="wishlist-create-button"
+                           data-action-keypress="true"
+                           data-wishlist-create='{
+                                "url":"<?= $block->escapeUrl($block->getCreateUrl()) ?>",
+                                "title":"<?= $block->escapeHtmlAttr(__('Create Portfolio')) ?>",
+                                "formKey": "<?= $block->escapeHtmlAttr($block->getFormkey()) ?>"
+                                }'
+                           title="<?= $block->escapeHtmlAttr(__('Create New Portfolio')) ?>"
+                           class="action add wishlist">
+                            <span><?= $block->escapeHtml(__('Create New Portfolio')) ?></span>
+                </a>
+                </button>
+                    
+                <?php endif; ?>
+        </div>
+
+        <div class="table-caption clearfix">
+            <div class="label"><?php echo __('Current Portfolio:') ?></div>
+            <div id="wishlists-select" class="split-button">
+                <strong><span title="new test"><?= $block->escapeHtml($block->getCurrentWishlist()->getName()) ?></span></strong>
+                <a class="change" href="#" tabindex="20"><span class="action toggle"
+                                                               data-mage-init='{"dropdown":{}}'
+                                                               data-trigger-keypress-button="true"
+                                                               <?php if ($block->getCurrentWishlist()->getId() != $block->getDefaultWishlist()->getId()) : ?><?php endif; ?>>
+                        <span><?= $block->escapeHtml(__('Change')) ?></span>
+                    </span>
+                                    <div class="list-container">
+                    <ul class="items dropdown" data-target="dropdown" id="wishlists-select">
+                        <?php foreach ($block->getWishlists() as $wishlist) : ?>
+                            <?php if ($wishlist->getId() == $block->getCurrentWishlist()->getId()) : ?>
+                                <li class="current item">
+                                    <span title="<?= $block->escapeHtml($wishlist->getName()) ?>">
+                                        <?= $block->escapeHtml($wishlist->getName()) ?>
+                                    </span>
+                                </li>
+                            <?php else : ?>
+                                <li class="item">
+                                    <a title="<?= $block->escapeHtml($wishlist->getName()) ?>"
+                                       href="<?= $block->escapeUrl($block->getWishlistManagementUrl($wishlist)) ?>">
+                                           <?= $block->escapeHtml($wishlist->getName()) ?>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                        <?php if ($block->canCreateWishlists($block->getWishlists())) : ?>
+                                <li class="item new">
+                                    <span role="button"
+                                          tabindex="0"
+                                          class="action new"
+                                          data-action-keypress="true"
+                                          data-wishlist-copy-selected='{"new":true}'
+                                          title="<?= $block->escapeHtmlAttr(__('Create New Portfolio')) ?>">
+                                        <span><?= $block->escapeHtml(__('Create New Portfolio')) ?></span>
+                                    </span>
+                                </li>
+                            <?php endif; ?>
+                    </ul>
+                </div>
+
+                  </a>
+
+            </div>
+
+            <?php if ($block->getCurrentWishlist()->getItemsCount()) : ?>
+            <div class="wishlist-toolbar">
+                <div class="wishlist-toolbar-actions">
+                    <div id="wishlists-copy"
+                         class="wishlist-dropdown copy split-button"
+                         data-wishlist-copy='{"copySelectedUrl":"<?= $block->escapeHtmlAttr($block->getCopySelectedUrl()) ?>", "copyItemUrl":"<?= $block->escapeHtmlAttr($block->getCopyItemUrl()) ?>"}'>
+                        <span class="action toggle"
+                              data-mage-init='{"dropdown":{}}'
+                              data-trigger-keypress-button="true"
+                              data-wishlist-copy-selected='{"wishlistId":"<?= $block->escapeHtmlAttr($block->getDefaultWishlist()->getId()) ?>"}'>
+                            <span><?= $block->escapeHtml(__('Copy To Portfolio')) ?></span>
+                        </span>
+                        <ul class="items dropdown" data-target="dropdown">
+                            <?php foreach ($block->getWishlists() as $wishlist) : ?>
+                                <?php if ($wishlist->getId() !== $block->getCurrentWishlist()->getId()) : ?>
+                                    <li class="item">
+                                        <span role="button"
+                                              tabindex="0"
+                                              data-action-keypress="true"
+                                              data-wishlist-copy-selected='{"wishlistId":"<?= $block->escapeHtmlAttr($wishlist->getId()) ?>"}'
+                                              title="<?= $block->escapeHtml($wishlist->getName()) ?>">
+                                                  <?= $block->escapeHtml($wishlist->getName()) ?>
+                                        </span>
+                                    </li>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                            <?php if ($block->canCreateWishlists($block->getWishlists())) : ?>
+                                <li class="item new">
+                                    <span role="button"
+                                          tabindex="0"
+                                          class="action new"
+                                          data-action-keypress="true"
+                                          data-wishlist-copy-selected='{"new":true}'
+                                          title="<?= $block->escapeHtmlAttr(__('Create New Portfolio')) ?>">
+                                        <span><?= $block->escapeHtml(__('Create New Portfolio')) ?></span>
+                                    </span>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                    <div id="wishlists-move"
+                         class="wishlist-dropdown move split-button"
+                         data-wishlist-move='{"moveSelectedUrl":"<?= $block->escapeUrl($block->getMoveSelectedUrl()) ?>", "moveItemUrl":"<?= $block->escapeUrl($block->getMoveItemUrl()) ?>"}'>
+                        <span class="action toggle"
+                              data-mage-init='{"dropdown":{}}'
+                              data-trigger-keypress-button="true"
+                              <?php if ($block->getCurrentWishlist()->getId() != $block->getDefaultWishlist()->getId()) : ?>data-wishlist-move-selected='{"wishlistId":"<?= $block->escapeHtmlAttr($block->getDefaultWishlist()->getId()) ?>"}'<?php endif; ?>>
+                            <span><?= $block->escapeHtml(__('Move To Portfolio')) ?></span>
+                        </span>
+                        <ul class="items dropdown" data-target="dropdown">
+                            <?php foreach ($block->getWishlists() as $wishlist) : ?>
+                                <?php if ($wishlist->getId() !== $block->getCurrentWishlist()->getId()) : ?>
+                                    <li class="item">
+                                        <span role="button"
+                                              tabindex="0"
+                                              data-action-keypress="true"
+                                              data-wishlist-move-selected='{"wishlistId":"<?= $block->escapeHtmlAttr($wishlist->getId()) ?>"}'
+                                              title="<?= $block->escapeHtml($wishlist->getName()) ?>">
+                                                  <?= $block->escapeHtml($wishlist->getName()) ?>
+                                        </span>
+                                    </li>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                            <?php if ($block->canCreateWishlists($block->getWishlists())) : ?>
+                                <li class="item new">
+                                    <span role="button"
+                                          tabindex="0"
+                                          class="action new"
+                                          data-action-keypress="true"
+                                          data-wishlist-move-selected='{"new":true}'
+                                          title="<?= $block->escapeHtmlAttr(__('Create New Portfolio')) ?>">
+                                        <span><?= $block->escapeHtml(__('Create New Portfolio')) ?></span>
+                                    </span>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+        </div>
+
+
+        
+    </div>
+<?php endif; ?>
+<style type="text/css">
+  
+
+
+  div#wishlists-select ul>a,
+div#wishlists-select .list-container>a{
+display:none;
+}
+</style>

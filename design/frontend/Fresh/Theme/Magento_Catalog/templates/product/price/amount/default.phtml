@@ -1,0 +1,44 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+
+<?php /** @var $block \Magento\Framework\Pricing\Render\Amount */ ?>
+<?php
+if ($block->getSchema()) {
+    $helper = $this->helper('Ntz\Productpage\Helper\Data');
+    $product = $helper->getProduct();
+    $Availability = $product->getCustomStock();
+    $metahtml = '';
+    $backOrders = array('available in 30 days','available in 60 days','available in 90 days','available in 120 days');
+    if ( $Availability && strtolower($Availability) == 'in stock') {
+         $metahtml = '<meta itemprop="availability" content="https://schema.org/InStock" />';
+    }elseif($Availability && in_array(strtolower($Availability), $backOrders)){
+         $metahtml = '<meta itemprop="availability" content="https://schema.org/BackOrder" />';
+    }elseif($Availability && strpos(strtolower($Availability), 'call for availability') !== false) {
+         $metahtml = '<meta itemprop="availability" content="https://schema.org/LimitedAvailability" />';
+    }
+}
+ ?>
+<p id="<?= $block->escapeHtml($block->getFinalPriceAmount()) ?>" class=".price-container <?= $block->escapeHtml($block->getFinalPriceAmount()) ?> <?= $block->escapeHtml($block->getVatRrpClass()) ?> final-net-price normal-price <?= $block->escapeHtmlAttr($block->getAdjustmentCssClasses()) ?>"
+        <?= $block->getSchema() ? ' itemprop="offers" itemscope itemtype="https://schema.org/Offer"' : '' ?>>
+    <?php if ($block->getDisplayLabel()) :?>
+        <span class="price-label <?= $block->escapeHtmlAttr($block->getPriceType()) ?>"><?= $block->escapeHtml($block->getDisplayLabel()) ?></span>
+    <?php endif; ?> 
+    <span <?php if ($block->getPriceId()) :?> id="<?= $block->escapeHtmlAttr($block->getPriceId()) ?>"<?php endif;?>
+        <?= ($block->getPriceDisplayLabel()) ? 'data-label="' . $block->escapeHtmlAttr($block->getPriceDisplayLabel() . $block->getPriceDisplayInclExclTaxes()) . '"' : '' ?>
+        data-price-amount="<?= $block->escapeHtmlAttr($block->getDisplayValue()) ?>"
+        data-price-type="<?= $block->escapeHtmlAttr($block->getPriceType()) ?>"
+        class="price-wrapper <?= $block->escapeHtmlAttr($block->getPriceWrapperCss()) ?>"
+    ><?= $block->escapeHtml($block->formatCurrency($block->getDisplayValue(), (bool)$block->getIncludeContainer()), ['span']) ?></span>
+    <?php if ($block->hasAdjustmentsHtml()) :?>
+        <?= $block->getAdjustmentsHtml() ?>
+    <?php endif; ?>
+    <?php if ($block->getSchema()) :?>
+        <?= $metahtml ?>
+        <meta itemprop="price" content="<?= $block->escapeHtmlAttr($block->getDisplayValue()) ?>" />
+        <meta itemprop="priceCurrency" content="<?= $block->escapeHtmlAttr($block->getDisplayCurrencyCode()) ?>" />
+    <?php endif; ?>
+</p>

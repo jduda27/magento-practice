@@ -1,0 +1,131 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundThis
+
+/**
+ * Product view template
+ *
+ * @var $block \Magento\Catalog\Block\Product\View
+ */
+?>
+<?php $_helper = $this->helper(Magento\Catalog\Helper\Output::class); ?>
+<?php $_product = $block->getProduct(); 
+$customHelper = $this->helper('Ntz\Productpage\Helper\Data');
+$groupname = $customHelper->getCustomerGroupName();
+?>
+
+<?php if($groupname!='NOPRICE'):?>
+<div class="product-add-form product-add-form-art">
+    <form data-product-sku="<?= $block->escapeHtmlAttr($_product->getSku()) ?>"
+          action="<?= $block->escapeUrl($block->getSubmitUrl($_product)) ?>" method="post"
+          id="product_addtocart_form"<?php if ($_product->getOptions()) :?> enctype="multipart/form-data"<?php endif; ?>>
+        <input type="hidden" name="product" value="<?= (int)$_product->getId() ?>" />
+        <input type="hidden" name="selected_configurable_option" value="" />
+        <input type="hidden" name="related_product" id="related-products-field" value="" />
+        <input type="hidden" name="item"  value="<?= (int)$block->getRequest()->getParam('id') ?>" />
+        <?= $block->getBlockHtml('formkey') ?>
+        <?= $block->getChildHtml('form_top') ?>
+        <?php if (!$block->hasOptions()) :?>
+            <?= $block->getChildHtml('product_info_form_content') ?>
+        <?php else :?>
+            <?php if ($_product->isSaleable() && $block->getOptionsContainer() == 'container1') :?>
+                <?= $block->getChildChildHtml('options_container') ?>
+            <?php endif;?>
+        <?php endif; ?>
+
+        <?php if ($_product->isSaleable() && $block->hasOptions() && $block->getOptionsContainer() == 'container2') :?>
+            <?= $block->getChildChildHtml('options_container') ?>
+        <?php endif;?>
+        <?= $block->getChildHtml('form_bottom') ?>
+    </form>
+</div>
+
+
+
+<?php endif; ?>
+<?php 
+  
+if ($_product && $_product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE) {
+   
+    $configurableAttributes = $_product->getTypeInstance()->getConfigurableAttributesAsArray($_product);
+    foreach ($configurableAttributes as $key => $attribute) {
+        $attributeCode = $attribute['attribute_code'];
+        if($attributeCode == 'marketing_rug_size'){
+          echo '<div class="config_final_sale">Made to order: Final Sale.</div>';  
+        }
+    }
+} 
+?>
+ <script>
+
+    require(['jquery'], function($) {
+        var klevuData = window.localStorage.getItem('klv_mage');
+        var storage = window.localStorage.getItem('arteriors_mage');
+        var objStorage = $.parseJSON(storage);
+        var artData = objStorage['ArtCustomerData'];
+        var allwoMsrp = artData['allow_msrp'];
+     
+        var klvobjStorage = $.parseJSON(klevuData);
+        var loginurl  = window.sessionStorage.getItem('klevu_redirectUrl'); 
+        var klvData = klvobjStorage['customerData'];
+        if (typeof klvData['customer_group_id'] === "undefined") {
+            if (allwoMsrp =='no') {
+				//$('.renderlink_ctbase').show();
+				$('.renderlink_ctbase').removeClass('hiding');
+				$('.renderlink_ctbase').addClass('display');	
+                $('.renderlink_ctbase').html("<a href='"+loginurl+"' class='amasty-hide-price-button'><span>Sign In To View Pricing</span></a>");
+                $('.renderdata_ctbase').remove();
+                $('.msrpus_check').remove();
+                 $('#final_price_amount').remove();
+                  $('#hideprice_login').remove();
+                  $('#hideprice_n_login').remove();
+              } else{      
+                $('.pdp_login_link').html("<a href='"+loginurl+"'>Sign in to View Pricing</a>");
+                $('.customer_discount').removeClass('hideprice_n_login');
+                $('#hideprice_login').remove();
+                $('#final_price_amount').remove();
+                $('.msrpus_check').removeClass('msrus-price-load');  
+                //$('.renderdata_ctbase').show();
+				$('.renderdata_ctbase').removeClass('hiding');
+				$('.renderdata_ctbase').addClass('display');				
+                $('.renderlink_ctbase').remove();    
+            }    
+        }else{
+             if (klvData['customer_group_id'] != 86) {
+
+                $('.msrpus_check').removeClass('msrus-price-load');  
+                //$('.renderdata_ctbase').show();
+				$('.renderdata_ctbase').removeClass('hiding');
+				$('.renderdata_ctbase').addClass('display');				
+                $('.renderlink_ctbase').remove(); 
+                $('.customer_discount').removeClass('hideprice_login');
+                $('#hideprice_n_login').remove();
+                $('#final_price_amount').removeClass('final-net-price');
+
+            }else{
+
+                $('.renderdata_ctbase').remove();
+                $('.msrpus_check').remove();
+                $('.product-add-form-art').remove();
+                $('.renderlink_ctbase').remove(); 
+                $('#final_price_amount').remove();
+                $('#hideprice_login').remove();
+                $('#hideprice_n_login').remove();
+            }
+            
+        }
+    });
+</script>
+<script type="text/x-magento-init">
+    {
+        "[data-role=priceBox][data-price-box=product-id-<?= $block->escapeHtml($_product->getId()) ?>]": {
+            "priceBox": {
+                "priceConfig":  <?= /* @noEscape */ $block->getJsonConfig() ?>
+            }
+        }
+    }
+</script>

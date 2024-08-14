@@ -1,0 +1,39 @@
+<?php
+/** @var Magento\Customer\Block\Account\Customer $block */
+
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+ $customerSession = $objectManager->create('Magento\Customer\Model\SessionFactory');
+ $customerSession = $customerSession->create();
+	$inboxCollection = $objectManager->create('Ntz\MyAccount\Model\ResourceModel\Inbox\Collection');
+
+ $count='';
+ if($block->customerLoggedIn()):
+
+	$stat = 1;
+	$collection = $inboxCollection->addFieldToFilter('customer_entity_id',$customerSession->getCustomerId())
+										->addFieldToFilter('delete_status', array('eq' => $stat));
+	$count = $collection->count(); 
+endif;
+
+
+?>
+
+<?php 
+	 if($count != 0)
+	{ ?>  
+    <li class="accountimg account_pic menu parentMenu hiding"><a class="account_icon" title="<?php echo __('My Account') ?>" href="<?php echo $this->getUrl('myaccount/page/inbox') ?>"> <?php echo __('My Account') ?> <span></a>
+     </li>
+	<?php } else {  ?>
+	 <li class="accountimg account_pic menu parentMenu hiding"><a class="account_icon" title="<?php echo __('My Account') ?>" href="<?php echo $this->getUrl('customer/account/') ?>"> <?php echo __('My Account') ?> <span></a>
+     </li>
+	<?php } ?>
+      <li class="li-portofolio-link hiding">
+      <a href="<?php echo $this->getUrl('wishlist') ?>" title="My Portfolio" class="portofolio-link">My Portfolio</a>
+    </li>
+
+  <li class="accountimg account_pic menu parentMenu">
+  <a class="account_icon" title=" <?php echo __('Find a Retailer') ?>" href="<?php echo $this->getUrl('find-us') ?>"> <?php echo __('Find a Retailer') ?> <span></a>
+   </li>
+
+	
+

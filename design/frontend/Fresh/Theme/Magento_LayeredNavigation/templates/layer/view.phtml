@@ -1,0 +1,102 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<?php
+/**
+ * Category layered navigation
+ *
+ * @var $block \Magento\LayeredNavigation\Block\Navigation
+ */
+?>
+<?php 
+    $urlParam='';
+    $q = $this->getRequest()->getParam('q');
+    if($q){
+        $urlParam = '?q='.$q;
+    } 
+
+$storeUrl = $block->getUrl('*/*/*', array('_use_rewrite' => true, '_forced_secure' => true));
+$activeStockFilter ='';
+$urlPars = $block->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]);
+$parts = parse_url($urlPars);
+if (isset($parts['query'])) {
+    parse_str($parts['query'], $query);
+    if ($query && is_array($query)) {
+        if (isset($query['stock'])) {
+            $activeStockFilter = $query['stock'];
+        }
+    }   
+}
+?>
+
+<?php if ($block->canShowBlock()) : ?>
+<div id="category-layered-navigation" class="">
+    <div class="container-fluid">
+        <div class="col-sm-12">
+            <div class="block block-layered-nav amshopby-filters-left">
+                <div class="block-title filter-title">
+                    <strong><?= $block->escapeHtml(__('Shop By')) ?></strong>
+                </div>
+
+                <div class="block-content">
+                    <?= $block->getChildHtml('state') ?>
+
+                    <?php if ($block->getLayer()->getState()->getFilters() || $activeStockFilter!='') : ?>
+                        <div class="block-actions filter-actions">
+                            <?php $clearUrl = substr($block->escapeUrl($block->getClearUrl()), 0, strpos($block->escapeUrl($block->getClearUrl()), '?'))
+                            ?>
+                            <a href="<?= $clearUrl.''.$urlParam ?>" class="action clear filter-clear"><span><?= $block->escapeHtml(__('Clear All')) ?></span></a>
+                        </div>
+                    <?php endif; ?>
+                    
+                    
+                    <?php foreach ($block->getFilters() as $filter) : ?>
+                            <?php
+                                $html = $block->getChildBlock('renderer')->render($filter);
+                                $findme = '<li';
+                                $pos = strpos($html, $findme);
+                            ?>
+                            <?php
+                            if(($filter->getName() == 'Damp Rated')) {
+                                $hide = 'damp-rated';
+                                $ddclass='damp-rated-dd';
+                            } elseif ($pos == false && $filter->getName() == 'Environment') {
+                                    $hide = 'damp-rated';
+                                      $ddclass='damp-rated-dd';
+                                } 
+                                elseif ($filter->getName() == 'Environment') {
+                                   
+                                      $ddclass='environment-dd';
+                                }
+                                else {
+                                $hide = '';
+                                  $ddclass='';
+                            }
+                           if($filter->getName() == 'Environment'){
+                                $CustomClass = 'environment-label';
+                           }else{
+                               $CustomClass = '';
+                           }
+                            ?>
+                            
+                                <dl class="<?php echo $CustomClass; ?>">
+                                    <dt class="filter-label <?php echo $hide ?>"><?php echo $filter->getName(); ?></dt>
+                                        <dd class="filter-column <?php echo $ddclass;?>">
+                                            <?php echo $html; ?>
+                                        </dd>
+                                </dl>
+                            
+                        <?php endforeach; ?>
+
+
+                        
+                            
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>

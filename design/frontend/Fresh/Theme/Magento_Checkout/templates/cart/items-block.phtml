@@ -1,0 +1,25 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// phpcs:disable Magento2.Templates.ThisInTemplate
+
+/**  @var $block \Magento\Checkout\Block\Cart\Grid */
+?>
+<?php 
+$objmanager = \Magento\Framework\App\ObjectManager::getInstance();
+$session =  $objmanager->get("Magento\Checkout\Model\Session");
+$quote =$session->getQuote();
+$qty =  $quote->getItemsSummaryQty();
+if ($qty) { 
+    if ($qty == 1) { ?>
+    <div class="items"><?= $qty."  Item"; ?></div>
+  <?php  }else{
+    ?>
+
+    <div class="items"><?= $qty."  Items"; ?></div>
+<?php }
+}
+?>

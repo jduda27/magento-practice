@@ -1,0 +1,69 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<?php
+/**
+ * Product list toolbar
+ *
+ * @var $block \Magento\Catalog\Block\Product\ProductList\Toolbar
+ */
+?>
+<div class="sorter">
+    <!--<label class="sorter-label" for="sorter"><?php //$block->escapeHtml(__('Sort By')) ?></label>-->
+    <div class="sort-by">
+        <select id="sorter" data-role="sorter" class="sorter-options">
+            <option value="">Sort By</option>
+            <?php foreach ($block->getAvailableOrders() as $_key => $_order) :?>
+                <option value="<?= $block->escapeHtmlAttr($_key) ?>"
+                        <?php $cu = $this->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]); ?>
+                        <?php if ($block->isOrderCurrent($_key) && !strstr($cu, "catalogsearch") ||
+                                ($block->isOrderCurrent($_key) && strstr($cu, "catalogsearch") && isset($_GET["product_list_order"]) )) :?>
+                            selected="selected"
+                        <?php endif; ?>
+                        >
+                        <?php if ($_order == 'Best Sellers') { $_order = "Best Seller";} ?>
+                        <?php //if ($_order != 'Color') :?>
+                            <?= $block->escapeHtml(__($_order)) ?>
+                        <?php //endif; ?>
+                    
+                </option>
+            <?php //endif; ?>
+            <?php endforeach; ?>
+        </select>
+        <?php
+        /*if(!isset($_GET["product_list_dir"]) && $block->getCurrentOrder() != "appearance_color") {
+            ?>
+            <a title="<?= $block->escapeHtmlAttr(__('Set Ascending')) ?>"
+               href="#"
+               class="action sorter-action sort-desc sort-by-switcher sort-by-switcher--desc icon-arrows-circle_up"
+               data-role="direction-switcher"
+               data-value="asc">
+                <span><?= $block->escapeHtml(__('Set Ascending')) ?></span>
+            </a>
+        <?php
+        } else {*/
+            //echo $order = $block->getCurrentDirection()=="desc" ? "DESC" : "ASC";
+            if ($block->getCurrentDirection() == 'desc') :?>
+                <a title="<?= $block->escapeHtmlAttr(__('Set Ascending')) ?>"
+                   href="#"
+                   class="action sorter-action sort-asc sort-by-switcher sort-by-switcher--asc icon-arrows-circle_down"
+                   data-role="direction-switcher"
+                   data-value="asc">
+                    <span><?= $block->escapeHtml(__('Set Ascending')) ?></span>
+                </a>
+            <?php else :?>
+                <a title="<?= $block->escapeHtmlAttr(__('Set Descending')) ?>"
+                   href="#"
+                   class="action sorter-action sort-desc sort-by-switcher sort-by-switcher--desc icon-arrows-circle_up"
+                   data-role="direction-switcher"
+                   data-value="desc">
+                    <span><?= $block->escapeHtml(__('Set Descending')) ?></span>
+                </a>
+            <?php endif;
+        //}
+        ?>
+    </div>
+</div>

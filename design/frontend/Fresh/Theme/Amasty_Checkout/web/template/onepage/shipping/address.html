@@ -1,0 +1,95 @@
+<li id="project_specifier">
+<p class="step-title amcheckout-title"
+       data-role="title">Project Information</p>        
+    <div class="switch-field-two" data-bind="scope:'md-ko-example'">
+        <div class=""><label>Is this a Commercial Project <span style="color: #a94442">*</span></label></div>
+        <div class="switch-one first-switch">
+            <input type="radio" name="is_specifier" id="radio-one" value="yes" data-bind="click: click">
+            <label for="radio-one" data-bind="i18n: 'Yes'"></label>
+        </div>
+        <div class="switch-one second-switch">
+            <input type="radio" name="is_specifier" id="radio-two" value="no" data-bind="click: click">
+            <label for="radio-two" data-bind="i18n: 'No'"></label>
+        </div>
+    </div>
+    <div class="field" name="shippingAddress.custom_attributes.switch_field_specifier" style="display: none;">
+        <div class="switch-field" data-bind="scope:'md-ko-example1'">
+            <div class=""><label>Are you the Specifier? <span style="color: #a94442">*</span></label></div>
+            <div class="switch first-switch">
+                <input type="radio" name="is_commercial" id="radio-private" value="yes" data-bind="click: click">
+                <label for="radio-private" data-bind="i18n: 'Yes'"></label>
+            </div>
+            <div class="switch second-switch">
+                <input type="radio" name="is_commercial" id="radio-business" value="no" data-bind="click: click">
+                <label for="radio-business" data-bind="i18n: 'No'"></label>
+            </div>
+        </div>
+    </div>
+    <div class="field display-project" name="shippingAddressspecifier.project_classification" style="display: none;">
+        <div class=""><label class="label">Please Select one of the following <span style="color: #a94442">*</span></label></div>
+    <select data-bind="options: window.checkoutConfig.project_class,
+    optionsText: 'label',
+    optionsValue: 'value'" name="project_classification"></select></div>
+
+    <div class="field" name="shippingAddress.project_classification" style="display:none">
+        <div class=""><label class="label">Please Select one of the following <span style="color: #a94442">*</span></label></div>
+    <select data-bind="options: window.checkoutConfig.project_class_specifier,
+    optionsText: 'label',
+    optionsValue: 'value'" name="project_classification"></select></div>
+</li>
+<li id="shipping" class="checkout-shipping-address amcheckout-shipping-address" data-bind="fadeVisible: visible()">
+    <p class="step-title amcheckout-title"
+       data-amcheckout-js="step-title"
+       data-bind="i18n: getNameShippingAddress()"
+       data-role="title"></p>
+    <div id="checkout-step-shipping"
+         class="step-content amcheckout-content"
+         data-amcheckout-js="step-content"
+         data-role="content"
+         data-bind="mageInit: {'checkoutCollapsibleSteps': {}}">
+        <div class="amcheckout-wrapper">
+            <!-- ko ifnot: quoteIsVirtual -->
+            <!-- ko fastForEach: getRegion('customer-email') -->
+                    <!-- ko fastForEach: getRegion('amazon-button-region') -->
+                    <!-- ko template: getTemplate() --><!-- /ko -->
+                    <!-- /ko -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+            <!--/ko-->
+
+            <!-- ko fastForEach: getRegion('address-list') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+
+            <!-- ko fastForEach: getRegion('address-list-additional-addresses') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+
+            <!-- ko ifnot: isFormInline -->
+            <!-- ko ifnot: window.isShippingAddressFormOverridden -->
+            <!-- Address form pop up -->
+            <button type="button"
+                    data-bind="click: showFormPopUp, visible: !isNewAddressAdded()"
+                    class="action action-show-popup amcheckout-button -new-address">
+                <span data-bind="i18n: 'New Address'"></span></button>
+            <div id="opc-new-shipping-address" data-bind="visible: isFormPopUpVisible">
+                <!-- ko template: 'Magento_Checkout/shipping-address/form' --><!-- /ko -->
+            </div>
+            <!-- /ko -->
+            <!-- /ko -->
+
+            <!-- ko fastForEach: getRegion('before-form') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+
+            <!-- Inline address form -->
+            <!-- ko if: isFormInline -->
+            <!-- ko template: 'Magento_Checkout/shipping-address/form' --><!-- /ko -->
+            <!-- /ko -->
+
+            <!-- ko fastForEach: getRegion('billing-address-form-shared') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+    </div>
+</li>

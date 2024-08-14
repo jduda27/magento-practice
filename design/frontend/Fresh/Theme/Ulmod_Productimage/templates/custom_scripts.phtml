@@ -1,0 +1,309 @@
+<?php
+/**
+ * Copyright © Ulmod. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+?>
+<style>
+#main-product-image-wrapper .external-video-icon{
+    display: none;
+}
+</style>
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$mainImageData = $objectManager->create('Ulmod\Productimage\Block\Product\View\Gallery')->getMainImage();
+$general = $block->blockConfig->getConfig('productimage/general');
+$config = $block->blockConfig->getConfig('productimage/configuration');
+$mainImage = $block->blockConfig->getConfig('productimage/main_image');
+$thumbnails = $block->blockConfig->getConfig('productimage/thumbnails');
+$zoomWindow = $block->blockConfig->getConfig('productimage/zoom_window');
+$lens = $block->blockConfig->getConfig('productimage/lens');
+$mainImageTint = $block->blockConfig->getConfig('productimage/main_image_tint');
+$caption = $block->blockConfig->getConfig('productimage/caption');
+$lightbox = $block->blockConfig->getConfig('productimage/lightbox');
+$tint = $block->blockConfig->getConfig('productimage/main_image_tint');
+$lens = $block->blockConfig->getConfig('productimage/lens');
+
+
+
+if ($general['enabled']) { ?>
+<script type="text/javascript">
+
+    function zoomConfig(reload, touch) {
+        reload = typeof reload !== 'undefined' ? reload : true;
+        touch = typeof touch !== 'undefined' ? touch : true;
+        if(reload) {
+            var mainImageTitle = <?= $block->escapeHtml($caption['caption_main_enable']) ?>;
+            var zoomWindowTitle = <?= $block->escapeHtml($caption['caption_zoomwindow_enable']) ?>;
+        } else {
+            var mainImageTitle = false;
+            var zoomWindowTitle = false;
+        }
+        if(touch){
+            var allowTouch = true;
+        } else {
+            var allowTouch = false;
+        }
+        var zoomConfig = {
+            gallery:'more-views',
+            imageCrossfade: <?= $block->escapeHtml($mainImage['main_image_crossfade']); ?>,
+            mainZoomActivation:  false,
+            galleryEvent: '<?= $block->escapeHtml($thumbnails['thumbnails_zoomactivation']); ?>',
+            loadingIcon: '<?= $block->escapeUrl($block->getViewFileUrl('Ulmod_Productimage::images/loading.gif')); ?>',
+            cursor: '<?php if ($lightbox['lightbox_enable']=='true') {
+                    echo 'pointer';
+                     } elseif ($config['zoomtype']=='inner') {
+                         echo 'crosshair';
+                     } else {
+                         echo 'default';
+                     } ?>',
+            mainImageTitle: mainImageTitle,
+            galleryActiveClass: 'active',
+            easing: <?= $block->escapeHtml($zoomWindow['zoom_window_easing']); ?>,
+    <?php if ($zoomWindow['zoom_window_easing']=='true') { ?>
+            easingAmount: <?= $block->escapeHtml($zoomWindow['zoom_window_easingamount']); ?>,
+    <?php } ?>
+            zoomType: '<?= $block->escapeHtml($config['zoomtype']); ?>',
+    <?php if ($config['zoomtype']!='inner') { ?>
+            scrollZoom: <?= $block->escapeHtml($config['scrollzoom']); ?>,
+            lensShape: '<?= $block->escapeHtml($lens['lens_shape']); ?>',
+    <?php } ?>
+    <?php if ($config['zoomtype']=='window') { ?>
+            zoomWindowWidth: <?= $block->escapeHtml($zoomWindow['zoom_window_width']); ?>,
+            zoomWindowHeight: <?= $block->escapeHtml($zoomWindow['zoom_window_height']); ?>,
+            zoomWindowPosition: <?= $block->escapeHtml($zoomWindow['zoom_window_position']); ?>,
+            zoomWindowOffsetX: <?= $block->escapeHtml($zoomWindow['zoom_window_offsetx']); ?>,
+            zoomWindowOffsetY: <?= $block->escapeHtml($zoomWindow['zoom_window_offsety']); ?>,
+            borderSize: <?= $block->escapeHtml($zoomWindow['zoom_window_bordersize']); ?>,
+        <?php if ($zoomWindow['zoom_window_bordersize'] != 0) { ?>
+            borderColour: '#<?= $block->escapeHtml($zoomWindow['zoom_window_bordercolor']); ?>',
+    <?php } ?>
+            lensBorderSize: <?= $block->escapeHtml($lens['lens_bordersize']); ?>,
+        <?php if ($lens['lens_bordersize'] != 0) { ?>
+            lensBorderColour: '#<?= $block->escapeHtml($lens['lens_bordercolor']); ?>',
+    <?php } ?>
+        <?php if ($zoomWindow['zoom_window_fadein'] && $zoomWindow['zoom_window_fadeout']) { ?>
+            zoomWindowFadeIn: <?= $block->escapeHtml($zoomWindow['zoom_window_fadein']); ?>,
+            zoomWindowFadeOut: <?= $block->escapeHtml($zoomWindow['zoom_window_fadeout']); ?>,
+    <?php } ?>
+            tint: <?= $block->escapeHtml($mainImageTint['tint']); ?>,
+        <?php if ($mainImageTint['tint']=='true') { ?>
+            tintColour: '#<?= $block->escapeHtml($tint['tint_color']); ?>',
+            tintOpacity: 0.5,
+    <?php  } ?>
+        <?php if ($mainImageTint['tint_fadein'] && $mainImageTint['tint_fadeout']) { ?>
+            zoomTintFadeIn: <?= $block->escapeHtml($mainImageTint['tint_fadein']); ?>,
+            zoomTintFadeOut: <?= $block->escapeHtml($mainImageTint['tint_fadeout']); ?>,
+    <?php } ?>
+        <?php if ($mainImageTint['tint']=='false') { ?>
+            lensColour: '#<?= $block->escapeHtml($lens['lens_color']); ?>',
+            lensOpacity: 0.4,            
+    <?php } ?>
+            zoomWindowTitle: zoomWindowTitle,
+    <?php } ?>
+    <?php if ($config['zoomtype']!='inner') {  ?>
+            containLensZoom: <?= $block->escapeHtml($lens['contain_lens_zoom']); ?>,
+            lensSize: <?= $block->escapeHtml($lens['lens_size']); ?>,
+        <?php if ($lens['lens_fadein'] && $lens['lens_fadeout']) { ?>
+            lensFadeIn: <?= $block->escapeHtml($lens['lens_fadein']); ?>,
+            lensFadeOut: <?= $block->escapeHtml($lens['lens_fadeout']); ?>,
+    <?php } ?>
+        <?php if ($lens['lens_bordersize'] != 0 && $config['zoomtype']=='lens') { ?>
+            borderSize: <?= $block->escapeHtml($lens['lens_bordersize']); ?>,
+            borderColour: '#<?= $block->escapeHtml($lens['lens_bordercolor']); ?>',
+    <?php } ?>
+    <?php } ?>
+            touchEnabled: allowTouch,
+        };
+        return zoomConfig;
+    }
+
+    require([
+            'jquery',
+            'domReady!',
+            'ulmod/ezplus'
+            ,'ulmod/prettyphoto'
+    <?php if ($thumbnails['thumbnails_scroll']) { ?>
+            ,'ulmod/slick'
+    <?php } ?>
+        ], function($){
+        'use strict';
+
+        // initialize zoom and disable zoom on videos and below choosen viewport
+        if($("#main-product-image").hasClass('main-product-video') 
+            || $(window).width() < <?= $block->escapeHtml($config['viewport']); ?>) {
+
+            var video_url = "<?= $mainImageData['video']; ?>";
+
+            if(video_url != ""){          
+                setTimeout(function(){$('#main-product-image-wrapper .external-video-icon').remove();},1500);
+                var checkVideo = video_url.split('/');
+                if(checkVideo[3] == 'video'){
+                $('.main-product-image-wrapper-inner').append('<div id="video_360" style="padding:100% 0 0 0;position:relative;"><iframe loading="lazy" src="'+video_url+'?autoplay=1&loop=1&autopause=0&muted=1&background=1" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>');
+                }else{
+                video_url = "https://player.vimeo.com/video/"+checkVideo[3];
+                $('.main-product-image-wrapper-inner').append('<div id="video_360" style="padding:100% 0 0 0;position:relative;"><iframe loading="lazy" src="'+video_url+'?autoplay=1&loop=1&autopause=0&muted=1&background=1" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>');
+                }
+                setTimeout(function(){$('.catalog-product-view .breadcrumb-product .breadcrumb-container').attr('style', 'z-index: 9999');},1500);
+                $('.main-product-image-wrapper-inner img').css('display','none');
+            }
+            $("#main-product-image").ezPlus(zoomConfig(true, false));
+            var ezApi = $('#main-product-image').data('ezPlus');
+            ezApi.changeState('disable');
+        } else {
+            $("#main-product-image").ezPlus(zoomConfig());
+            var ezApi = $('#main-product-image').data('ezPlus');
+            $('.catalog-product-view .breadcrumb-product .breadcrumb-container').removeAttr("style");
+        }
+
+        // disable zoom on video or enable on image and above choosen viewport
+        $('#more-views div a').click(function(event){
+            event.preventDefault();
+            
+            if($(this).hasClass('external-video')) {
+                ezApi.changeState('disable');
+                var video_url = "<?= $mainImageData['video']; ?>";
+                if(video_url != ""){ 
+                $('#main-product-image-ZoomContainer').attr('style', 'position: relative');
+                setTimeout(function(){$('#main-product-image-wrapper .external-video-icon').remove();},1500);
+                $('.main-product-image-wrapper-inner #video_360').remove();
+                var checkVideo = video_url.split('/');
+                if(checkVideo[3] == 'video'){
+                $('.main-product-image-wrapper-inner').append('<div id="video_360" style="padding:100% 0 0 0;position:relative;"><iframe src="'+video_url+'?autoplay=1&loop=1&autopause=0&muted=1&background=1" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>');
+                }else{
+                video_url = "https://player.vimeo.com/video/"+checkVideo[3];
+                $('.main-product-image-wrapper-inner').append('<div id="video_360" style="padding:100% 0 0 0;position:relative;"><iframe src="'+video_url+'?autoplay=1&loop=1&autopause=0&muted=1&background=1" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>'); 
+                }
+                
+                $('.main-product-image-wrapper-inner img').css('display','none');
+                }
+            } else if ($(window).width() > <?= $block->escapeHtml($config['viewport']); ?>) {
+                ezApi.changeState('enable');
+                $('.main-product-image-wrapper-inner iframe, .main-product-image-wrapper-inner #video_360').remove();
+                $('.main-product-image-wrapper-inner img').css('display','block');
+                $('.catalog-product-view .breadcrumb-product .breadcrumb-container').removeAttr("style");
+            }else{
+                $('.main-product-image-wrapper-inner iframe, .main-product-image-wrapper-inner #video_360').remove();
+                $('.main-product-image-wrapper-inner img').css('display','block');
+                $('.catalog-product-view .breadcrumb-product .breadcrumb-container').removeAttr("style");
+            }
+            $('#main-product-image-wrapper .external-video-icon').remove();
+        });
+
+        // load video in new tab or in lightbox depending on viewport
+        //$('#main-product-image-wrapper').on("click", ".external-video-icon", handleVideoClick);
+        function handleVideoClick() {
+            var videoUrl = $(this).siblings(".zoomWrapper").find('.main-product-video').attr("data-video");
+
+            if ($(window).width() < <?= $block->escapeHtml($config['viewport']); ?>) {
+                window.open(videoUrl);
+            } else {
+                // $('.main-product-image-wrapper-inner img').css('display','none');
+                // $('.main-product-image-wrapper-inner').append('<iframe src="https://player.vimeo.com/video/749466201?h=5cb94c61e6&autoplay=1&loop=1&byline=0&portrait=0" style="width:100%;height:100%;" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>');
+                /*$.fn.prettyPhoto({
+                    theme: '<?= $block->escapeHtml($lightbox['lightbox_theme']); ?>',
+                    show_title: false,
+                    overlay_gallery: false,
+                    allow_resize: true,
+                    opacity: 0.8,
+                    markup: '<div class="pp_pic_holder"><div class="ppt"></div><div class="pp_pic_wrapper"><a href="#" class="pp_expand" title="Expand the image"></a><a href="#" class="pp_close" title="Close the image"></a><div class="pp_content_container"><div class="pp_content"><div class="pp_loaderIcon"></div><div class="pp_fade"><div class="pp_hoverContainer"><a class="pp_next" href="#"><span class="btn_next"></span></a><a class="pp_previous" href="#"><span class="btn_previous"></span></a></div><div id="pp_full_res"></div><div class="pp_details"><div class="pp_nav"><div class="pp_navigate"><a href="#" class="pp_arrow_previous"></a><p class="currentTextHolder">0/0</p><a href="#" class="pp_arrow_next"></a></div></div></div></div></div></div></div></div><div class="pp_overlay overlay-<?= $block->escapeHtml($lightbox['lightbox_theme']); ?>"></div>',
+                    iframe_markup: "<iframe src='{path}' width='{width}' height='{height}' frameborder='no' allowfullscreen='true'></iframe>",
+                    social_tools: '',
+                    horizontal_padding: 10,
+                });
+
+                $.prettyPhoto.open(videoUrl);
+                return false;*/
+
+            }
+        }
+
+        // disable the click-to-zoom magnifying glass
+        $('#main-product-image-wrapper').on("click", ".click-to-zoom", handleClickToZoom);
+        function handleClickToZoom() {
+            $(this).remove();
+        }
+
+    <?php if ($lightbox['lightbox_enable']) { ?>
+        <?php if ($mainImage['enable_magnify']) { ?>
+            $('#um-pz-magnifying-link').bind('click', function(e) {
+        <?php } else { ?>
+            $('#main-product-image').bind('click', function(e) {
+        <?php } ?>
+            $.fn.prettyPhoto({
+                theme: '<?= $block->escapeHtml($lightbox['lightbox_theme']); ?>',
+                show_title: <?= $block->escapeHtml($lightbox['lightbox_title']); ?>,
+                overlay_gallery: <?= $block->escapeHtml($lightbox['lightbox_gallery']); ?>,
+                allow_resize: <?= $block->escapeHtml($lightbox['lightbox_resize']); ?>,
+                opacity: 0.8,
+                markup: '<div class="pp_pic_holder"><div class="ppt"></div><div class="pp_pic_wrapper"><a href="#" class="pp_expand" title="Expand the image"></a><a href="#" class="pp_close" title="Close the image"></a><div class="pp_content_container"><div class="pp_content"><div class="pp_loaderIcon"></div><div class="pp_fade"><div class="pp_hoverContainer"><a class="pp_next" href="#"><span class="btn_next"></span></a><a class="pp_previous" href="#"><span class="btn_previous"></span></a></div><div id="pp_full_res"></div><div class="pp_details"><div class="pp_nav"><div class="pp_navigate"><a href="#" class="pp_arrow_previous"></a><p class="currentTextHolder">0/0</p><a href="#" class="pp_arrow_next"></a></div></div></div></div></div></div></div></div><div class="pp_overlay overlay-<?= $block->escapeHtml($lightbox['lightbox_theme']); ?>"></div>',
+                gallery_markup: '<div class="pp_gallery"><a href="#" class="pp_arrow_previous"></a><div><ul>{gallery}</ul></div><a href="#" class="pp_arrow_next"></a></div>',
+                social_tools: '',
+                horizontal_padding: 10,
+            <?php if ($block->escapeHtml($lightbox['lightbox_slideshow']) == 'true') { ?>
+                slideshow: <?= $block->escapeHtml($lightbox['lightbox_slideshow_speed']); ?>,
+                autoplay_slideshow: <?= $block->escapeHtml($lightbox['lightbox_slideshow_autoplay']); ?>,
+            <?php } else { ?>
+                slideshow: false,
+            <?php } ?>
+            });
+            var rawImages = ezApi.getGalleryList();
+            var images = rawImages.reduce(function(memo, e1){
+                var matches = memo.filter(function(e2){
+                    return e1.href == e2.href
+                })
+                if (matches.length == 0)
+                    memo.push(e1)
+                return memo;
+            }, []);
+            var api_images = [], api_titles = [];
+            for ( var i = 0; i < images.length; i++ ){
+                api_images.push ( images[i]['href'] );
+                api_titles.push ( images[i]['title'] );
+            }
+            $.prettyPhoto.open(api_images, api_titles);
+            return false;
+        });
+    <?php } ?>
+
+    <?php if ($thumbnails['thumbnails_scroll']) { ?>
+        $('#more-views #thumbnails').slick({
+        <?php if ($thumbnails['thumbnails_position'] == 'above' || $thumbnails['thumbnails_position'] == 'below') { ?>
+            dots: <?= $block->escapeHtml($thumbnails['thumbnails_scroll_paging']); ?>,
+    <?php } ?>
+            infinite: <?= $block->escapeHtml($thumbnails['thumbnails_scroll_infinite']); ?>,
+            slidesToShow: <?= $block->escapeHtml($thumbnails['thumbnails_scroll_thumbstoshow']); ?>,
+            slidesToScroll: <?= $block->escapeHtml($thumbnails['thumbnails_scroll_thumbstoscroll']); ?>,
+        <?php if ($thumbnails['thumbnails_position'] == 'right' || $thumbnails['thumbnails_position'] == 'left') { ?>
+            vertical: true,
+    <?php } ?>
+        });
+        
+        $('#more-views_mob #thumbnails_mob').slick({
+                //dots: <?php //echo $block->escapeHtml($thumbnails['thumbnails_scroll_paging']); ?>,
+                infinite: <?php echo $block->escapeHtml($thumbnails['thumbnails_scroll_infinite']); ?>,
+                slidesToShow: <?php echo $block->escapeHtml($thumbnails['thumbnails_scroll_thumbstoshow']); ?>,
+                slidesToScroll: <?php echo $block->escapeHtml($thumbnails['thumbnails_scroll_thumbstoscroll']); ?>,
+                responsive: [
+                        {
+                            breakpoint: 1199,
+                            settings: {
+                                slidesToShow: 3,
+                                slidesToScroll: 3,
+                                vertical: false
+                            }
+                        },
+                        {
+                            breakpoint: 768,
+                            settings: {
+                                slidesToShow: 2,
+                                slidesToScroll: 2,
+                                vertical: false
+                            }
+                        }
+                    ]
+            });
+    <?php } ?>
+    });
+</script>
+<?php } ?>

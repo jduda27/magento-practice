@@ -1,0 +1,40 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+?>
+<?php
+/** @var $block \Magento\Framework\View\Element\Template */
+/** @var $helper \Magento\Search\Helper\Data */
+$helper = $this->helper(\Magento\Search\Helper\Data::class);
+?>	
+    <form id="search_mini_form" action="<?= /* @escapeNotVerified */ $helper->getResultUrl() ?>" method="get">
+		<div class="form-search">    
+			<div class="input-group">
+				<input id="search"
+					   data-mage-init='{"quickSearch":{
+							"formSelector":"#search_mini_form",
+							"url":"<?= /* @escapeNotVerified */ $helper->getSuggestUrl()?>",
+							"destinationSelector":"#search_autocomplete"}
+					   }'
+					   type="text"
+					   name="<?= /* @escapeNotVerified */ $helper->getQueryParamName() ?>"
+					   value=""
+					   placeholder="<?= $block->escapeHtmlAttr(__('Search Products')) ?>"
+					   class="input-text form-control search_focus_toggle"
+					   maxlength="<?= /* @escapeNotVerified */ $helper->getMaxQueryLength() ?>"/>
+				<div id="search_autocomplete" class="search-autocomplete"></div>
+
+				 <span class="input-group-btn">
+					<button type="submit"
+							title="<?= $block->escapeHtml(__('Search Products')) ?>"
+							class=".action .search btn btn-default icon-basic-magnifier">
+						<span> <span><?= /* @escapeNotVerified */ __('Search Products') ?></span></span>
+					</button>
+				</span>
+			</div>
+		</div>
+    </form>

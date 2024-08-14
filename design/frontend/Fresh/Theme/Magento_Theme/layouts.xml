@@ -1,0 +1,17 @@
+<page_layouts xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/PageLayout/etc/layouts.xsd">
+    <layout id="category-layout-with-1ad">
+        <label translate="true">Category Layout With 1 ad</label>
+    </layout>
+    <layout id="category-layout-with-2ads">
+        <label translate="true">Category Layout With 2 ads</label>
+    </layout>
+    <layout id="arteriors-category-layout">
+        <label translate="true">Arteriors Category Layout</label>
+    </layout>
+    <layout id="the-art-of-dining">
+        <label translate="true">The art of dining page</label>
+    </layout>
+    <layout id="faq">
+        <label translate="true">faq</label>
+    </layout>
+</page_layouts>

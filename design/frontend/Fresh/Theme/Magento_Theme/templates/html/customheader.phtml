@@ -1,0 +1,10 @@
+
+<?php 
+$html = $block->getLayout()->createBlock(
+                'Magento\Cms\Block\Block'
+            )->setBlockId('discount-top-bar')->toHtml();
+if ($html!='') { ?>
+<div id="custom-header-id" class="header page-main">
+    <?php echo $this->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('discount-top-bar')->toHtml(); ?>
+</div>
+<?php } ?>

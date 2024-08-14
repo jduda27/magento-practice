@@ -1,0 +1,153 @@
+<div class="footer-left col-sm-12 col-md-12 col-lg-8">
+<?php
+	echo $this->getLayout()
+	->createBlock('Magento\Cms\Block\Block')
+	->setBlockId('footer_links')
+	->toHtml();
+	?>
+	<div class="row">
+		<div class="col-sm-6 col-lg-6">
+			<address class="d-addr"><?= $block->escapeHtml($block->getCopyright()) ?></address>
+		</div>
+		<div class="col-sm-6 col-lg-6 footer-social">
+		   <?php 
+				echo $this->getLayout()
+				->createBlock('Magento\Cms\Block\Block')
+				->setBlockId('footer_social_links')
+				->toHtml();
+			?>
+		</div>
+	</div>	
+</div>
+
+<div class="footer-right col-sm-12 col-md-12 col-lg-4">
+	<div class="col-sm-12 col-lg-12 footer-newsletter">
+		<h3><?php echo __('Join our email list')?></h3>
+		<!--[if lte IE 8]>
+		<script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/v2-legacy.js"></script>
+		<![endif]-->
+		<script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/v2.js"></script>
+		<script data-hubspot-rendered="true">
+		  hbspt.forms.create({
+						portalId: "2952723",
+						formId: "f633ff8f-648f-4092-867d-1dc1c2c164e1"
+		});
+		</script>
+	</div>
+</div>
+
+<address class="m-addr"><?= $block->escapeHtml($block->getCopyright()) ?></address>
+
+
+
+<style type="text/css">
+    
+.checkout-index-index .payment-method .available-credit {
+    display: none!important;
+}	
+.checkout-index-index .additional_text {
+    position:absolute;
+}	
+.atlwdg-trigger {
+	z-index: 1!important;
+	position: absolute!important;
+}
+.checkout-index-index .po-number{
+    width: 225px !important;
+}	
+.checkout-index-index .check-number{
+    width: 225px !important;
+}
+.col.col-price.zero-price{
+    display: none!important;
+}	
+.checkout-index-index .modals-overlay{
+	z-index : 999!important;
+}
+.form-overlay {
+	z-index : 1000005!important;
+}
+.validate-button-hide{
+	display:none;
+}
+div[name="shippingAddress.project_classification"] {
+    display: none;
+}
+div[name="shippingAddress.custom_attributes.switch_field"] {
+    display: none;
+}
+div[name="shippingAddress.custom_attributes.switch_field_specifier"] {
+    display: none;
+}
+div[name="shippingAddressspecifier.project_classification"] {
+    display: none;
+}
+
+div[data-bind="visible: isExceedLimit()"] {
+    display: none!important;
+}
+
+.display-switch-field{
+    display: block!important;
+}
+
+#opc-new-shipping-address .new-user-address{
+	display: none;
+}
+
+div[name="shippingAddress.manual_tax"] {
+    display: none;
+}
+.display-manual-tax{
+	display: block!important;
+}
+
+h3.subrgoup-label {
+    font-weight: 700!important;
+}
+.first-switch{
+	float:left;
+}
+.show_billing_address{
+	display: block!important;
+}
+.hide_po_field{
+    display: none!important;
+}
+
+
+</style>
+
+
+
+<script async="async" type="text/javascript">
+
+
+
+    require(['jquery','Magento_Customer/js/customer-data','domReady!'],function($,customerData){
+        var sections = ['cart'];
+        customerData.invalidate(sections);
+        customerData.reload(sections, true);
+        $(document).on('click', '.wishlist button.change',function(){
+            $("ul.items.show-portfolio-list").not($(this).next()).removeClass('show-portfolio-list');
+            $(this).next('ul.items').toggleClass('show-portfolio-list');
+        });
+
+        setTimeout(function() {
+            $(".search-index-index .messages .message-success, .search-index-index .messages .message-notice, .customer-account-login .messages .message-notice, .customer-account-login .messages .message-success, .customer-account-create .messages .message-success, .account .messages .message-success, .welcometoarteriors-index-index .messages .message-success").hide('blind', {}, 500)
+        }, 60000);
+
+        setTimeout(function() {
+            $(".page-products .messages .message-success, .checkout-cart-index .messages .message-success, .cms-index-index .messages .message-success, .catalog-product-view .messages .message-success").hide('blind', {}, 500)
+        }, 10000);
+
+        $.htmlPrefilter = function( html ) {
+            return html;
+        };
+
+    });
+    require(['jquery','jquery/ui'], function(jQuery) { 'use strict'; (function() {
+        jQuery.event.special.touchstart = { setup: function(_, ns, handle) { this.addEventListener('touchstart', handle, {passive: ns.includes('noPreventDefault') ? true : false}); } };
+        jQuery.event.special.touchmove = { setup: function(_, ns, handle) { this.addEventListener('touchmove', handle, {passive: ns.includes('noPreventDefault') ? true : false}); } }; }()); });
+</script>
+

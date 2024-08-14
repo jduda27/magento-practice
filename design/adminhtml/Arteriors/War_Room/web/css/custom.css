@@ -1,0 +1,225 @@
+body {
+    background-color:black;
+    color:white;
+}
+.page-wrapper{
+    background-color:#0d1117;
+}
+
+.dashboard-container .empty-text {
+    background-color: #161b22;
+}
+
+.page-main-actions:not(._hidden){
+    background: #161b22;
+    border: 1px solid #e6edf3;
+    border-radius: 5px;
+}
+
+.admin-user .admin__action-dropdown:before {
+    color:white;
+}
+.admin-user .admin__action-dropdown:hover:before {
+    color:white;
+}
+
+.search-global-label:before {
+    color:white;
+}
+
+.magento-version strong{
+    color:white;
+}
+
+.page-footer a {
+    color: darkred;
+}
+.page-footer a:hover {
+    color: red;
+}
+
+.search-global-label:hover:before {
+    color:grey;
+}
+
+.admin__action-dropdown{
+    color:white;
+    background-color:black;
+}
+.admin__action-dropdown:hover{
+    color:white;
+    background-color:darkblue;
+}
+#store-change-button{
+    background-color: darkred;
+}
+
+.store-switcher .dropdown .dropdown-menu{
+    background-color:black;
+    color:white;
+}
+.store-switcher .dropdown-menu li span{
+    color:dimgrey;
+}
+
+.store-switcher .dropdown-menu li a {
+    color:white;
+}
+
+.store-switcher .dropdown-menu li a:hover {
+    background-color: dimgrey;
+    color:black;
+}
+
+.admin__action-dropdown-wrap{
+    background-color: black;
+}
+
+.store-switcher-label {
+    color: white;
+}
+
+.dashboard-data {
+    background-color: black;
+    border: 1px solid darkslategray;
+    color:white;
+    padding: 5px 10px
+}
+
+.action-primary {
+    background-color: red;
+    border: 1px solid black;
+}
+
+.action-primary:hover {
+    background-color: crimson;
+    border: 1px solid black;
+    box-shadow: 0 0 0 1px darkred;
+}
+
+.action-advanced-reports {
+    background-color: red;
+    border: 1px solid black;
+}
+
+.action-advanced-reports:hover {
+    background-color: crimson;
+    border: 1px solid black;
+    box-shadow: 0 0 0 1px darkred;
+}
+
+.message-system-inner {
+    border: 1px solid black;
+    background-color: darkred;
+    color: white;
+    .action-menu-item {
+        color: lightseagreen;
+    }
+    span{
+        color:white;
+    }
+
+    .message {
+        color:white;
+    }
+}
+
+.message-system-collapsible {
+    border: 1px solid black;
+    background-color: darkred;
+    color: white;
+}
+
+.menu-wrapper:before{
+    background-color:#010409;
+    border-right: 1px solid #8d96a0;
+}
+
+.admin__menu .level-0._active > a {
+    background-color: #010409;
+    border-right: 2px solid crimson;
+}
+
+.admin__menu .level-0 > a:hover {
+    background-color:#161b22;
+    border-right: 1px solid #8d96a0;
+    margin: 0 0 0 15px;
+}
+
+.admin__menu .submenu ul > li:hover {
+    a:hover {
+        background-color: red;
+    }
+}
+
+.admin__menu .level-0 > .submenu {
+    background-color: #010409;
+}
+
+.page-title {
+    color: white;
+}
+
+.page-footer {
+    background-color: #161b22;
+    color: white;
+}
+
+.data-grid td {
+    background-color: #0d1117;
+    color:white;
+}
+
+.data-grid th {
+    background-color: #161b22;
+    color:white;
+}
+
+.data-grid tr._odd-row td{
+    background-color: #161b22;
+}
+
+.admin__data-grid-wrap-static .data-grid tr:nth-child(odd) td{
+    background-color: #0d1117;
+    input {
+        background-color: #161b22;
+        color:white;
+    }
+    ::placeholder{
+        color:grey;
+    }
+}
+
+.admin__control-select {
+    background-color: #161b22;
+    color:white;
+}
+
+.action-default, button {
+    background-color: red;
+    border-radius: 5px;
+    color:white;
+    border: 1px solid black;
+}
+
+.action-default:hover, button:hover {
+    background-color: crimson;
+    color:white;
+    border: 1px solid black;
+    border-radius: 5px;
+    box-shadow: 0 0 0 1px darkred;
+}
+
+.page-actions-buttons > button{
+    background-color: red !important;
+    border: 1px solid black !important;
+    border-radius: 5px !important;
+}
+
+.page-actions-buttons > button:hover{
+    background-color: crimson !important;
+    border: 1px solid black !important;
+    border-radius: 5px !important;
+    box-shadow: 0 0 0 1px darkred !important;
+}
+

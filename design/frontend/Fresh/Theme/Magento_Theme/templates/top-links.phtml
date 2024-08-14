@@ -1,0 +1,28 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/**
+ * @var \Magento\Customer\Block\Account\AuthorizationLink $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+?>
+
+<li class="link authorization-link" >
+
+</li>
+
+<li class="accountimg account_pic menu parentMenu hiding">
+    <a class="account_icon" title="<?php echo __('My Account') ?>" href="<?php echo $this->getUrl('customer/account/') ?>"> <?php echo __('My Account') ?> <span></a>
+</li>
+
+<li class="li-portofolio-link hiding">
+    <a href="<?php echo $this->getUrl('wishlist') ?>" title="My Portfolio" class="portofolio-link"><?php echo __('My Portfolio') ?> </a>
+</li>
+<li class="accountimg account_pic menu parentMenu">
+    <a class="account_icon" title=" <?php echo __('Find a Retailer') ?>" href="<?php echo $this->getUrl('find-us') ?>"> <?php echo __('Find a Retailer') ?> <span></a>
+</li>
+

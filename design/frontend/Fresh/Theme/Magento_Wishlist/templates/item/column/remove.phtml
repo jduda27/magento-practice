@@ -1,0 +1,57 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/* @var \Magento\Wishlist\Block\Customer\Wishlist\Item\Column\Remove $block */
+$data = json_decode($block->getItemRemoveParams($block->getItem()), true); //print_r($data); die;
+$itemId  = $data['data']['item'];
+?>
+<td class="last">
+<a href="#" data-role="remove" title="<?= $block->escapeHtmlAttr(__('Remove Item')) ?>"  class="btn-remove" id="remove-<?php echo $itemId;?>">
+    <?= $block->escapeHtml(__('Remove item')) ?>
+</a>
+
+<a href="#" style="visibility: hidden;" data-role="remove" data-post-remove='<?= /* @noEscape */ $block->getItemRemoveParams($block->getItem()) ?>' title="<?= $block->escapeHtmlAttr(__('Remove Item')) ?>"   class="btn-remove btn-remove2" id="<?php echo $itemId;?>">
+    <?= $block->escapeHtml(__('Remove item')) ?>
+</a>
+
+</td>
+<script type="text/javascript">
+require([
+    'jquery',
+    'Magento_Ui/js/modal/confirm'
+],
+function($, confirmation) {
+    var id = '#remove-<?php echo $itemId;?>';
+     var clickid = '#<?php echo $itemId;?>';
+    $(id).bind('click', function (e){
+
+        var flag = '';
+        confirmation({
+            title: 'remove product',
+            content: 'Do you want to remove this product?',
+            actions: {
+
+                confirm: function () {
+                    
+                    $(clickid).click();
+                    return true;
+                    //return flag;
+                },
+
+                cancel: function () {
+                    
+                    return false;
+                    //return flag;
+                  
+                  
+                }
+            }
+
+        });
+     return false;
+    });
+});
+</script>

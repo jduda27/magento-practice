@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+     <head>
+        <remove src="Netbaseteam_Megamenu/js/megamenu.js"/>
+        <remove src="js/arterior.js"/>
+        <remove src="jquery.js"/>
+        <remove src="mage/common.js"/>
+        <remove src="jquery/patches/jquery.js"/>
+   
+    </head>
+    <!--referenceContainer name="footer-container" remove="true" />
+    <referenceBlock name="copyright" remove="true" />
+    <referenceContainer name="page.top" remove="true" />
+    <referenceContainer name="header.container" remove="true" /-->
+ </page>

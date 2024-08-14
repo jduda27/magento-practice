@@ -1,0 +1,69 @@
+<?php
+$current_url  = $this->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]);
+$helper = $this->helper('\Ntz\Login\Helper\RestrictedByIp');
+$consumerHelper = $this->helper('\Ntz\BillingAddress\Helper\ConsumerHelper');
+$klevuRedirectUrl = $helper->getLoginUrl($current_url);
+$optionArray = $helper->isConsumer();
+$isConsumer=  $optionArray['is_consumer'];
+$iscommercial=  $optionArray['iscommercial'];
+$logouturl = $helper->getLogoutUrl();
+$targetSubloginId= $consumerHelper->getTargetSubloginId();
+$targetCustomerId= $consumerHelper->getTargetCustomerId();
+/* performance issues */
+?>
+<script async="async" type="module">
+    require(['jquery'], function($) {
+        var klevuData = window.localStorage.getItem('klv_mage');
+        var klvobjStorage = $.parseJSON(klevuData);
+        var loginurl = "<?php echo $klevuRedirectUrl; ?>";
+        var logouturl = "<?php echo $logouturl; ?>";
+        var isconsumer = "<?php echo $isConsumer; ?>";
+        var iscommercial = "<?php echo $iscommercial; ?>";
+        var targetSubloginId = "<?php echo $targetSubloginId; ?>";
+        var targetCustomerId = "<?php echo $targetCustomerId; ?>";
+        window.sessionStorage.setItem('klevu_redirectUrl',loginurl);
+        window.localStorage.setItem('show_userclass',isconsumer);
+        window.localStorage.setItem('iscommercial',iscommercial);
+        var klvData = klvobjStorage['customerData'];
+
+        if (typeof klvData['customer_group_id'] === "undefined") {
+
+             $('.authorization-link').html("<a class='login-link-ajax' href='" + loginurl + "'><span class='login-label'> Log In / Register </span></a>");
+
+            $('.hamburger-ul .authorization-link').html("<a class='login-link-ajax' href='" + loginurl + "'><span class='login-label'> Log In / Register </span></a>");
+
+          } else{      
+
+            $('.authorization-link').removeClass('amasty-hide-price-button');
+			
+			$('.accountimg.account_pic').removeClass('hiding');
+
+            $('.li-portofolio-link').removeClass('hiding');
+
+            $('.accountimg.account_pic').addClass('display');
+
+            $('.li-portofolio-link').addClass('display');
+
+            $('.authorization-link').html("<a class='login-link-ajax' href='" + logouturl + "'><span class='login-label'> Log out </span></a>");
+            $('.hamburger-ul .authorization-link').html("<a class='login-link-ajax' href='" + logouturl + "'><span class='login-label'> Log out </span></a>");
+          }
+
+        function checkSDKExistanceAndAddCustomAttribute(){
+            const sdkCheck = setInterval(() => {
+                if(window.NOIBUJS){
+                    clearInterval(sdkCheck);
+                    window.NOIBUJS.addCustomAttribute('target_sublogin_id',targetSubloginId);
+                    window.NOIBUJS.addCustomAttribute('target_customer_id',targetCustomerId);
+                }
+            }, 10000);
+        }
+        checkSDKExistanceAndAddCustomAttribute();
+    });
+
+        const scriptArter = document.createElement('script')
+        scriptArter.src = '<?php echo $block->getViewFileUrl('js/arterior.js')?>';
+        scriptArter.type = 'text/javascript';
+        document.head.append(scriptArter);
+
+
+</script>

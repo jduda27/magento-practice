@@ -1,0 +1,85 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var $block \Magento\Checkout\Block\Cart\Sidebar */
+?>
+
+<div data-block="minicart" class="minicart-wrapper">
+    
+    <?php if ($block->getIsNeedToDisplaySideBar()) :?>
+        <div class="block block-minicart"
+             data-role="dropdownDialog"
+             data-mage-init='{"dropdownDialog":{
+                "appendTo":"[data-block=minicart]",
+                "triggerTarget":".showcart",
+                "timeout": "2000",
+                "closeOnMouseLeave": false,
+                "closeOnEscape": true,
+                "triggerClass":"active",
+                "parentClass":"active",
+                "buttons":[]}}'>
+            <div id="minicart-content-wrapper" data-bind="scope: 'minicart_content'">
+                <!-- ko template: getTemplate() --><!-- /ko -->
+				<span class="counter qty subtotal empty"
+				  data-bind="css: { empty: !!getCartParam('summary_count') == false }, blockLoader: isLoading">
+				<span id ="hiddenQty" class="counter-number" data-bind="html: getCartParam('summary_count')"></span>
+				<span id ="hiddenSubtotal" class="counter-number" data-bind="html: getCartParam('subtotal')"></span>
+			</span>
+            </div>
+            <?= $block->getChildHtml('minicart.addons') ?>
+        </div>
+    <?php else :?>
+        <script>
+            require(['jquery'], function ($) {
+                $('a.action.showcart').click(function() {
+                    $(document.body).trigger('processStart');
+                });
+            });
+        </script>
+    <?php endif ?>
+	<a class="action showcart top-link-cart icon-ecommerce-bag" href="<?= $block->escapeUrl($block->getShoppingCartUrl()) ?>"
+       data-bind="scope: 'minicart_content'">
+        <span style="border: 1px solid; padding: 1px 4px 1px 4px; border-radius: 50%;"
+              data-bind="css: { empty: !!getCartParam('summary_count') == false }, blockLoader: isLoading" class="empty tooltip">
+              <!-- ko text: getCartParam('summary_count') --><!-- /ko -->
+        </span>Cart
+    </a>
+    <script>
+        window.checkout = <?= /* @noEscape */ $block->getSerializedConfig() ?>;
+    </script>
+    <script type="text/x-magento-init">
+    {
+        "[data-block='minicart']": {
+            "Magento_Ui/js/core/app": <?= /* @noEscape */ $block->getJsLayout() ?>
+        },
+        "*": {
+            "Magento_Ui/js/block-loader": "<?= $block->escapeJs(
+                $block->escapeUrl($block->getViewFileUrl('images/loader-1.gif'))
+            ) ?>"
+        }
+    }
+    </script>
+	<script type="text/javascript">
+    require(['jquery'],function($){
+        $( ".action.showcart.top-link-cart.icon-ecommerce-bag" ).hover(
+        function() {
+            var count = $(".tooltip").text();
+            if (count == 1){
+                $( this ).attr("title","My Cart("+count+" item)");
+            }else if(count>1){
+                $( this ).attr("title","My Cart("+count+" items)");
+            }else{
+                $( this ).attr("title","My Cart");
+            }
+            
+        });
+
+    });
+
+</script>
+</div>
+
+

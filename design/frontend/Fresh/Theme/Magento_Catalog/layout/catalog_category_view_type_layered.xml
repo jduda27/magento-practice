@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2020 Amasty (https://www.amasty.com)
+ * @package Amasty_Shopby
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="category.product.list.additional">
+            <!--<block class="Amasty\Shopby\Block\Navigation\CategoryTop" name="amshopby.catalog.topnav" template="Magento_LayeredNavigation::layer/view.phtml">
+                <block class="Amasty\Shopby\Block\Navigation\Top\State" name="amshopby.catalog.topnav.state" as="state" />
+                <block class="Amasty\Shopby\Block\Navigation\FilterRenderer" name="amshopby.catalog.topnav.renderer" as="renderer" template="Magento_LayeredNavigation::layer/filter.phtml"/>
+            </block>-->
+            <container name="amshopby.catalog.topnav.container.last" htmlTag="div" htmlClass="catalog-topnav-last-item" after="amshopby.catalog.topnav"></container>
+        </referenceContainer>
+    </body>
+</page>

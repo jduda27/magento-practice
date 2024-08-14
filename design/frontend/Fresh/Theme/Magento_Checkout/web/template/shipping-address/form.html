@@ -1,0 +1,38 @@
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<form class="form form-shipping-address" id="co-shipping-form" data-bind="attr: {'data-hasrequired': $t('* Required Fields')}">
+    <!-- ko foreach: getRegion('before-fields') -->
+    <!-- ko template: getTemplate() --><!-- /ko -->
+    <!--/ko-->
+    <div id="shipping-new-address-form" class="fieldset address">
+        <!-- ko foreach: getRegion('additional-fieldsets') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+        <!-- ko if: (isCustomerLoggedIn) -->
+
+        <div class="field choice" data-bind="visible: !isFormInline">
+            <input type="checkbox" class="checkbox" id="shipping-save-in-address-book" data-bind="checked: saveInAddressBook" />
+            <label class="label" for="shipping-save-in-address-book">
+                <span data-bind="i18n: 'Save in address book'"></span>
+            </label>
+        </div>
+        <div class="actions-toolbar">
+            <div class="primary">
+                 <button class="new-user-address" id="verify-address" type="button" >
+                    <span data-bind="i18n: 'SAVE & VALIDATE'"></span>
+                </button>
+                 <button class="new-user-address-edit" id="new-address-edit" style="display: none;"  type="button" >
+                    <span data-bind="i18n: 'Edit'"></span>
+                </button>
+                
+            </div>
+
+        </div>
+        <div id="events_popup" style="display: none;padding: 20px;" class="events_popup"></div>
+        <!-- /ko -->
+    </div>
+</form>

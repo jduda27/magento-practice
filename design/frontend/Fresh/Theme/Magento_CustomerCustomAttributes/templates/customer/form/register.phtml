@@ -1,0 +1,2318 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+?>
+<?php
+/**
+ * Create account form template
+ *
+ * @var $block \Magento\Customer\Block\Form\Register
+ */
+?>
+<?= $block->getChildHtml('form_fields_before') ?>
+<?php /* Extensions placeholder */ ?>
+<?= $block->getChildHtml('customer.form.register.extra')  ?>
+<?php
+
+$stepFormBlock = $this->getLayout()->createBlock('Ntz\Arteriors\Block\Form\Stepform');
+$customHelper = $this->helper("\Ntz\Productpage\Helper\Data");
+
+$customerSession = $stepFormBlock->getCustomerSession();
+if(!$customerSession->isLoggedIn()) {
+    $stepFormBlock->myAccountRedirection();
+}
+elseif($stepFormBlock->getCustomerCompany()->getSuperUserId()!=$customerSession->getCustomer()->getId()){
+    $stepFormBlock->myAccountRedirection();
+}
+$continetnsCountry="";
+if ($stepFormBlock->getCustomerCompany()) {
+    $continetns=  $stepFormBlock->getCustomerCompany()->getContinents();
+    $continetnsCountry=   $stepFormBlock->getCustomerCompany()->getContinentsCountry();
+}
+
+$hideSalesTax = $customHelper->getCustomVariableValue("show_sales_tax_policy_on_registration");
+$salesTaxhideCountry = explode(',', $hideSalesTax);
+
+
+
+$subusers = $stepFormBlock->getSubusers();
+
+
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$this->_resources = \Magento\Framework\App\ObjectManager::getInstance()->get('Magento\Framework\App\ResourceConnection');
+$connection= $this->_resources->getConnection();
+
+
+$configJson = $customHelper->getCustomVariableValue("arteriors_registration_config");
+$businessCredentialVar = $customHelper->getCustomVariableValue("bc_file_extentions");
+$errorMessage = $customHelper->getCustomVariableValue("bc_file_extentions_message");
+$configValues = json_decode($configJson,true);
+$user_types = isset($configValues["arteriors"]["user_type"]) ? $configValues["arteriors"]["user_type"] : array();
+$primary_sectors = isset($configValues["arteriors"]["primary_sector"]) ? $configValues["arteriors"]["primary_sector"] : array();
+$secondary_sectors = isset($configValues["arteriors"]["secondary_sector"]) ? $configValues["arteriors"]["secondary_sector"] : array();
+$industry_group = isset($configValues["arteriors"]["industry_group"]) ? $configValues["arteriors"]["industry_group"] : array();
+$secondary_industry_group = isset($configValues["arteriors"]["secondary_industry_group"]) ? $configValues["arteriors"]["secondary_industry_group"] : array();
+$industry_group_residential = isset($configValues["arteriors"]["secondary_industry_group_residential"]) ? $configValues["arteriors"]["secondary_industry_group_residential"] : array();
+$industry_group_hospitality = isset($configValues["arteriors"]["secondary_industry_group_hospitality"]) ? $configValues["arteriors"]["secondary_industry_group_hospitality"] : array();
+$industry_group_contract = isset($configValues["arteriors"]["secondary_industry_group_contract"]) ? $configValues["arteriors"]["secondary_industry_group_contract"] : array();
+$industry_group_retail_storefront = isset($configValues["arteriors"]["secondary_industry_group_retail_storefront"]) ? $configValues["arteriors"]["secondary_industry_group_retail_storefront"] : array();
+$industry_group_retail_ecomm = isset($configValues["arteriors"]["secondary_industry_group_retail_ecomm"]) ? $configValues["arteriors"]["secondary_industry_group_retail_ecomm"] : array();
+$roles = isset($configValues["arteriors"]["roles"]) ? $configValues["arteriors"]["roles"] : array();
+$bc_txt = isset($configValues["arteriors"]["business_credentials"]["text"]) ? $configValues["arteriors"]["business_credentials"]["text"] : array();
+$bc_opt = isset($configValues["arteriors"]["business_credentials"]["criteria"]) ? $configValues["arteriors"]["business_credentials"]["criteria"] : array();
+$stp_txt = isset($configValues["arteriors"]["sales_tax_policy"]["text"]) ? $configValues["arteriors"]["sales_tax_policy"]["text"] : "";
+$stp_opt = isset($configValues["arteriors"]["sales_tax_policy"]["options"]) ? $configValues["arteriors"]["sales_tax_policy"]["options"] : array();
+
+$customerSession = $stepFormBlock->getCustomerSession();
+$urlInterface = $objectManager->get('\Magento\Framework\UrlInterface');
+$companyData = $stepFormBlock->getCustomerCompany();
+if(!$customerSession->isLoggedIn()) {
+    $customerSession->setAfterAuthUrl($urlInterface->getCurrentUrl());
+    $customerSession->authenticate();
+}else{
+    $customerData = $customerSession->getCustomer()->getData(); /* get all data of customerData */
+    $customer = $stepFormBlock->getCustomerData($customerSession->getCustomer()->getId());
+    $currentPosition = $stepFormBlock->getStepFormPosition();
+    $currentPositionText = $stepFormBlock->getStepFormPositionText();
+    $billingID = $customer->getDefaultBilling();
+    $shippingID = $customer->getDefaultShipping();
+    $ship_regionID = $bill_regionID = '';
+    $ship_region = $bill_region = '';
+    $bill_country = $ship_country = '';
+    $billpostcode =  $shippostcode = '';
+    $billcity =  $shipcity = '';
+    $billaboutus =  $billaboutus = '';
+    $billstreet =  $shipstreet = [];
+    if ($billingID) {
+        $bill_address = $stepFormBlock->getCustomerAddress($billingID);
+        $bill_country =  $bill_address->getCountryId();
+        $bill_regionID =  $bill_address->getRegionId();
+        $bill_region=  $bill_address->getRegion();
+        $billpostcode =  $bill_address->getPostcode();
+        $billcity =  $bill_address->getCity();
+        $billstreet =  $bill_address->getStreet();
+        $billaboutus =  $bill_address->getData('select_about_us');
+    }
+    if ($shippingID) {
+        $ship_address = $stepFormBlock->getCustomerAddress($shippingID);
+        $ship_country =  $ship_address->getCountryId();
+        $ship_regionID =  $ship_address->getRegionId();
+        $ship_region =  $ship_address->getRegion();
+        $shippostcode =  $ship_address->getPostcode();
+        $shipcity =  $ship_address->getCity();
+        $shipstreet =  $ship_address->getStreet();
+    }
+    if ($companyData->getCompanyName() !== null) {
+        $companyWebSite = '';
+        $CompanySocialWebsite = '';
+        $PrimarySector = '';
+        $SecondarySector = '';
+        $IndustryGroup = '';
+        $SalesTaxPolicy = '';
+        $Telephone = '';
+        $companyWebSite = $companyData->getCompanyWebsite();
+        $CompanySocialWebsite = $companyData->getCompanySocialWebsite();
+        $PrimarySector = $companyData->getPrimarySector();
+        $SecondarySector = $companyData->getSecondarySector();
+        $IndustryGroup = $companyData->getIndustryGroup();
+        $SalesTaxPolicy = $companyData->getSalesTaxPolicy();
+        $Telephone = $companyData->getTelephone();
+    }
+    $step1 = $step2 = $step3 = '';
+    if ($currentPositionText=='step1'){
+        $step1 = 'active';
+    }elseif($currentPositionText=='step2'){
+        $step2 = 'active';
+    }elseif($currentPositionText=='step3'){
+        $step3 = 'active';
+    }elseif($currentPositionText=='complete' || strtolower($companyData->getUserType())!= 'business'){
+        $stepFormBlock->myAccountRedirection();
+    }
+}
+?>
+
+<div class="container-fluid account-create">
+    <div class="inner-container">
+
+
+        <div class="wizard">
+            <div class="wizard-inner">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="" id="toggle_step1">
+                        <a href="#step1" data-toggle="tab" aria-controls="step1" role="tab" data-toggle="tab">
+                            Step 1: Account Basics</a>
+                    </li>
+                    <li role="presentation" class="<?= $step1 ?>" id="toggle_step2">
+                        <a href="#step2" data-toggle="tab" aria-controls="step2" role="tab" data-toggle="tab">
+                            Step 2: Contact Information</a>
+                    </li>
+                    <li role="presentation" class="<?= $step2 ?>" id="toggle_step3">
+                        <a href="#step3" data-toggle="tab" aria-controls="step3" role="tab" data-toggle="tab">
+                            Step 3: Billing & Shipping</a>
+                    </li>
+                    <li role="presentation" class="<?= $step3 ?>" id="toggle_step4">
+                        <a href="#step4" data-toggle="tab" aria-controls="step4" role="tab" data-toggle="tab">
+                            Step 4: Company Information</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="tab-content" id="main_form">
+                <div class="tab-pane " role="tabpanel" id="step1">
+                    <h2>Step 1: Account Basics</h2>
+                    <div class="signup-wrapper">
+                        <form class="form create account form-create-account customer"   action="javascript:void(0)" method="post" id="form-validate-step1" enctype="multipart/form-data" autocomplete="off" data-mage-init='{"validation":{}}'>
+                            <?= /* @noEscape */ $block->getChildHtml('form_fields_before_in_form') ?>
+                            <?= /* @noEscape */ $block->getBlockHtml('formkey'); ?>
+
+                            <fieldset class="fieldset address">
+                                <div class="field row">
+                                    <div class="col-md-6">
+                                        <label class="label"><?= __("I am a"); ?></label>
+                                        <div class="control">
+                                            <select class="v-validate" name="user_type" id="user_type" onchange="updateRegisterForm(this);" disabled>
+                                                <option value="business"><?php echo /* @escapeNotVerified */ __('Business'); ?></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <?php $_dob = $block->getLayout()->createBlock('Magento\Customer\Block\Widget\Dob'); ?>
+                                <?php if ($_dob->isEnabled()): ?>
+                                    <?= $_dob->setDate($block->getFormData()->getDob())->toHtml(); ?>
+                                <?php endif; ?>
+                                <?php $_taxvat = $block->getLayout()->createBlock('Magento\Customer\Block\Widget\Taxvat'); ?>
+                                <?php if ($_taxvat->isEnabled()): ?>
+                                    <?= $_taxvat->setTaxvat($block->getFormData()->getTaxvat())->toHtml(); ?>
+                                <?php endif; ?>
+                                <?php $_gender = $block->getLayout()->createBlock('Magento\Customer\Block\Widget\Gender'); ?>
+                                <?php if ($_gender->isEnabled()): ?>
+                                    <?= $_gender->setGender($block->getFormData()->getGender())->toHtml(); ?>
+                                <?php endif; ?>
+                                <div class="field row">
+                                    <div class="col-md-6 pl-0 field-name-firstname required mm">
+                                        <label class="label" for="firstname"><span>First Name</span></label>
+                                        <div class="control">
+                                            <input type="text" id="firstname" name="firstname" value="<?= $customerData['firstname'] ?>" title="First Name" data-validate="{required:true}" placeholder="First Name" class="required-entry input-text v-validate" maxlength="50">
+                                            
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 pr-0 field-name-lastname required">
+                                        <label class="label" for="lastname"><span>Last Name</span></label>
+                                        <div class="control">
+                                            <input type="text" id="lastname" name="lastname" value="<?= $customerData['lastname'] ?>" data-validate="{required:true}" placeholder="Last Name" title="Last Name" class="required-entry input-text v-validate" maxlength="50">
+                                         
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field row email_row">
+                                    <div class="col-md-6 required ">
+                                        <label for="email_address" class="label"><span><?= /* @escapeNotVerified */ __('Email Address') ?></span></label>
+                                        <div class="control">
+                                            <input type="email" name="email" id="email_address" autocomplete="email" value="<?= $customerData['email'] ?>" title="<?= /* @escapeNotVerified */ __('Email') ?>" class="validate-customer-email input-text v-validate required-entry " data-validate="{required:true, 'validate-email':true,'validate-length':true}" maxlength="80" disabled>
+                                            
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 required  password">
+                                        <label for="password" class="label"><span><?= /* @escapeNotVerified */ __('Password') ?></span></label>
+                                        <div class="control">
+                                            <input type="password" name="password" id="password"
+                                                   title="<?= /* @escapeNotVerified */ __('Password') ?>"
+                                                   placeholder="*******"
+                                                   class="input-text v-validate "
+                                                   data-password-min-length="<?= $block->escapeHtml($block->getMinimumPasswordLength()) ?>"
+                                                   data-password-min-character-sets="<?= $block->escapeHtml($block->getRequiredCharacterClassesNumber()) ?>"
+                                                   data-validate="{required:true,'validate-length':true, 'validate-customer-password':true}"
+                                                   autocomplete="off" maxlength="20" disabled>
+                                            <div id="password-strength-meter-container" data-role="password-strength-meter" aria-live="polite" >
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <input type="hidden" name="step" id="step" value="1" >
+                            </fieldset>
+                            <div class="multi-action actions-toolbar">
+                                <div class="primary">
+                                    <button class="btn save-and-continue-later step1" type="button" onClick="location.href='../'">Complete Later</button>
+                                    <button class="btn save-and-continue step1 business_save action primary submit" type="submit">Save And Continue</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="tab-pane <?= $step1 ?>" role="tabpanel" id="step2">
+                    <h2>Step 2: Contact Information</h2>
+                    <div class="signup-wrapper">
+                        <form class="form create account form-create-account customer"   action="javascript:void(0)" method="post" id="form-validate-step2" enctype="multipart/form-data" autocomplete="off" data-mage-init='{"validation":{}}'>
+                            <?= /* @noEscape */ $block->getBlockHtml('formkey'); ?>
+                            <fieldset class="fieldset">
+                                <div class="field row pass_row">
+                                    <div class="col-md-6 required  phone-number">
+                                        <label for="phone-number" class="label"><span><?= /* @escapeNotVerified */ __('Phone Number') ?></span></label>
+                                        <div class="control">
+                                            <input type="text" name="phone_number" value="<?php if(isset($customerData['phone_number']) && $customerData['phone_number']){ echo $customerData['phone_number']; } ?>" title="<?= /* @escapeNotVerified */ __('Phone Number') ?>" id="phone-number" class="required-entry us-phone-validate input-text v-validate" data-validate="{required:true,'validate-length':true}" maxlength="20">
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-6  mobile-phone-number">
+                                        <label for="mobile-phone-number" class="label"><span><?= /* @escapeNotVerified */ __('Mobile Number') ?></span></label>
+                                        <div class="control">
+                                            <input type="text" name="mobile_number"   value="<?php if(isset($customerData['mobile_number']) && $customerData['mobile_number']){ echo $customerData['mobile_number']; } ?>" title="<?= /* @escapeNotVerified */ __('Mobile Phone Number') ?>" id="mobile-phone-number" class="us-phone-validate input-text v-validate" maxlength="20">
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                            <hr>
+                            <fieldset class="fieldset additional_contacts">
+
+                                <div class="col-md-12">
+                                    <h2 class=""><span><?= /* @escapeNotVerified */ __('Authorized Contacts'); ?></span></h2>
+                                    <div class="add_auth_div control"><input type="checkbox" id="add_auth_id" name="add_auth"><span><?= /* @escapeNotVerified */ __('Additional Authorized Contacts'); ?></span></div>
+
+                                    <?php
+                                    if (is_array($subusers) && !empty($subusers)){
+                                        $subusers = $subusers;
+                                        $i=0;
+                                    }else{
+                                        $subusers = array('0');
+                                        $i=0;
+                                    }
+                                    ?>
+                                    <div class="contacts_wrapper" style="display: none;">
+                                        <?php foreach ($subusers as $subuser) { ?>
+                                            <div class="contact" <?php if($currentPositionText != 'step1' && empty($subuser['SourcePersonId'])){ ?> style="display: none;" <?php } ?> >
+                                                <input type="hidden" name="subuser_id_[<?= $i ?>]" id="subuser_id_[<?= $i ?>]" value="<?php if(isset($subuser['SourcePersonId']) && $subuser['SourcePersonId']){ echo $subuser['SourcePersonId'];  } ?>" >
+                                                <div class="field row">
+                                                    <div class="col-md-6 ext_contact_first_name required">
+                                                        <label for="" class="label"><span><?= /* @escapeNotVerified */ __('First Name') ?></span></label>
+                                                        <div class="control">
+                                                            <input type="text" class="input-text v-validate sub-users-first" name="contact_first_name[<?= $i ?>]" value="<?= $block->escapeHtml($block->getFormData()->getContactFirstName(0)) ?><?php if(isset($subuser['FirstName']) && $subuser['FirstName']){ echo $subuser['FirstName'];  } ?>" data-validate="{required:true}"  maxlength="50" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 ext_contact_last_name required">
+                                                        <label for="" class="label"><span><?= /* @escapeNotVerified */ __('Last Name') ?></span></label>
+                                                        <div class="control">
+                                                            <input type="text" class="input-text v-validate sub-users-last" name="contact_last_name[<?= $i ?>]" value="<?= $block->escapeHtml($block->getFormData()->getContactLastName(0)) ?><?php if(isset($subuser['LastName']) && $subuser['LastName']){ echo $subuser['LastName'];  } ?>" data-validate="{required:true}"  maxlength="50" />
+                                                           
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="field row">
+                                                    <div class="col-md-6 ext_contact_title required">
+                                                        <label for="" class="label"><span><?= /* @escapeNotVerified */ __('Role') ?></span></label>
+                                                        <div class="control">
+                                                            <select name="contact_title[<?= $i ?>]" class="v-validate required-entry sub-users-title ">
+                                                                <option value=""><?= /* @escapeNotVerified */ __('Select') ?></option>
+                                                                <?php
+                                                                echo $prv_title = $block->escapeHtml($block->getFormData()->getContactTitle(0));
+                                                                if (isset($subuser['Title']) && $subuser['Title']) {
+                                                                    echo $prv_title = $subuser['Title'];
+                                                                }
+                                                                foreach ($roles as $key => $val) {
+                                                                    $sel_title = (strtolower($prv_title)==strtolower($val)) ? "selected='selected'" : "";
+                                                                    echo "<option value='$val' $sel_title>$val</option>";
+                                                                }
+                                                                ?>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 ext_contact_phone">
+                                                        <label for="" class="label"><span><?= /* @escapeNotVerified */ __('Phone Number') ?></span></label>
+                                                        <div class="control">
+                                                            <input type="text" class="input-text v-validate sub-users-phone" name="contact_phone[<?= $i ?>]" value="<?= $block->escapeHtml($block->getFormData()->getContactPhone(0)) ?><?php if(isset($subuser['phone_number']) && $subuser['phone_number']){ echo $subuser['phone_number'];  } ?>" maxlength="20" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="field row">
+                                                    <div class="col-md-6 ext_contact_email required">
+                                                        <label for="" class="label"><span><?= /* @escapeNotVerified */ __('Email Address') ?></span></label>
+                                                        <div class="control">
+                                                            <input type="text" maxlength="80" class="input-text required-entry v-validate sub-users-email validate-customer-email_0 validate-email-api"  name="contact_email[<?= $i ?>]" value="<?= $block->escapeHtml($block->getFormData()->getContactEmail(0)) ?><?php if(isset($subuser['Email']) && $subuser['Email']){ echo $subuser['Email'];  } ?>" data-validate="{'validate-email':true}" <?php if(isset($subuser['Email']) && $subuser['Email']){ echo 'disabled';  } ?> maxlength="80" />
+                                                              
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <?php if($currentPositionText == 'step1' || $currentPositionText == ''){ ?>
+                                                    <div class="field row pt-0" id="delete_button">
+                                                        <div class="col-md-12 ext_contact_email required mb-0">
+                                                            <button type="button" class="action delete login-btn-dflt mb-15" onclick="del_contact(this)" title="<?= /* @escapeNotVerified */ __('Delete this contact') ?>">
+                                                                <span><?= /* @escapeNotVerified */ __('Delete Contact') ?></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                <?php } ?>
+                                            </div>
+                                            <?php $sel_title = ''; $i++; } ?>
+                                    </div>
+                                    <div class="add_user_msg" <?php if($currentPositionText == 'step1' || $currentPositionText == ''){ ?> style="display: none;" ><?php }else { ?> > <?php } ?>You can add more users from your account section.</div>
+                                    <?php if($currentPositionText == 'step1' || $currentPositionText == ''){ ?>
+                                        <button type="button" id="add_more_contact" class="action add login-btn-dflt" style="display: none;" onclick="add_contact()" title="<?= /* @escapeNotVerified */ __('Add More Contact') ?>">
+                                            <span><?= /* @escapeNotVerified */ __('Add Another Authorized Contact') ?></span>
+                                        </button>
+                                    <?php } ?>
+                                </div>
+
+                            </fieldset>
+                            <input type="hidden" name="step" id="step" value="2" >
+                            <div class="multi-action actions-toolbar">
+                                <div class="primary">
+                                    <button class="btn save-and-continue-later step2" type="button" onClick="location.href='../'">Complete Later</button>
+                                    <button class="btn save-and-continue step2 continue_step2 business_save action primary submit" type="submit">Save And Continue</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="tab-pane <?= $step2 ?>" role="tabpanel" id="step3">
+                    <h2>Step 3: Billing & Shipping</h2>
+                    <div class="signup-wrapper">
+                        <form class="form create account form-create-account customer"   action="javascript:void(0)" method="post" id="form-validate-step3" enctype="multipart/form-data" autocomplete="off" data-mage-init='{"validation":{}}'>
+                            <fieldset class="fieldset">
+                                <div class="col-md-12">
+                                    <h2><span><?= /* @escapeNotVerified */ __('Billing Address'); ?></span></h2>
+                                </div>
+                                <?php $_streetValidationClass = $this->helper('Magento\Customer\Helper\Address')->getAttributeValidationClass('street'); ?>
+                                <div class="field row">
+                                    <div class="col-md-12  street required">
+                                        <label for="street_1" class="label"><span><?= /* @noEscape */ "Street ".$block->getAttributeData()->getFrontendLabel('street') ?></span></label>
+                                        <div class="control">
+                                            <input type="text" name="street[]" value="<?= $block->escapeHtml($block->getFormData()->getStreet(0)) ?><?php if(isset($billstreet[0])){ echo $billstreet[0];  } ?>" title="<?= /* @escapeNotVerified */ __('Street Address') ?>" id="street_1" class="input-text required-entry v-validate <?= /* @escapeNotVerified */ $_streetValidationClass ?>" maxlength="49">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12  street">
+                                        <?php $_streetValidationClass2 = trim(str_replace('required-entry', '', $_streetValidationClass)); ?>
+                                        <?php for ($_i = 2, $_n = $this->helper('Magento\Customer\Helper\Address')->getStreetLines(); $_i <= $_n; $_i++): ?>
+                                            <label class="label hide-l" for="street_<?= /* @escapeNotVerified */ $_i ?>">
+                                                <span><?php /* @escapeNotVerified */ __('Address %1', $_i-1) ?></span>
+                                            </label>
+                                            <div class="control">
+                                                <input type="text" name="street[]" value="<?= $block->escapeHtml($block->getFormData()->getStreet($_i - 1)) ?><?php if(isset($billstreet[1])){ echo $billstreet[1];  } ?>" title="<?= /* @escapeNotVerified */ __('Street Address %1', $_i) ?>" id="street_<?= /* @escapeNotVerified */ $_i ?>" class="input-text v-validate <?= /* @escapeNotVerified */ $_streetValidationClass2 ?>" maxlength="49">
+                                            </div>
+                                        <?php endfor; ?>
+                                    </div>
+                                </div>
+                                <div class="field row">
+                                    <div class="col-md-4 country required">
+                                        <label for="country" class="label"><span><?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('country_id') ?></span></label>
+                                        <div class="control">
+                                            <?= $block->getCountryHtmlSelect() ?>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4  region required">
+                                        <label for="region_id" class="label"><span><?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('region') ?></span></label>
+                                        <div class="control">
+                                            <select id="region_id" name="region_id" title="<?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('region') ?>" class="validate-select required-entry v-validate region_id" style="display:none;">
+                                                <option value=""><?= /* @escapeNotVerified */ __('Please select a region, state or province.') ?></option>
+                                            </select>
+                                            <input type="text" id="region" name="region" value="<?= $block->escapeHtml($block->getRegion()) ?><?= $bill_region ?>" title="<?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('region') ?>" class="input-text required-entry v-validate <?= /* @escapeNotVerified */ $this->helper('Magento\Customer\Helper\Address')->getAttributeValidationClass('region') ?>" style="display:none;" maxlength="10"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4  required">
+
+                                        <label for="city" class="label"><span><?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('city') ?></span></label>
+                                        <div class="control">
+                                            <input type="text" name="city" value="<?= $block->escapeHtml($block->getFormData()->getCity()) ?><?= $billcity;   ?>" title="<?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('city') ?>" class="input-text required-entry v-validate <?= /* @escapeNotVerified */ $this->helper('Magento\Customer\Helper\Address')->getAttributeValidationClass('city') ?>" id="city" maxlength="30">
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="clearfix"></div>
+                                <div class="field row">
+                                    <div class="col-md-4  zip required">
+                                        <label for="zip" class="label"><span><?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('postcode') ?></span></label>
+                                        <div class="control">
+                                            <input type="text" name="postcode" value="<?= $block->escapeHtml($block->getFormData()->getPostcode()) ?><?= $billpostcode;   ?>" title="<?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('postcode') ?>" id="zip" class="input-text validate-billing-zipcode required-entry v-validate validate-zip-international <?= /* @escapeNotVerified */ $this->helper('Magento\Customer\Helper\Address')->getAttributeValidationClass('postcode') ?>" data-validate="{'required':true, 'validate-zip-international':true}" maxlength="20">
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <div class="col-md-5">
+                                    <h2><span><?= /* @escapeNotVerified */ __('Shipping Address'); ?></span></h2>
+                                </div>
+                                <div class="col-md-7">
+                                    <p class="term-sale-txt"><?php echo __('Please visit our') ?> <a href="<?php echo $block->getBaseUrl(); ?>termsofsale" target="_blank"><?php echo __('Terms of Sale') ?></a> <?php echo __('and review our Shipping Policies.') ?></p>
+                                </div>
+
+                                <input type="hidden" class="billing_id" name="billing_id" value="<?= $customer->getDefaultBilling(); ?>"/>
+                                <input type="hidden" class="shipping_id" id="seperate_shipping_address" name="shipping_idnew" value="<?= $customer->getDefaultShipping(); ?>"/>
+                                <input type="hidden" name="default_billing" value="1"/>
+                                <input type="hidden" name="default_shipping" value="0"/>
+                                <input id="selected_customer_group" name="address[selected_customer_group]" value="" class="input-text" type="hidden">
+
+                                <div class="col-md-12">
+                                    <div class="checkbox-box">
+                                        <ul class="form-list mb-0">
+                                            <li class="control mb-0">
+                                                <input type="checkbox" id="shipping_as_billing" name="shipping_as_billing" value="1">
+                                                <label class="checkbox-label"><?php echo __('Same as Billing Address') ?></label>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 shipping_address" style="display: none;">
+                                    <p><?php echo __('If your shipping address differs from your billing address, please provide information below.') ?></p>
+
+                                    <div class="row field shipping_row ">
+                                        <div class="col-md-12 street required">
+                                            <label for="shipping_street_1"  class="label"><span><?= /* @noEscape */ "Street ".$block->getAttributeData()->getFrontendLabel('street') ?></span></label>
+                                            <div class="control">
+                                                <input type="text"  name="shipping_street[]"  value="<?= $block->escapeHtml($block->getFormData()->getShippingStreet(0)) ?><?php if(isset($shipstreet[0])){ echo $shipstreet[0];  } ?>" title="<?= /* @escapeNotVerified */ __('Street Address') ?>" id="shipping_street_1" data-validate="{'required':true}" class="input-text required-entry v-validate shipping_validate"  maxlength="49">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 street">
+                                            <?php for ($_i = 2, $_n = $this->helper('Magento\Customer\Helper\Address')->getStreetLines(); $_i <= $_n; $_i++): ?>
+                                                <label class="label hide-l" for="shipping_street_<?= /* @escapeNotVerified */ $_i ?>">
+                                                    <span><?php /* @escapeNotVerified */ __('Address %1', $_i-1) ?></span>
+                                                </label>
+                                                <div class="control">
+                                                    <input type="text" name="shipping_street[]" value="<?= $block->escapeHtml($block->getFormData()->getShippingStreet($_i - 1)) ?><?php if(isset($shipstreet[1])){ echo $shipstreet[1];  } ?>" title="<?= /* @escapeNotVerified */ __('Street Address %1', $_i) ?>" id="shipping_street_<?= /* @escapeNotVerified */ $_i ?>" class="input-text" maxlength="49">
+                                                </div>
+                                            <?php endfor; ?>
+                                        </div>
+                                    </div>
+
+                                    <div class="row field shipping_row">
+                                        <div class="col-md-4  country required">
+                                            <label for="shipping_country" class="label"><span><?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('country_id') ?></span></label>
+                                            <div class="control">
+                                                <?php $def_cnt = $block->escapeHtml($block->getFormData()->getShippingCountry()) ? $block->escapeHtml($block->getFormData()->getShippingCountry()) : "US" ; ?>
+                                                <?= $block->getCountryHtmlSelect($def_cnt, "shipping_country", "shipping_country") /* Def.val, Name, Id, Title */ ?>
+                                            </div>
+                                            <div for="shipping_country" id="shipping_country-errors"  style="display:none;">Please select an option.</div>
+                                        </div>
+
+                                        <div class="col-md-4 region required">
+                                            <label for="shipping_region_id" class="label"><span><?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('region') ?></span></label>
+                                            <div class="control">
+                                                <select id="shipping_region_id" class="validate-select required-entry shipping_validate v-validate region_id"  name="shipping_region_id" title="<?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('region') ?>" class="region_id" style="display:none;">
+                                                    <option value=""><?= /* @escapeNotVerified */ __('Please select a region, state or province.') ?></option>
+                                                </select>
+                                                <input type="text" id="shipping_region" name="shipping_region" value="<?= $block->escapeHtml($block->getShippingRegion()) ?><?= $ship_region ?>" title="<?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('region') ?>" data-validate="{'required':true}" class="input-text shipping_validate required-entry v-validate " maxlength="10" style="display:none;"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4 city required">
+                                            <label for="shipping_city" class="label"><span><?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('city') ?></span></label>
+                                            <div class="control">
+                                                <input type="text" name="shipping_city" value="<?= $block->escapeHtml($block->getFormData()->getShippingCity()) ?><?= $shipcity; ?>" title="<?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('city') ?>" data-validate="{'required':true}" class="input-text shipping_validate v-validate required-entry" id="shipping_city" maxlength="30">
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="clearfix"></div>
+                                    <div class="row field shipping_row">
+                                        <div class="col-md-4  zip required">
+                                            <label for="shipping_zip" class="label"><span><?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('postcode') ?></span></label>
+                                            <div class="control">
+                                                <input type="text" name="shipping_postcode" value="<?= $block->escapeHtml($block->getFormData()->getShippingPostcode()) ?><?=  $shippostcode;  ?>" title="<?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('postcode') ?>" id="shipping_zip" class="input-text validate-zip-international v-validate required-entry shipping_validate" data-validate="{'required':true, 'validate-zip-international':true}"  maxlength="20">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                            <input type="hidden" name="step" id="step" value="3" >
+                            <div class="multi-action actions-toolbar">
+                                <div class="primary">
+                                    <button class="btn save-and-continue-later step3" type="button" onClick="location.href='../'">Complete Later</button>
+                                    <button class="btn save-and-continue step3 business_save action primary submit" type="submit">Save And Continue</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="tab-pane <?= $step3 ?>" role="tabpanel" id="step4">
+                    <h2>Step 4: Company Information</h2>
+                    <div class="signup-wrapper">
+                        <form class="form create account form-create-account customer"   action="javascript:void(0)" method="post" id="form-validate-step4" enctype="multipart/form-data" autocomplete="off" data-mage-init='{"validation":{}}'>
+                            <fieldset class="fieldset create user-info">
+                                <div class="field row">
+                                    <div class="required field-company_name col-md-6 ">
+                                        <label for="company" class="label"><span><?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('company') ?></span></label>
+                                        <div class="control">
+                                            <input type="text" name="company" value="<?= $block->escapeHtml($block->getFormData()->getcompany()) ?><?php  if ($companyData->getCompanyName()) { echo $companyData->getCompanyName(); } ?>" title="<?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('company') ?>" class="input-text required-entry validate-company-name v-validate <?= /* @escapeNotVerified */ $this->helper('Magento\Customer\Helper\Address')->getAttributeValidationClass('company') ?> " id="company" maxlength="50" disabled>
+                                        </div>
+                                    </div>
+
+                                    <?php $customerAttributes = $block->getChildBlock('customer_form_user_attributes'); ?>
+                                    <?php if ($customerAttributes): ?>
+                                        <?php $customerAttributes->setObject($block->getFormData())->setEntityType('customer')->setShowContainer(false); ?>
+                                        <?php $block->restoreSessionData($customerAttributes->getMetadataForm()); ?>
+                                        <?= $customerAttributes->toHtml() ?>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="field row comp_info">
+                                    <div class="col-md-6 required">
+                                        <label for="super_group_select" class="label"><?= __("Primary Market Sector"); ?></label>
+                                        <div class="tool-wrap">
+                                            <span class="tooltip"></span>
+                                            <div class="tootltip-text">What is the Primary discipline in your firm?</div>
+                                        </div>
+                                        <?php  ?>
+                                        <div class="control">
+                                            <select class="validate-select v-validate" onchange="" name="supergroup_select" id="supergroup_select">
+                                                <option value=""><?= /* @escapeNotVerified */ __('Select') ?></option>
+                                                <?php
+                                                $prv_val_sg = $block->escapeHtml($block->getFormData()->getSupergroupSelect());
+                                                if ($companyData->getPrimarySector()){
+                                                    $prv_val_sg = $companyData->getPrimarySector();
+                                                }
+                                                foreach ($primary_sectors as $customergroup) {
+                                                    $sel_sg = ($prv_val_sg == $customergroup) ? "selected='selected'" : "";
+                                                    echo '<option value="'.$customergroup.'" '.$sel_sg.'>'.$customergroup.'</option>';
+                                                } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 ">
+                                        <label for="subgroup_select" class="label"><?= __("Secondary Market Sector"); ?></label>
+                                        <div class="tool-wrap">
+                                            <span class="tooltip"></span>
+                                            <div class="tootltip-text">If you have a secondary discipline in your firm, Please select it from the list below.</div>
+                                        </div>
+                                        <div class="control">
+                                            <select class="group_id" supergroup="" name="subgroup_select" id="subgroup_select">
+                                                <option value=""><?= /* @escapeNotVerified */ __('Select') ?></option>
+                                                <?php
+
+                                                $prv_val_sg2 = $block->escapeHtml($block->getFormData()->getSubgroupSelect());
+                                                if ($companyData->getSecondarySector()){
+                                                    $prv_val_sg = $companyData->setSecondarySector();
+                                                }
+                                                foreach($secondary_sectors as $customergroup){
+                                                    echo '<option value="'.$customergroup.'">'.$customergroup.'</option>';
+                                                } ?>
+                                            </select>
+                                        </div>
+                                        <input type="hidden" value="<?= $prv_val_sg2 ?>"/>
+                                    </div>
+                                </div>
+
+
+                                <div class="field row comp_info">
+                                    <div class="col-md-6 required">
+                                        <label  class="label"><?= __("Primary Customer Type:"); ?></label>
+                                        <div class="tool-wrap">
+                                            <span class="tooltip"></span>
+                                            <div class="tootltip-text">Which best describes your function?</div>
+                                        </div>
+                                        <div class="control">
+                                            <select name="industry_group" id="industry_group" class="validate-select v-validate">
+                                                <option value=""><?= /* @escapeNotVerified */ __('Select'); ?></option>
+                                                <?php
+                                                $prv_val_ig = $block->escapeHtml($block->getFormData()->getIndustryGroup());
+                                                if ($companyData->getIndustryGroup()){
+                                                    $prv_val_sg = $companyData->getIndustryGroup();
+                                                }
+                                                foreach ($industry_group as $key => $val) {
+                                                    $sel_ig = ($prv_val_ig == $val) ? "selected='selected'" : "";
+                                                    echo "<option value='$val' $sel_ig>$val</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                     <div class="col-md-6 secondary_col_div" style="display:none;">
+                                        <label  class="label"><?= __("Secondary Customer Type:"); ?></label>
+                                        <div class="tool-wrap">
+                                            <span class="tooltip"></span>
+                                            <div class="tootltip-text">Which best describes your function?</div>
+                                        </div>
+                                        <div class="control">
+                                            <select name="secondary_industry_group" id="secondary_industry_group" class="v-validate">
+                                                <option value=""><?= /* @escapeNotVerified */ __('Select'); ?></option>
+                                                <?php
+                                                $prv_val_ig = $block->escapeHtml($block->getFormData()->getSecondaryIndustryGroup());
+                                                if ($companyData->getSecondaryIndustryGroup()){
+                                                    $prv_val_sg = $companyData->getSecondaryIndustryGroup();
+                                                }
+                                                foreach ($secondary_industry_group as $key => $val) {
+                                                    $sel_ig = ($prv_val_ig == $val) ? "selected='selected'" : "";
+                                                    echo "<option value='$val' $sel_ig>$val</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <hr>
+
+                            <fieldset class="fieldset sales_tax_policy  " >
+                                <?php if (empty($continetnsCountry) || in_array($continetnsCountry, $salesTaxhideCountry)) { ?>
+                                    <div class="col-md-12 ">
+                                        <h2 class=""><span><?= /* @escapeNotVerified */ __('Sales Tax Policy'); ?></span><span class="required_sale"> *</span></h2>
+                                        <p><?= $stp_txt; ?></p>
+                                    </div>
+
+                                    <div class="field row ">
+                                        <div class="col-md-12 ">
+                                            <label  class="label"><?= __("Sales Tax Policy"); ?></label>
+                                            <div class="control">
+                                                <select class="validate-select v-validate" name="sales_tax_policy" id="sales_tax_policy">
+                                                    <option value=""><?= /* @escapeNotVerified */ __('Select') ?></option>
+                                                    <?php
+
+                                                    $prv_val_ig = $block->escapeHtml($block->getFormData()->getSalesTaxPolicy());
+                                                    if ($companyData->getSalesTaxPolicy()){
+                                                        $prv_val_sg = $companyData->getSalesTaxPolicy();
+                                                    }
+                                                    foreach ($stp_opt as $key => $val) {
+                                                        $sel_ig = ($prv_val_ig == $val) ? "selected='selected'" : "";
+                                                        echo "<option class='$key' $sel_ig value='$val'>$val</option>";
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                            <p class="option-1-text" style="display:none;">Once your account is approved, the primary contact will receive an email with important information on how to submit your resale credentials. To waive sales tax, Arteriors must have a resale certificate for all states that your business ships to on file at the time your order is placed.</p>
+                                        </div>
+                                    </div>
+                                <?php  }
+
+                                ?>
+                                <?php if ($continetnsCountry && !in_array($continetnsCountry, $salesTaxhideCountry)) { ?>
+
+                                    <div class="field row ">
+                                        <div class="col-sm-12 col-md-6 col-lg-6 required">
+                                            <label  class="label"><?= __("VAT Registration Number"); ?></label>
+                                            <div class="control">
+                                                <input type="text" name="vat_registration" value="" class="input-text v-validate required-entry " data-validate="{'required':true, 'validate-zip-international':true}"  >
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 col-md-6 col-lg-6 ">
+                                            <label  class="label"><?= __("EORI Number"); ?></label>
+                                            <div class="control">
+                                                <input type="text" name="eori_number" value="" class="input-text"  >
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-6 col-lg-6 ">
+                                            <label  class="label"><?= __("Company Registration Number"); ?></label>
+                                            <div class="control">
+                                                <input type="text" name="company_registration_number" value="" class="input-text" >
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                <?php  } ?>
+                            </fieldset>
+                            <hr>
+                            <fieldset class="fieldset create account mb-5" >
+
+                                <div class="field row">
+                                    <div class="col-md-6  select_about_us">
+                                        <label  class="label"><?= __("How Did You Hear About Arteriors?"); ?></label>
+                                        <div class="control">
+                                            <select id="select_about_us" name="address[select_about_us]" title="<?= /* @noEscape */ $block->getAttributeData()->getFrontendLabel('select_about_us') ?>" class="select_about_us">
+                                                <option value=""><?= /* @escapeNotVerified */ __('Select') ?></option>
+                                                <?php
+                                                /* Getting all dropdown value */
+                                                $sql = "Select eav_attribute_option_value.value,eav_attribute_option_value.option_id FROM eav_attribute_option INNER JOIN eav_attribute_option_value ON eav_attribute_option.option_id = eav_attribute_option_value.option_id WHERE eav_attribute_option.attribute_id = 1803";
+                                                $results = $connection->fetchAll($sql);
+                                                $prv_ref = $block->escapeHtml($block->getFormData()->getAddress());
+                                                $prv_ref2 = "";
+                                                foreach ($results as $result) {
+                                                    $sel_ref = (isset($prv_ref[2]) && $result['option_id']==$prv_ref[2]) ? "selected='selected'" : "";
+                                                    ?>
+                                                    <option value="<?php echo $result['option_id']; ?>" <?= $sel_ref; ?>><?php echo $result['value']; ?></option>
+                                                <?php }
+                                                ?>
+                                            </select>
+                                            <input type="hidden" name="hid_mob_fon" value="<?= (isset($prv_ref[0])) ? $prv_ref[0] : ""; ?>" />
+                                            <input type="hidden" name="hid_sab" value="<?= (($block->getFormData()->getshippingAsBilling()!==null)) ? "true" : "false"; ?>" />
+                                            <input type="hidden" name="hid_sub" value="<?= (($block->getFormData()->getIsSubscribed()!==null)) ? "true" : "false"; ?>" />
+                                            <input type="hidden" name="hid_tc" value="<?= (($block->getFormData()->getTermsAndConditions()!==null)) ? "true" : "false"; ?>" />
+                                            <input type="hidden" name="hid_pp" value="<?= (($block->getFormData()->getPurchasingPolicy()!==null)) ? "true" : "false"; ?>" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <?= $block->getChildHtml('form_additional_info') ?>
+                            </fieldset>
+
+                            <fieldset class="fieldset create account mb-5 checkboxes-box" data-hasrequired="">
+                                <div class="field row">
+                                    <div class="col-md-6">
+                                        <ul style="list-style: none;" class="form-list mt-0">
+                                            <li class="control">
+                                                <input type="checkbox" name="is_subscribed" title="Sign Up for Newsletter" value="1" id="is_subscribed" checked="checked" class="checkbox">
+                                                <label class="checkbox-label" for="is_subscribed"><?php echo __('I would like to subscribe to email updates from Arteriors') ?></label>
+                                            </li>
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+
+                            <input type="hidden" name="step" id="step" value="4" >
+                            <input type="hidden" class="billing_id" name="billing_id" value="<?= $customer->getDefaultBilling(); ?>"/>
+                            <input type="hidden" class="shipping_id" id="seperate_shipping_address" name="shipping_idnew" value="<?= $customer->getDefaultShipping(); ?>"/>
+                            <div class="multi-action actions-toolbar">
+                                <div class="primary">
+                                    <button class="btn save-and-continue-later step4" type="button" onClick="location.href='../'">Complete Later</button>
+                                    <button class="btn save-and-continue step4 business_save action primary submit" type="submit"  >Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+    </div>
+</div>
+
+<div class="bg-overlay">
+    <!--Creates the popup body-->
+    <div class="popup-overlay">
+        <!--Creates the popup content-->
+        <div class="popup-content">
+            <div class="dynamic_pop_content">
+                <h4>Confirm Email Address</h4>
+                <p class="validate_text"></p>
+                <input class="button_validate" type="button" value="Yes" data-value="1">
+                <input class="button_validate" type="button" value="No" data-value="0">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/x-magento-init">
+   {
+       <?php if ($block->getShowAddressFields()): ?>
+       "#country": {
+           "regionUpdater": {
+               "optionalRegionAllowed": <?= /* @escapeNotVerified */ ($block->getConfig("general/region/display_all") ? "true" : "false") ?>,
+               "regionListId": "#region_id",
+               "regionInputId": "#region",
+               "postcodeId": "#zip",
+               "form": "#form-validate-step3",
+               "regionJson": <?= /* @escapeNotVerified */ $this->helper(\Magento\Directory\Helper\Data::class)->getRegionJson() ?>,
+               "defaultRegion": "<?= /* @escapeNotVerified */ $block->getFormData()->getRegionId() ?><?= $bill_regionID ?>",
+               "countriesWithOptionalZip": <?= /* @escapeNotVerified */ $this->helper(\Magento\Directory\Helper\Data::class)->getCountriesWithOptionalZip(true) ?>
+           }
+       },
+       "#shipping_country": {
+           "regionUpdater": {
+               "optionalRegionAllowed": true,
+               "regionListId": "#shipping_region_id",
+               "regionInputId": "#shipping_region",
+               "postcodeId": "#shipping_zip",
+               "form": "#form-validate-step3",
+               "regionJson": <?= /* @escapeNotVerified */ $this->helper(\Magento\Directory\Helper\Data::class)->getRegionJson() ?>,
+               "defaultRegion": "<?= /* @escapeNotVerified */ $block->getFormData()->getShippingRegionId() ?><?= $ship_regionID ?>",
+               "countriesWithOptionalZip": <?= /* @escapeNotVerified */ $this->helper(\Magento\Directory\Helper\Data::class)->getCountriesWithOptionalZip(true) ?>
+           }
+       },
+       <?php endif; ?>
+       "*": {
+           "Magento_CustomerCustomAttributes/validation": {
+               "ignore": <?= (int) ($_dob->isEnabled() || $customerAttributes->hasUserDefinedAttributes()) ?>,
+               "hasUserDefinedAttributes": <?= (int) $customerAttributes->hasUserDefinedAttributes() ?>,
+               "isDobEnabled": <?= (int) $_dob->isEnabled() ?>,
+               "disableAutoComplete": true,
+               "mixins": [
+                   "Magento_CustomerCustomAttributes/error-placement",
+                   "Magento_CustomerCustomAttributes/validation-ignore"
+               ]
+           }
+       },
+       ".field.password": {
+           "passwordStrengthIndicator": {
+               "formSelector": "form.form-create-account"
+           }
+       }
+   }
+</script>
+<script type="text/x-magento-init">
+    { ".v-validate": { "Ntz_CustomerLogin/js/ntz_validation": {} } }
+</script>
+<script type="text/javascript">require([ 'jquery', 'mage/mage'], function($){ var dataForm = $('#form-validate-step1'); dataForm.mage('validation', {});
+    });</script>
+<script type="text/javascript">
+
+    require([
+        "jquery",
+        "mage/mage",
+        'jquery/validate',
+        'mage/translate'
+    ],function($) {
+        $(document).ready(function () {
+            $(document).on("drop",".multiple_fileupload", function(event) {
+                $(".multiple_fileupload").change();
+                $(".dropzone-wrapper").append("<input class='dropzone dynmic_fields multiple_fileupload v-validate validatefileextensions validate-fileextensions' type='file'  name='credentials[]' multiple='multiple' />");
+                $(document).on("change",".multiple_fileupload",function(){
+                    $('#displayFileNames').empty();
+                    var domArray = document.getElementsByClassName('multiple_fileupload');
+                    var l =1;
+                    var customVariable = '<?php echo $businessCredentialVar; ?>';
+                    var errorMessage =  '<?php echo $errorMessage; ?>';
+                    var fileExtension = ['pdf','xlsx','xls','doc','docx','csv','ppt','pptx','jpeg', 'jpg', 'png'];
+                    if ($.inArray($(this).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
+                        if ($(this).val().split('.').pop().toLowerCase()){
+                            if ($(this).val().split('.').pop().toLowerCase()){
+                                $("#file_valid_error").css("display", "block");
+                                $("#delete_files").css("display", "none");
+                                $(this).val('');
+                                return false;
+                            }
+                        }
+                    }
+                    for (var i = 0; i < domArray.length; i++) {
+                        var files = domArray[i].files;
+                        for (var j = 0; j < files.length; j++) {
+                            if (l > 5) {
+                                $(this).val('');
+                                $("#file_valid_error").css("display", "none")
+                                $("#file_max_error").css("display", "block");
+                                $("#delete_files").css("display", "none");
+                                $('.multiple_fileupload').change();
+                                return false;
+
+                            } else {
+                                if ($.inArray(files[j].name.split('.').pop().toLowerCase(), fileExtension) == -1) {
+                                    $(this).val('');
+                                    $("#file_valid_error").css("display", "block");
+                                    $("#delete_files").css("display", "none");
+                                    $('.multiple_fileupload').change();
+                                    return false;
+                                }
+                                $('#displayFileNames').append(files[j].name + '</br>');
+                                $("#delete_files").css("display", "block");
+                                $(".upload_first").focusout();
+                                $(".upload_first").removeClass("required-entry");
+                                $("#credentials\\[\\]-error").remove();
+
+                            }
+                            l++;
+                        }
+                    }
+                });
+            });
+            $(document).on("click","#delete_files",function(){
+                if($("#sales_tax_policy option:selected").hasClass("2")) {
+                    $('.option-1-text').css("display","block");
+                    $(".upload_first").addClass("required-entry");
+                    $(".required_bc").show();
+                }
+                $("#file_max_error").css("display", "none");
+                $("#file_valid_error").css("display", "none");
+                $(".multiple_fileupload").val('');
+                $('#displayFileNames').empty();
+                $('#displayFileNames').empty();
+                $('.dynmic_fields').remove();
+                $("#delete_files").css("display", "none");
+            });
+            var customVariable =  '<?php echo $businessCredentialVar; ?>';
+            var errorMessage =  '<?php echo $errorMessage; ?>';
+            $(document).on("click",".multiple_fileupload",function(){
+                $("#file_valid_error").css("display", "none");
+                $("#file_max_error").css("display", "none");
+                $(".dropzone-wrapper").append("<input class='dropzone dynmic_fields multiple_fileupload v-validate validatefileextensions validate-fileextensions' type='file'  name='credentials[]' multiple='multiple' />");
+                $(document).on("change",".multiple_fileupload",function(){
+                    $('#displayFileNames').empty();
+                    var domArray = document.getElementsByClassName('multiple_fileupload');
+                    var l =1;
+                    var customVariable = '<?php echo $businessCredentialVar; ?>';
+                    var fileExtension=  customVariable.split(',');
+                    var errorMessage =  '<?php echo $errorMessage; ?>';
+                    // var fileExtension = ['pdf','xlsx','xls','doc','docx','csv','ppt','pptx','jpeg', 'jpg', 'png'];
+                    if ($.inArray($(this).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
+                        if ($(this).val().split('.').pop().toLowerCase()){
+                            $("#file_valid_error").css("display", "block");
+                            $("#delete_files").css("display", "none");
+                            $(this).val('');
+                            return false;
+                        }
+
+                    }
+                    for (var i = 0; i < domArray.length; i++) {
+                        var files = domArray[i].files;
+                        for (var j = 0; j < files.length; j++) {
+                            if (l > 5) {
+                                $(this).val('');
+                                $("#file_valid_error").css("display", "none")
+                                $("#file_max_error").css("display", "block");
+                                $("#delete_files").css("display", "none");
+                                $('.multiple_fileupload').change();
+                                return false;
+                            } else {
+                                if ($.inArray(files[j].name.split('.').pop().toLowerCase(), fileExtension) == -1) {
+                                    if (files[j].name.split('.').pop().toLowerCase()){
+                                        $(this).val('');
+                                        $("#file_valid_error").css("display", "block");
+                                        $("#delete_files").css("display", "none");
+                                        $('.multiple_fileupload').change();
+                                        return false;
+                                    }
+
+                                }
+                                $('#displayFileNames').append(files[j].name + '</br>');
+                                $("#delete_files").css("display", "block");
+                                $(".upload_first").removeClass("required-entry");
+                                $(".upload_first").focusout();
+
+                            }
+                            l++;
+                        }
+                    }
+                });
+            });
+
+        });
+    });
+</script>
+<script type="text/javascript">
+    require([
+        "jquery"
+    ],function($) {
+
+        $(document).ready(function () {
+
+
+            var is_step1 = "<?php echo $currentPositionText; ?>";
+            $("#toggle_step2").click(function() {
+                if (is_step1 != 'step1') {
+                    if($('.sub-users-first').val()) {
+                        $(".contact").css("display","block");
+                    }else{
+                        $("contact").css("display","none");
+                    }
+                }
+            });
+
+            var bill_country = '<?php if($bill_country) { echo $bill_country; } ?>';
+
+            var ship_country = '<?php if($ship_country) { echo $ship_country; } ?>';
+            var PrimarySector = '<?php if($PrimarySector) { echo $PrimarySector; } ?>';
+            var SecondarySector = '<?php if($SecondarySector) { echo $SecondarySector; } ?>';
+            var IndustryGroup = '<?php if($IndustryGroup) { echo $IndustryGroup; } ?>';
+            var Telephone = '<?php if($Telephone) { echo $Telephone; } ?>';
+            var CompanySocialWebsite = '<?php if($CompanySocialWebsite) { echo $CompanySocialWebsite; } ?>';
+            var companyWebSite = '<?php if($companyWebSite) { echo $companyWebSite; } ?>';
+            var SalesTaxPolicy = '<?php if($SalesTaxPolicy) { echo $SalesTaxPolicy; } ?>';
+            var billaboutus = '<?php if($billaboutus) { echo $billaboutus; } ?>';
+
+            var continetnsCountry = '<?php if($continetnsCountry) { echo $continetnsCountry; } ?>';
+
+
+
+            if (bill_country) {
+                $('#country').val(bill_country);
+            }else if(continetnsCountry){
+                $('#country').val(continetnsCountry);
+            }
+            if (ship_country) {
+                $('#shipping_country').val(ship_country);
+            }else if(continetnsCountry){
+                $('#shipping_country').val(continetnsCountry);
+            }
+            if (PrimarySector) {
+                $('#supergroup_select').val(PrimarySector);
+            }
+            if (SecondarySector) {
+                $('#subgroup_select').val(SecondarySector);
+            }
+            if (IndustryGroup) {
+                $('#industry_group').val(IndustryGroup);
+            }
+            if (Telephone) {
+                $('#phone').val(Telephone);
+            }
+
+            if (CompanySocialWebsite) {
+                $('#company_social_website').val(CompanySocialWebsite);
+            }
+            if (SalesTaxPolicy) {
+                $('#sales_tax_policy').val(SalesTaxPolicy);
+            }
+            if (billaboutus) {
+                $('#select_about_us').val(billaboutus);
+            }
+
+        });
+    });
+
+</script>
+<script type="text/javascript">
+    require([
+        "jquery"
+    ],function($) {
+
+        $(document).ready(function () {
+
+            $("#shipping_as_billing").attr('checked', true);
+            $("#add_auth_id").change(function(){
+                if ($("#add_auth_id").is(':checked')) {
+                    $(".contacts_wrapper, .contact").css("display","block");
+                    $("#add_more_contact").css("display","block");
+                }else{
+                    $(".contacts_wrapper").css("display","none");
+                    $("#add_more_contact").css("display","none");
+                }
+            });
+
+            $("#shipping_as_billing").change(function(){
+                if ($("#shipping_as_billing").is(':checked')) {
+                    $(".shipping_address").css("display","none");
+                }else{
+                    $('#seperate_shipping_address').val(" ");
+                    $(".shipping_address").css("display","block");
+                }
+            });
+
+        });
+    });
+
+</script>
+<script>
+    require([
+        'jquery',
+        'Magento_Customer/js/customer-data',
+        'mage/mage',
+        'domReady!'
+    ], function ($, customerData) {
+        var is_validate_email = '';
+
+        function validateAddress(){
+            $('body').trigger('processStart');
+
+            var zipcode = $('.validate-billing-zipcode').val();
+
+            var zipcode = $('.validate-billing-zipcode').val();
+            if (zipcode != '') {
+                var country = $('#country').val();
+                $('#country').addClass('validate-billing-country');
+            } else {
+                $('#country').removeClass('validate-billing-country');
+            }
+            var street1 = $('#street_1').val();
+            var street3 = $('#street_2').val();
+
+            var city = $('#city').val();
+            var regionId = $('#region_id').val();
+            var region = $('#region').val();
+
+            var returnValue = 0;
+            var customurl = '<?php echo $this->getUrl('company/index/validation') ?>';
+            $.ajax({
+
+                url: customurl,
+                type: 'POST',
+                dataType: 'json',
+                global: false,
+                'async': true,
+                data: {
+                    'zipcode': zipcode,
+                    'country': country,
+                    'street': street1,
+                    'street1': street3,
+                    'city': city,
+                    'region': region,
+                    'region_id': regionId,
+                },
+                success: function (data) {
+
+                    if (data) {
+                        returnValue = data['success'];
+                    }
+                    if (returnValue == 1) {
+                        $('#country-error').hide();
+                        $('#validate_zipcode-error-msg').remove();
+                        if ($('.validate-billing-country').hasClass('mage-error')) {
+                            $('.validate-billing-country').removeClass('mage-error');
+                        }
+                    }
+                    if(returnValue == 0){
+
+                        $('<div id="validate_zipcode-error-msg" class="mage-error">Company exist for the given billing address</div>').insertAfter('.validate-billing-zipcode');
+
+                    }
+                },
+                error: function (xhr, status, errorThrown) {
+                    returnValue = 0;
+                }
+            });
+            return returnValue;
+        }
+        $(".business_save, .continue_step2").click(function(e){
+
+
+            var form = '';
+            var registerurl = '<?php echo $this->getUrl('mymodule/account/business') ?>';
+            var data = "test";
+            var c_step = 1;
+            if ($(this).hasClass('step1')){
+                form = new FormData(document.getElementById('form-validate-step1'));
+                var dataForm = $('#form-validate-step1');
+            }else if ($(this).hasClass('step2')){
+                form = new FormData(document.getElementById('form-validate-step2'));
+                var dataForm = $('#form-validate-step2');
+
+            }else if ($(this).hasClass('step3')){
+                form = new FormData(document.getElementById('form-validate-step3'));
+                var dataForm = $('#form-validate-step3');
+            }else{
+                var dataForm = $('#form-validate-step4');
+                form = new FormData(document.getElementById('form-validate-step4'));
+
+            }
+
+            dataForm.mage('validation', {});
+            if (dataForm.validation('isValid'))
+            {
+                $('body').trigger('processStart');
+                jQuery.ajax({
+                    'async': true,
+                    url: registerurl+'?is_validate_email'+'='+is_validate_email,
+                    type: 'POST',
+                    data: form,
+                    cache: false,
+                    global:false,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        $('body').trigger('processStart');
+                    },
+                    complete: function(){
+                        setTimeout(function(){
+                            $('body').trigger('processStop');
+                        },1000);
+                    },
+                    success: function(data) {
+                        if (data) {
+                            if(data['success']==1){
+
+                                $('#toggle_step1').removeClass('active');
+                                $('#toggle_step2').addClass('active');
+                                $('#main_form #step2').addClass('active');
+                                $('#main_form #step1').removeClass('active');
+                                setTimeout(function(){
+                                    $('body').trigger('processStop');
+                                },1000);
+                                customerData.set('messages', {
+                                    messages: [{
+                                        text: 'Thank you for submitting your information.',
+                                        type: 'success'
+                                    }]
+                                });
+                                $('html, body').animate({
+                                    scrollTop: eval($("#toggle_step2").offset().top -300)
+                                }, 500);
+                            }else if(data['success']==2){
+
+                                $('#toggle_step2').removeClass('active');
+                                $('#toggle_step3').addClass('active');
+
+                                $('#main_form #step3').addClass('active');
+                                $('#main_form #step2').removeClass('active');
+                                $('#delete_button').css("display","none");
+                                $('#delete_button').remove();
+                                $('#add_more_contact').remove();
+                                if(data['addAuth']==0) {
+                                    $(".contact").css("display","none");
+                                }
+                                $(".add_user_msg").css("display","block");
+                                $(".sub-users-email").prop('disabled', true);
+                                $(".customer-account-create .page .messages").remove();
+                                setTimeout(function(){
+                                    $('body').trigger('processStop');
+                                },1000);
+                                customerData.set('messages', {
+                                    messages: [{
+                                        text: 'Thank you for submitting your information.',
+                                        type: 'success'
+                                    }]
+                                });
+                                $('html, body').animate({
+                                    scrollTop: eval($("#toggle_step3").offset().top -300)
+                                }, 500);
+                            }else if(data['success']==3){
+                                if (data['billing_id']){
+                                    $('.billing_id').val(data['billing_id']);
+                                }
+                                if (data['shipping_id']!=''){
+                                    $('.shipping_id').val(data['shipping_id']);
+                                }
+
+                                $('#toggle_step3').removeClass('active');
+                                $('#toggle_step4').addClass('active');
+
+                                $('.business_save').prop('disabled', false);
+
+                                $('#main_form #step4').addClass('active');
+                                $('#main_form #step3').removeClass('active');
+                                setTimeout(function(){
+                                    $('body').trigger('processStop');
+                                },1000);
+                                customerData.set('messages', {
+                                    messages: [{
+                                        text: 'Thank you for submitting your information.',
+                                        type: 'success'
+                                    }]
+                                });
+                                $('html, body').animate({
+                                    scrollTop: eval($("#toggle_step4").offset().top -300)
+                                }, 500);
+
+                            }else if(data['success']==4){
+                                window.location.href = data['url'];
+                            }else{
+                                if (data['email_validation_error']==1) {
+                                    $(".popup-overlay, .popup-content, .bg-overlay").addClass("active");
+                                    $("p.validate_text").html("Is your email address <span>" + data['email'] + "</span> valid?");
+
+                                    $('.dynamic_pop_content input.button_validate').on('click', function () {
+                                        if ($(this).data('value') == 0) {
+                                            if (!$(".ext_contact_email .mage-error").hasClass("already-exists")) {
+                                                $(".ext_contact_email .mage-error").remove();
+                                            }
+                                            var IndexErrorsSubusers =$.parseJSON(data['subuserIndex']);
+                                            $.each(IndexErrorsSubusers , function(index, val) {
+                                                $('<div id="email_address-error-msg" class="mage-error">Please Enter a valid E-Mail Address</div>').insertAfter("input[name='contact_email["+val+"]']");
+                                            });
+                                            $(".popup-overlay, .popup-content, .bg-overlay").removeClass("active");
+                                            setTimeout(function(){
+                                                $('body').trigger('processStop');
+                                            },1000);
+                                            return false;
+                                        } else {
+                                            is_validate_email = 0;
+                                            if (!$(".ext_contact_email .mage-error").hasClass("already-exists")) {
+                                                $("#email_address-error-msg").remove();
+                                            }
+                                            setTimeout(function(){
+                                                $('body').trigger('processStop');
+                                            },1000);
+                                            $(".popup-overlay, .popup-content, .bg-overlay").removeClass("active");
+                                            /*$(".continue_step2").click();*/
+                                            /*$('form#form-validate-step2').trigger('submit');*/
+                                        }
+
+                                    });
+                                }else{
+                                    if(data['success']=="billing_error"){
+                                        $('<div id="validate_zipcode-error-msg" class="mage-error">Company exist for the given billing address</div>').insertAfter('.validate-billing-zipcode');
+
+                                    }else{
+                                        customerData.set('messages', {
+                                            messages: [{
+                                                text: data['error'],
+                                                type: 'error'
+                                            }]
+                                        });
+                                    }
+                                    $('body').trigger('processStop');
+                                }
+
+
+                            }
+                            setTimeout(function() {
+                                $(".customer-account-create .message-success").hide('blind', {}, 500)
+                            }, 60000);
+                            $('body').trigger('processStop');
+
+                        }
+                    },
+                    error: function (xhr, status, errorThrown) {
+                        returnValue = 0;
+                    }
+                });
+            }
+        });
+
+        var stepresult1 = "<?php echo $step1; ?>";
+        var stepresult2 = "<?php echo $step2; ?>";
+        var stepresult3 = "<?php echo $step3; ?>";
+        var currentPoistion = "<?php echo $currentPosition; ?>";
+
+
+        if (stepresult1=='active'){
+            $('#toggle_step2').addClass('active');
+            $('#main_form #step2').addClass('active');
+        }else if(stepresult2=='active'){
+            $('#toggle_step3').addClass('active');
+            $('#main_form #step3').addClass('active');
+        }else if(stepresult3=='active'){
+            $('#toggle_step4').addClass('active');
+            $('#main_form #step4').addClass('active');
+        }else if(currentPoistion==''){
+            $('#toggle_step1').addClass('active');
+            $('#main_form #step1').addClass('active');
+        }
+
+    });
+</script>
+<script type="text/javascript">
+
+    /* Show/hide the company fields */
+    function updateRegisterForm(val){
+        if(jQuery(val).val()=="business") {
+            jQuery(".create.user-info").show();
+            jQuery(".additional_contacts").show();
+            jQuery(".business_credentials").show();
+            jQuery(".sales_tax_policy").show();
+
+        } else {
+            jQuery(".create.user-info").hide();
+            jQuery(".additional_contacts").hide();
+            jQuery(".business_credentials").hide();
+            jQuery(".sales_tax_policy").hide();
+
+        }
+    }
+
+
+
+
+
+
+
+
+    function add_contact()
+    {
+        var max_allowed = 4;
+        var div_cnt = jQuery("div.contacts_wrapper div.contact").length;
+        if(div_cnt < max_allowed) {
+            jQuery("div.contacts_wrapper div.contact:first-child").clone().appendTo(jQuery("div.contacts_wrapper"));
+            jQuery("div.contacts_wrapper div.contact:last-child span.counter").html(div_cnt+1);
+            if (jQuery("div.contacts_wrapper div.contact:last-child .sub-users-first").hasClass("sub-users-first")) {
+                jQuery("div.contacts_wrapper div.contact:last-child .sub-users-first").attr("name","contact_first_name["+div_cnt+"]");
+            }
+            if (jQuery("div.contacts_wrapper div.contact:last-child .sub-users-last").hasClass("sub-users-last")) {
+                jQuery("div.contacts_wrapper div.contact:last-child .sub-users-last").attr("name","contact_last_name["+div_cnt+"]");
+            }
+            if (jQuery("div.contacts_wrapper div.contact:last-child .sub-users-title").hasClass("sub-users-title")) {
+                jQuery("div.contacts_wrapper div.contact:last-child .sub-users-title").attr("name","contact_title["+div_cnt+"]");
+            }
+            if (jQuery("div.contacts_wrapper div.contact:last-child .sub-users-email").hasClass("sub-users-email")) {
+                jQuery("div.contacts_wrapper div.contact:last-child .sub-users-email").attr("name","contact_email["+div_cnt+"]");
+                jQuery("div.contacts_wrapper div.contact:last-child .sub-users-email").addClass("notEqualsTo"+div_cnt);
+                jQuery("div.contacts_wrapper div.contact:last-child .sub-users-email").removeClass("validate-customer-email_0").addClass("validate-customer-email_"+div_cnt);
+                jQuery("div.contacts_wrapper div.contact:last-child .sub-users-email").attr("aria-describedby", "contact_email["+div_cnt+"]-error");
+                jQuery("div.contacts_wrapper div.contact:last-child .sub-users-email").parent().find(".mage-error").attr("id", "contact_email["+div_cnt+"]-error");
+                if (jQuery("div.contacts_wrapper div.contact:last-child .notEqualsTo"+div_cnt).hasClass('notEqualsTo4')) {
+                    jQuery("div.contacts_wrapper div.contact:last-child .notEqualsTo"+div_cnt).removeClass("notEqualsTo4");
+                }
+
+            }
+            if (jQuery("div.contacts_wrapper div.contact:last-child .sub-users-phone").hasClass("sub-users-phone")) {
+                jQuery("div.contacts_wrapper div.contact:last-child .sub-users-phone").attr("name","contact_phone["+div_cnt+"]");
+            }
+
+            jQuery("div.contacts_wrapper div.contact:last-child input").val("");
+            jQuery("div.contacts_wrapper div.contact:last-child div.mage-error").hide();
+            jQuery("div.contacts_wrapper div.contact:last-child input").removeClass("required mage-error");
+            jQuery("div.contacts_wrapper div.contact:last-child select").removeClass("required mage-error");
+        }
+        if(div_cnt === max_allowed-1) {
+            jQuery("button#add_more_contact").attr("disabled","disabled");
+        }
+    }
+
+    function del_contact(ele)
+    {
+        var div_cnt = jQuery("div.contacts_wrapper div.contact").length;
+        if(div_cnt !== 1) {
+            jQuery(ele).parents("div.contact").remove();
+            update_counter();
+            jQuery("button#add_more_contact").removeAttr("disabled");
+        }
+    }
+
+    function update_counter()
+    {
+        jQuery("div.contacts_wrapper div.contact span.counter").each(function(index){
+            jQuery(this).html(index+1);
+        });
+    }
+    function add_file(){
+
+        if(jQuery('.bus_cred_div_1').css('display') == 'none')
+        {
+            jQuery('.bus_cred_div_1').show();
+            if(jQuery('.bus_cred_div_1').css('display') == 'block')
+            {
+                jQuery('div.file_delete_div').show();
+                jQuery('input.bus_cred_1').removeAttr("disabled");
+            }
+        }
+        else if(jQuery('.bus_cred_div_2').css('display') == 'none'){
+            jQuery('.bus_cred_div_2').show();
+            if(jQuery('.bus_cred_div_2').css('display') == 'block')
+            {
+                jQuery('input.bus_cred_2').removeAttr("disabled");
+            }
+
+        }
+        else if(jQuery('.bus_cred_div_3').css('display') == 'none'){
+            jQuery('.bus_cred_div_3').show();
+            if(jQuery('.bus_cred_div_3').css('display') == 'block')
+            {
+                jQuery('input.bus_cred_3').removeAttr("disabled");
+            }
+        }
+        else if(jQuery('.bus_cred_div_4').css('display') == 'none'){
+            jQuery('.bus_cred_div_4').show();
+            if(jQuery('.bus_cred_div_4').css('display') == 'block')
+            {
+                jQuery('input.bus_cred_4').removeAttr("disabled");
+                jQuery('button#add_more_file').attr("disabled","disabled");
+            }
+        }
+    }
+    function delete_file()
+    {
+
+        if(jQuery('.bus_cred_div_4').css('display') == 'block')
+        {
+            jQuery('.bus_cred_div_4').hide();
+            if(jQuery('.bus_cred_div_4').css('display') == 'none')
+            {
+                jQuery('input.bus_cred_2').attr("disabled","disabled");
+                jQuery('button#add_more_file').removeAttr("disabled");
+            }
+        }
+        else if(jQuery('.bus_cred_div_3').css('display') == 'block'){
+            jQuery('.bus_cred_div_3').hide();
+            if(jQuery('.bus_cred_div_3').css('display') == 'none')
+            {
+                jQuery('input.bus_cred_3').attr("disabled","disabled");
+
+            }
+        }
+        else if(jQuery('.bus_cred_div_2').css('display') == 'block'){
+            jQuery('.bus_cred_div_2').hide();
+            if(jQuery('.bus_cred_div_2').css('display') == 'none')
+            {
+                jQuery('input.bus_cred_2').attr("disabled","disabled");
+
+            }
+        }
+        else if(jQuery('.bus_cred_div_1').css('display') == 'block'){
+            jQuery('.bus_cred_div_1').hide();
+            if(jQuery('.bus_cred_div_1').css('display') == 'none')
+            {
+                jQuery('input.bus_cred_1').attr("disabled","disabled");
+                jQuery('div.file_delete_div').css("display","none");
+            }
+
+        }
+    }
+
+
+
+
+    require(['jquery','jquery/validate','mage/translate'], function($){
+        $.validator.addMethod(
+            "notEqualsTo1",
+            function(value, element) {
+                var emails = $.trim($("#email_address").val());
+                var email1 = $.trim($(".notEqualsTo2").val());
+                var email2 = $.trim($(".notEqualsTo3").val());
+                var email3 = $.trim($(".notEqualsTo4").val());
+                var email   = emails.toLowerCase();
+                var email1  = email1.toLowerCase();
+                var email2  = email2.toLowerCase();
+                var email3  = email3.toLowerCase();
+                var value  = value.toLowerCase();
+
+
+                if(emails != '' && email!=="" && value!=="" && email==value || email1 == value || email2 == value || email3 == value)
+                {
+                    return false;
+                }
+                else { return true; }
+            },
+            $.mage.__("Each email address must be unique")
+        );
+    });
+    require(['jquery','jquery/validate','mage/translate'], function($){
+        $.validator.addMethod(
+            "notEqualsTo2",
+            function(value, element) {
+                var emails = $.trim($("#email_address").val());
+                var email1 = $.trim($(".notEqualsTo1").val());
+                var email2 = $.trim($(".notEqualsTo3").val());
+                var email3 = $.trim($(".notEqualsTo4").val());
+                var email   = emails.toLowerCase();
+                var email1  = email1.toLowerCase();
+                var email2  = email2.toLowerCase();
+                var email3  = email3.toLowerCase();
+                var value  = value.toLowerCase();
+
+
+                if(emails != '' && email!=="" && value!=="" && email==value || email1 == value || email2 == value || email3 == value)
+                {
+                    return false;
+                }
+                else { return true; }
+            },
+            $.mage.__("Each email address must be unique")
+        );
+    });
+    require(['jquery','jquery/validate','mage/translate'], function($){
+        $.validator.addMethod(
+            "notEqualsTo3",
+            function(value, element) {
+                var emails = $.trim($("#email_address").val());
+                var email1 = $.trim($(".notEqualsTo1").val());
+                var email2 = $.trim($(".notEqualsTo2").val());
+                var email3 = $.trim($(".notEqualsTo4").val());
+                var email   = emails.toLowerCase();
+                var email1  = email1.toLowerCase();
+                var email2  = email2.toLowerCase();
+                var email3  = email3.toLowerCase();
+                var value  = value.toLowerCase();
+
+
+                if(emails != '' && email!=="" && value!=="" && email==value || email1 == value || email2 == value || email3 == value)
+                {
+                    return false;
+                }
+                else { return true; }
+            },
+            $.mage.__("Each email address must be unique")
+        );
+    });
+
+    require(['jquery','jquery/validate','mage/translate'], function($){
+        $.validator.addMethod(
+            "notEqualsTo4",
+            function(value, element) {
+                var emails = $.trim($("#email_address").val());
+                var email1 = $.trim($(".notEqualsTo1").val());
+                var email2 = $.trim($(".notEqualsTo2").val());
+                var email3 = $.trim($(".notEqualsTo3").val());
+                var email4 = $.trim($(".notEqualsTo4").val());
+                var email1  = email1.toLowerCase();
+                var email2  = email2.toLowerCase();
+                var email3  = email3.toLowerCase();
+                var email  = emails.toLowerCase();
+                var value  = value.toLowerCase();
+
+
+
+                if(email!=="" && value!=="" && email4 != ''&& email==value || email1 == value || email2 == value || email3 == value)
+                {
+                    return false;
+                }
+                else { return true; }
+            },
+            $.mage.__("Each email address must be unique")
+        );
+
+        $(document).on("change", "div.contacts_wrapper div.contact input", function(){
+            if($(this).val()!=="")
+            {
+
+                if(!$(this).parents("div.contact").find("input[name^='contact_first_name']").hasClass("required-entry")) {
+                    $(this).parents("div.contact").find("input[name^='contact_first_name']").addClass("required-entry");
+                }
+                if(!$(this).parents("div.contact").find("input[name^='contact_last_name']").hasClass("required-entry")) {
+                    $(this).parents("div.contact").find("input[name^='contact_last_name']").addClass("required-entry");
+                }
+                if(!$(this).parents("div.contact").find("select[name^='contact_title']").hasClass("required-entry")) {
+                    $(this).parents("div.contact").find("select[name^='contact_title']").addClass("required-entry");
+                }
+                if(!$(this).parents("div.contact").find("input[name^='contact_email']").hasClass("required-entry")) {
+                    $(this).parents("div.contact").find("input[name^='contact_email']").addClass("required-entry");
+                }
+                if($(this).parents("div.contact").find("input[name^='contact_email']").val()!="") {
+                    if (!$(this).parents("div.contact").find("input[name^='contact_email']").hasClass("notEqualsTo1")
+                        && !$(this).parents("div.contact").find("input[name^='contact_email']").hasClass("notEqualsTo2")
+                        && !$(this).parents("div.contact").find("input[name^='contact_email']").hasClass("notEqualsTo3")) {
+                        $(this).parents("div.contact").find("input[name^='contact_email']").addClass("notEqualsTo4");
+                    }
+
+                }
+            }
+            else if($(this).parents("div.contact").find("input[name^='contact_first_name']").val()==""
+                && $(this).parents("div.contact").find("input[name^='contact_last_name']").val()==""
+                && $(this).parents("div.contact").find("input[name^='contact_phone']").val()=="")
+            {
+
+                if($(this).parents("div.contact").find("input").hasClass("required-entry")) {
+                    $(this).parents("div.contact").find("input").removeClass("required-entry");
+
+                }
+                if($(this).parents("div.contact").find("input").hasClass("notEqualsTo4")) {
+                    $(this).parents("div.contact").find("input").removeClass("notEqualsTo4");
+
+                }
+                if($(this).parents("div.contact").find("input").hasClass("mage-error")) {
+                    $(this).parents("div.contact").find("input").removeClass("mage-error");
+                }
+                if($(this).parents("div.contact").find("select").hasClass("required-entry")) {
+                    $(this).parents("div.contact").find("select").removeClass("required-entry");
+                }
+                if($(this).parents("div.contact").find("select").hasClass("mage-error")) {
+                    $(this).parents("div.contact").find("select").removeClass("mage-error");
+                }
+            }
+        });
+
+        $(document).on("blur", ".contact input[name^='contact_email']", function(){
+            $(this).valid();
+            /*$.validator.validateSingleElement($(this)); */
+        });
+
+        jQuery(document).ready( function() {
+            jQuery("select#user_type").focus();
+
+            jQuery(".field-phone").addClass("required");
+            jQuery(".field-phone .control input").addClass("required-entry");
+
+            $("#user_type").trigger("change");
+
+            $("select").blur(function(e){
+                $(this).valid();
+            });
+
+
+            var myIntVar = setInterval(function(){
+                var flag1 = 0, flag2 = 0;
+                $("#shipping_region_id, #shipping_zip, #shipping_country").each(function(){
+                    if($(this).hasClass("required-entry")){
+                        $(this).removeClass("required-entry");
+
+                        flag1 = 1;
+                    }
+                    if($(this).parents(".shipping_row").hasClass("required")) {
+                        $(this).parents(".shipping_row").removeClass("required");
+                        flag2 = 1;
+                    }
+                    if($(this).attr("id")=="shipping_country") {
+                        $(this).removeAttr("data-validate");
+                    }
+                    if(flag1==1 && flag2==1) {
+                        clearInterval(myIntVar);
+                    }
+                });
+            }, 1000);
+
+            if($("input[name='hid_mob_fon']").val()!="")
+            {
+                $("input[name='address[mobile_phone]']").val($("input[name='hid_mob_fon']").val());
+            }
+
+            if($("input[name='hid_sab']").val()!="" && $("input[name='hid_sab']").val()=="true") {
+                $("input#shipping_as_billing").attr("checked","checked");
+                /* $("input#shipping_as_billing").trigger("click"); */
+                $(".shipping_address").hide();
+            } /*else {
+                $("input#shipping_as_billing").removeAttr("checked");
+            }*/
+
+            var fresh = "<?= $block->getFormData()->getSize(); ?>";
+            if($("input[name='hid_sub']").val()!="" && $("input[name='hid_sub']").val()=="true") {
+                $("input#is_subscribed").attr("checked","checked");
+            } else if(fresh>=1 && $("input[name='hid_sub']").val()!="" && $("input[name='hid_sub']").val()=="false") {
+                $("input#is_subscribed").removeAttr("checked");
+            }
+
+            if($("input[name='hid_tc']").val()!=" " && $("input[name='hid_tc']").val()=="true") {
+                $("input#terms_and_conditions").attr("checked","checked");
+            } else {
+                $("input#terms_and_conditions").removeAttr("checked");
+            }
+
+            if($("input[name='hid_pp']").val()!=" " && $("input[name='hid_pp']").val()=="true") {
+                $("input#purchasing_policy").attr("checked","checked");
+            } else {
+                $("input#purchasing_policy").removeAttr("checked");
+            }
+
+            $("#shipping_as_billing").click( function() {
+                if($(this).prop("checked") == true){
+                    $(".shipping_address").hide();
+                    $(".shipping_row input, .shipping_row select.region_id").val("");
+                }
+                else if($(this).prop("checked") == false){
+                    $(".shipping_address").show();
+                }
+            });
+
+            $("label.checkbox-label").click(function(){
+                $(this).prev("input[type='checkbox']").trigger("click");
+            });
+        });
+    });
+</script>
+<script>
+    require([
+        'jquery'
+    ], function($){
+        $(document).ready( function() {
+            $('.required_sale').css("color", "#a94442");
+            $('#shipping_as_billing').change(function(){
+                if($(this).attr('checked')){
+                    /* $('.shipping_validate').removeAttr('data-validate'); */
+                    $('.shipping_validate').removeClass('required-entry');
+                    /* $('#shipping_country').removeAttr('data-validate'); */
+                }else{
+                    $('.shipping_validate').attr('data-validate',"{'required':true}");
+                    $('.shipping_validate').addClass('required-entry');
+                }
+            });
+
+            /**
+             * Used for if user selected primary market sector then that selection is not available in secondary market sector dropdown.
+             */
+            $("#subgroup_select").on("change", function () {
+                 if ($(this).val()!='') {
+                     $("#secondary_industry_group").addClass('validate-select');
+                     $(".secondary_col_div").show();
+                     $(".secondary_col_div").addClass('required');
+                     
+                 }else{
+                    $("#secondary_industry_group").removeClass('validate-select');
+                     $(".secondary_col_div").hide();
+                     $(".secondary_col_div").removeClass('required');
+                 }
+                if($(this).val() == 'Residential') {
+                    var selectValues = '<?php echo json_encode($industry_group_residential); ?>';
+                }else if ($(this).val() == 'Retail Storefront') {
+                    var selectValues = '<?php echo json_encode($industry_group_retail_storefront); ?>';
+                }else if ($(this).val() == 'Retail E-Commerce') {
+                    var selectValues = '<?php echo json_encode($industry_group_retail_ecomm); ?>';
+                }else if ($(this).val() == 'Hospitality') {
+                    var selectValues = '<?php echo json_encode($industry_group_hospitality); ?>';
+                }else if ($(this).val() == 'Contract') {
+                    var selectValues = '<?php echo json_encode($industry_group_contract); ?>';
+                }else{
+                    var selectValues = '<?php echo json_encode($industry_group); ?>';
+                }
+
+               
+                $('#secondary_industry_group').empty();
+                $('#secondary_industry_group').append($("<option value>Select</option>"));
+                $.each(JSON.parse(selectValues), function(key, value) {
+                   
+                    $('#secondary_industry_group').append($("<option></option>").attr("value", value).text(value));
+                });
+
+            });
+
+            $("#supergroup_select").on("change", function () {
+                if(this.length > ($("#subgroup_select option").length)){
+                    $("#subgroup_select").empty();
+                    $("#subgroup_select").html($("#supergroup_select").html());
+                }
+                var select = this,
+                    selected = $("option:selected", this).text();
+                $("#subgroup_select").each(function (_, el) {
+                    if (el !== select) {
+                        $("option", el).each(function (_, el) {
+                            var $el = $(el);
+                            if ($el.text() === selected && $el.text() != 'Select') {
+                                $el.remove();
+                            }
+                        });
+                    }
+                });
+
+                if($(this).val() == 'Residential') {
+                    var selectValues = '<?php echo json_encode($industry_group_residential); ?>';
+                }else if ($(this).val() == 'Retail Storefront') {
+                    var selectValues = '<?php echo json_encode($industry_group_retail_storefront); ?>';
+                }else if ($(this).val() == 'Retail E-Commerce') {
+                    var selectValues = '<?php echo json_encode($industry_group_retail_ecomm); ?>';
+                }else if ($(this).val() == 'Hospitality') {
+                    var selectValues = '<?php echo json_encode($industry_group_hospitality); ?>';
+                }else if ($(this).val() == 'Contract') {
+                    var selectValues = '<?php echo json_encode($industry_group_contract); ?>';
+                }else{
+                    var selectValues = '<?php echo json_encode($industry_group); ?>';
+                }
+
+                $('#industry_group').empty();
+                $('#industry_group').append($("<option value>Select</option>"));
+                $('#secondary_industry_group').empty();
+                $('#secondary_industry_group').append($("<option value>Select</option>"));
+                $.each(JSON.parse(selectValues), function(key, value) {
+                    $('#industry_group').append($("<option></option>").attr("value", value).text(value));
+                    $('#secondary_industry_group').append($("<option></option>").attr("value", value).text(value));
+                });
+                if ($('#subgroup_select').val()!='') {
+                     $("#secondary_industry_group").addClass('validate-select');
+                     $(".secondary_col_div").show();
+                     $(".secondary_col_div").addClass('required');
+                     
+                 }else{
+                    $("#secondary_industry_group").removeClass('validate-select');
+                     $(".secondary_col_div").hide();
+                     $(".secondary_col_div").removeClass('required');
+                     $('#subgroup_select').val('');
+                 }
+            });
+
+                if ($("#subgroup_select").val()!='') {
+                     $("#secondary_industry_group").addClass('validate-select');
+                     $(".secondary_col_div").show();
+                     $(".secondary_col_div").addClass('required');
+                     
+                 }else{
+                    $("#secondary_industry_group").removeClass('validate-select');
+                     $(".secondary_col_div").hide();
+                     $(".secondary_col_div").removeClass('required');
+                 }
+
+               if($("#subgroup_select option").length > ($("#subgroup_select option").length)){
+                    $("#subgroup_select").empty();
+                    $("#subgroup_select").html($("#supergroup_select").html());
+                }
+                var select = $("#supergroup_select option"),
+                    selected = $("#supergroup_select option:selected", this).text();
+                $("#subgroup_select").each(function (_, el) {
+                    if (el !== select) {
+                        $("option", el).each(function (_, el) {
+                            var $el = $(el);
+                            if ($el.text() === selected && $el.text() != 'Select') {
+                                $el.remove();
+                            }
+                        });
+                    }
+                });
+
+            if($('#supergroup_select').val() == 'Residential') {
+                var selectValues = '<?php echo json_encode($industry_group_residential); ?>';
+            }else if ($('#supergroup_select').val() == 'Retail Storefront') {
+                var selectValues = '<?php echo json_encode($industry_group_retail_storefront); ?>';
+            }else if ($('#supergroup_select').val() == 'Retail E-Commerce') {
+                var selectValues = '<?php echo json_encode($industry_group_retail_ecomm); ?>';
+            }else if ($('#supergroup_select').val() == 'Hospitality') {
+                var selectValues = '<?php echo json_encode($industry_group_hospitality); ?>';
+            }else if ($('#supergroup_select').val() == 'Contract') {
+                var selectValues = '<?php echo json_encode($industry_group_contract); ?>';
+            }else{
+                var selectValues = '<?php echo json_encode($industry_group); ?>';
+            }
+
+            $('#industry_group').empty();
+            $('#industry_group').append($("<option value>Select</option>"));
+             $('#secondary_industry_group').empty();
+                $('#secondary_industry_group').append($("<option value>Select</option>"));
+            $.each(JSON.parse(selectValues), function(key, value) {
+                $('#industry_group').append($("<option></option>").attr("value", value).text(value));
+                $('#secondary_industry_group').append($("<option></option>").attr("value", value).text(value));
+            });
+
+            $('#shipping_country').focusout(function(){
+                if($(this).val()==""){
+                    $('#shipping_country').addClass('required-entry');
+                    $('#shipping_country-errors').show();
+
+                    $('#shipping_country-errors').addClass('mage-error');
+                } else if($(this).val()!=""){
+                    $('#shipping_country-errors').hide();
+
+                }
+            });
+            $('#shipping_country').focusin(function(){
+                $('#shipping_country').attr('data-validate', "{'validate-select':true}");
+            });
+
+        });
+    });
+</script>
+<style type="text/css">
+    div.contacts_wrapper div.contact:first-child button.action.delete { display:none; }
+    .mage-error-file {
+        display: block;
+        color: #a94442 !important;
+        background: #fff;
+        padding: .5rem;
+        border: 1px solid #a94442;
+        margin-top: 5px;
+        float: left;
+        font-size: 16px !important;
+    }
+</style>
+
+<script type="text/javascript">
+    require([
+        "jquery",
+        "mage/mage",
+        'jquery/validate',
+        'mage/translate'
+    ],function($) {
+        $(document).ready(function() {
+            $(document).on('change','.validate-customer-email_0', function () {
+                var returnValue =0;
+                $.validator.addMethod(
+                    'validate-customer-email_0', function (value) {
+                        var emailId = value;
+
+                        var customurl = '<?php echo $this->getUrl('company/index/validation') ?>';
+                        $.ajax({
+                            'async': false,
+                            url: customurl,
+                            type: 'POST',
+                            dataType: 'json',
+                            global: false,
+                            data: {
+                                'customer_email': emailId,
+                            },
+                            success: function(data) {
+                                if (data) {
+                                    returnValue = data['success'];
+                                    if(returnValue==0){
+                                        setTimeout(function(){
+                                            $('.validate-customer-email_0').parent().find('#email_address-error-msg').remove();
+                                        },1500);
+                                    }
+                                    if(returnValue==1){
+                                        setTimeout(function(){
+                                            $('.validate-customer-email_0').parent().find('#email_address-error-msg').remove();
+                                        },1500);
+                                    }
+                                    if(returnValue ==2){
+                                        returnValue = 1;
+                                    }
+
+                                }
+                            },
+                            error: function (xhr, status, errorThrown) {
+                                returnValue = 0;
+                            }
+                        });
+                        return (returnValue == 1);
+                    }, $.mage.__('Email Address already exist'));
+            });
+
+            $(document).on('change','.validate-customer-email_1', function () {
+                $.validator.addMethod(
+                    'validate-customer-email_1', function (value) {
+                        var emailId = value;
+                        var returnValue =0;
+                        var customurl = '<?php echo $this->getUrl('company/index/validation') ?>';
+                        $.ajax({
+                            'async': false,
+                            url: customurl,
+                            type: 'POST',
+                            dataType: 'json',
+                            global: false,
+                            data: {
+                                'customer_email': emailId,
+                            },
+                            success: function(data) {
+                                if (data) {
+                                    returnValue = data['success'];
+                                    if(returnValue==0){
+                                        setTimeout(function(){
+                                            $('.validate-customer-email_1').parent().find('#email_address-error-msg').remove();
+                                        },1500);
+                                    }
+                                    if(returnValue==1){
+                                        setTimeout(function(){
+                                            $('.validate-customer-email_1').parent().find('#email_address-error-msg').remove();
+                                        },1500);
+                                    }
+                                    if(returnValue ==2){
+                                        returnValue = 1;
+                                    }
+                                }
+                            },
+                            error: function (xhr, status, errorThrown) {
+                                returnValue = 0;
+                            }
+                        });
+                        return (returnValue == 1);
+                    }, $.mage.__('Email Address already exist'));
+            });
+
+            $(document).on('change','.validate-customer-email_2', function () {
+                $.validator.addMethod(
+                    'validate-customer-email_2', function (value) {
+                        var emailId = value;
+                        var returnValue =0;
+                        var customurl = '<?php echo $this->getUrl('company/index/validation') ?>';
+                        $.ajax({
+                            'async': false,
+                            url: customurl,
+                            type: 'POST',
+                            dataType: 'json',
+                            global: false,
+                            data: {
+                                'customer_email': emailId,
+                            },
+                            success: function(data) {
+                                if (data) {
+                                    returnValue = data['success'];
+                                    if(returnValue==0){
+                                        setTimeout(function(){
+                                            $('.validate-customer-email_2').parent().find('#email_address-error-msg').remove();
+                                        },1500);
+                                    }
+                                    if(returnValue==1){
+                                        setTimeout(function(){
+                                            $('.validate-customer-email_2').parent().find('#email_address-error-msg').remove();
+                                        },1500);
+                                    }
+                                    if(returnValue ==2){
+                                        returnValue = 1;
+                                    }
+                                }
+                            },
+                            error: function (xhr, status, errorThrown) {
+                                returnValue = 0;
+                            }
+                        });
+                        return (returnValue == 1);
+                    }, $.mage.__('Email Address already exist'));
+            });
+
+            $(document).on('change','.validate-customer-email_3', function () {
+                $.validator.addMethod(
+                    'validate-customer-email_3', function (value) {
+                        var emailId = value;
+                        var returnValue =0;
+                        var customurl = '<?php echo $this->getUrl('company/index/validation') ?>';
+                        $.ajax({
+                            'async': false,
+                            url: customurl,
+                            type: 'POST',
+                            dataType: 'json',
+                            global: false,
+                            data: {
+                                'customer_email': emailId,
+                            },
+                            success: function(data) {
+                                if (data) {
+                                    returnValue = data['success'];
+                                    if(returnValue==0){
+                                        setTimeout(function(){
+                                            $('.validate-customer-email_3').parent().find('#email_address-error-msg').remove();
+                                        },1500);
+                                    }
+                                    if(returnValue==1){
+                                        setTimeout(function(){
+                                            $('.validate-customer-email_3').parent().find('#email_address-error-msg').remove();
+                                        },1500);
+                                    }
+                                    if(returnValue ==2){
+                                        returnValue = 1;
+                                    }
+                                }
+                            },
+                            error: function (xhr, status, errorThrown) {
+                                returnValue = 0;
+                            }
+                        });
+                        return (returnValue == 1);
+                    }, $.mage.__('Email Address already exist'));
+            });
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    require([
+        "jquery",
+        "mage/mage",
+        'jquery/validate',
+        'mage/translate'
+    ],function($) {
+        $(document).ready(function() {
+
+            $.validator.addMethod(
+                'validate-company-name', function (value) {
+                    var companyName = $('.validate-company-name').val();
+                    var returnValue= 0;;
+                    var customurl = '<?php echo $this->getUrl('company/index/validation') ?>';
+                    $.ajax({
+                        'async': false,
+                        url: customurl,
+                        type: 'POST',
+                        dataType: 'json',
+                        global: false,
+                        data: {
+                            'company_name': companyName,
+                        },
+                        success: function(data) {
+                            if (data) {
+                                returnValue = data['success'];
+                            }
+                        },
+                        error: function (xhr, status, errorThrown) {
+                            returnValue = 0;
+                        }
+                    });
+                    return (returnValue == 1);
+                }, $.mage.__('Company name already exist'));
+            ;
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    require([
+        "jquery",
+        "mage/mage",
+        'jquery/validate',
+        'mage/translate'
+    ],function($) {
+        $(document).ready(function() {
+            /**
+             ->used for business credential required on selection of 2nd option in sales term policy dropdown.
+             -> 2nd option is "I am purchasing merchandise for resale and understand that a valid resale is required".
+             */
+            $('#sales_tax_policy').on('change',function(){
+                if($("#sales_tax_policy option:selected").hasClass("2")) {
+                    $('.option-1-text').css("display","block");
+                    $(".upload_first").addClass("required-entry");
+                    $(".required_bc").show();
+                } else {
+                    $('.option-1-text').css("display","none");
+                    $(".upload_first").removeClass("required-entry");
+                    $(".required_bc").hide();
+                }
+            });
+
+            if($("#sales_tax_policy option:selected").hasClass("2")) {
+                $('.option-1-text').css("display","block");
+                $(".upload_first").addClass("required-entry");
+                $(".required_bc").show();
+            }
+
+            $('#sales_tax_policy').on('change',function(){
+                if($('#sales_tax_policy :selected').attr('class') == 2){
+                    $("#validate_bc").addClass("required-entry");
+                    $(".required_bc").show();
+                }else{
+                    if($('#validate_bc').hasClass('required-entry')){
+                        $(".required_bc").hide();
+                        $("#validate_bc").removeClass('required-entry')
+                    }
+                }
+            });
+
+            $('#country').on('change', function () {
+
+                $( "#region_id" ).val();
+            });
+            $('.validate-billing-zipcode').on('focusin', function () {
+
+                var street1 = $('#street_1').val();
+                var city = $('#city').val();
+                var regionId = $('#region_id').val();
+                var region = $('#region').val();
+                if (region!=''){
+                    var regionVal = region;
+                }else{
+                    var regionVal = regionId;
+                }
+
+                if (street1 !=''&& city != '' && regionVal !='') {
+                    return true;
+
+                }else{
+                    return false;
+                }
+            });
+            $('#street_1 , #city , #region_id , #region , #street_2 , #country').on('change', function () {
+
+                $( ".validate-billing-zipcode" ).trigger( "click" );
+            });
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    require([
+        "jquery",
+        "mage/mage",
+        'jquery/validate',
+        'mage/translate'
+    ],function($) {
+        $(document).ready(function() {
+
+            var customVariable =  '<?php echo $businessCredentialVar; ?>';
+            var errorMessage =  '<?php echo $errorMessage; ?>';
+
+            $.validator.addMethod(
+                'validate-fileextensions', function (v, elm) {
+                    var extensions = new Array();
+                    var extensions=  customVariable.split(',');
+                    if (!v) {
+                        return true;
+                    }
+                    with (elm) {
+
+                        var ext = value.substring(value.lastIndexOf('.') + 1);
+                        for (i = 0; i < extensions.length; i++) {
+                            var exte  =  extensions[i];
+                            var enterVal =  ext.toLowerCase();
+                            var checkVal = exte.toLowerCase();
+                            checkVal = $.trim(checkVal);
+                            if (enterVal == checkVal) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+
+                }, $.mage.__(errorMessage));
+
+        });
+    });
+</script>
+<script type="text/javascript">
+    require([
+        "jquery"
+    ],function($) {
+        $(document).ready(function() {
+            $('#validate_bc').change(function(e){
+
+                $("#file-upload-filename").empty();
+
+                var fp = $("#validate_bc");
+                var lg = fp[0].files.length;
+                var items = fp[0].files;
+                var fragment = "";
+
+                if (lg > 0) {
+                    for (var i = 0; i < lg; i++) {
+                        var fileName = items[i].name;
+                        fragment += "<p>" + fileName + "</p>";
+                    }
+                    $("#file-upload-filename").append(fragment);
+
+                }
+            });
+        });
+    });
+</script>
+<style type="text/css">
+    .mage-error[generated] + .mage-error[generated] {
+        display: none!important;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script> 
+

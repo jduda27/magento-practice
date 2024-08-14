@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2022 Amasty (https://www.amasty.com)
+ * @package Quick View for Magento 2
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+
+        <remove src="Amasty_Quickview::js/fancybox/jquery.fancybox.min.css"/>
+        <css src="Amasty_Quickview::css/fancybox.min.css"/>
+    </head>
+</page>

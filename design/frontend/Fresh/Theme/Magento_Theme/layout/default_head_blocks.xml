@@ -1,0 +1,24 @@
+﻿<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+         <!--<meta name="viewport" content="width=device-width, initial-scale=1"/>-->
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=0, width=device-width;" />
+        <link rel="preload" as="style" src="fonts/linea.min.css" order="1001" />
+        <link rel="preload" as="style" src="css/style.css" order="1002" />
+        <link rel="preload" as="style" src="css/style-new.css" order="1003" />
+        <link rel="preload" src="css/custom.css"  defer="defer" order="2004" />
+        <link rel="preload" src="css/header.css"  defer="defer" order="2005" />
+
+		<link rel="preload" as="style" src="fonts/all.css" order="2002" />
+        <remove src="fonts/opensans/light/opensans-300.woff2"/>
+        <remove src="fonts/opensans/regular/opensans-400.woff2"/>
+        <remove src="fonts/opensans/semibold/opensans-600.woff2"/>
+        <remove src="fonts/opensans/bold/opensans-700.woff2"/>
+    </head>
+</page>

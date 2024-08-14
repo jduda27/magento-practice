@@ -1,0 +1,91 @@
+<?php 
+
+$block = $this->getLayout()
+->createBlock('Magento\Cms\Block\Block')
+->setBlockId('welcome_popup')
+->toHtml();
+
+?>
+<?php 
+if ($block) { ?>
+<div id="popup_container" class="welcome_content" style="display:none">
+    <div class="welcome-options">
+    <?= $block ?>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    require(
+        [
+            'jquery',
+            'Magento_Ui/js/modal/modal',
+            'jquery/jquery.cookie'
+        ],
+        function(
+            $,
+            modal,
+
+        ) {
+            var options = {
+                'type': 'popup',
+                'title': '',
+                'modalClass': 'your_popup_custom_class',
+                'responsive': true,
+                'innerScroll': true,
+                'buttons': [{
+                    text: $.mage.__('X'),
+                    class: 'back_button_class',
+                    click: function () {
+                        this.closeModal();
+                        // any javascript coode
+                    }
+                }]
+            };
+
+            $(document).ready(function(){
+                //alert($.cookie('first_visit_popup'));
+                //$("#popup_container").modal(options).modal('openModal');
+               if ($.cookie('first_visit_popup') != '1') {             
+                $("#popup_container").modal(options).modal('openModal');
+                $.cookie('first_visit_popup', '1', { expires: 1});
+               }
+                 
+            });
+        }
+    );
+</script> 
+<?php } ?>
+<!--Code for home page popup end -->
+<style type="text/css">
+     @media only screen and (min-width: 768px) {
+    .your_popup_custom_class .arteriors_modal_inner_wrap{
+        width: 600px!important;
+    }
+        }
+    .your_popup_custom_class  .modal-footer{
+        display: none!important;
+    }
+
+       .your_popup_custom_class {
+    z-index: 100001!important;
+   }
+   .modals-overlay{
+    z-index: 800!important;
+   }
+     @media only screen and (max-width: 768px) {
+      /* For mobile phones: */
+
+      .your_popup_custom_class {
+    left: 50%!important;
+    transform: translateX(-50%);
+    width: 85%;
+   }
+    .your_popup_custom_class .arteriors_modal_inner_wrap{
+        margin-top: 140px!important;
+        min-height: auto!important;
+     }
+    }
+
+</style>
+

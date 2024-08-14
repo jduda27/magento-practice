@@ -1,0 +1,290 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page layout="1column"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+	<head>
+
+		<css src="mage/gallery/gallery.css"/>
+		<remove src="Amasty_Quickview::css/fancybox.min.css"/>
+		<remove src="Amasty_Quickview::css/quickview.css"/>
+		<remove src="Amasty_Storelocator::vendor/chosen/chosen.min.css"/>
+		<remove src="mage/calendar.css"/>
+		<remove src="css/print.css"/>
+		<remove src="mage/gallery/gallery.css"/>
+		<link as="style" src="css/owl/owl.carousel.min.css" defer="defer"/>
+		<link as="style" src="css/owl/owl.theme.default.min.css" defer="defer" />
+		<link as="style" src="css/owl/owl.theme.green.min.css" defer="defer" />
+		<script src="js/owl.carousel.js" />
+
+	</head>
+
+	<update handle="catalog_product_opengraph" />
+	<update handle="page_calendar"/>
+	<body>
+		<referenceBlock name="head.additional">
+			<block class="Ntz\Klevu\Block\KlevuSmartRecommendation" name="frontuser" template="Ntz_Klevu::klevu_js.phtml"/>
+		</referenceBlock>
+		<referenceContainer name="columns.top">
+			<!-- to fix add to cart issue-->
+			<block name="customer.section.config" class="Magento\Customer\Block\SectionConfig"
+				   template="Magento_Customer::js/section-config.phtml">
+				<arguments>
+					<argument name="sectionNamesProvider" xsi:type="object">Magento\Customer\Block\SectionNamesProvider</argument>
+				</arguments>
+			</block>
+		</referenceContainer>
+
+
+
+		<move element="view.addto.wishlist" destination="product.info.addtocart" after="-" />
+		<move element="page.main.title" destination="product.info.main" before="custom-options"/>
+		<move element="market-designer" destination="product.info.main" before="-"/>
+
+
+
+		<!-- <move element="product.info.main" destination="row" before="-"/>
+        <move element="product.info.media" destination="row" before="product.info.main"/> -->
+
+		<move element="candid-section" destination="product.info.media.desktop" after="-" />
+		<move element="attributes-accordeon" destination="product.info.main" after="-"/>
+		<move element="product.info.social" destination="product.info.main" before="attributes-accordeon"/>
+		<move element="product.info.overview" destination="custom-options" after="-"/>
+		<!-- <move element="additional.finishoption" destination="custom-options" after="-"/> -->
+
+		<referenceBlock name="product.info.review" remove="true" />
+		<referenceBlock name= "product.info.details" remove="true" />
+		<referenceBlock name= "product.info.addto" remove="true" />
+		<referenceBlock name= "product.info.mailto" remove="true" />
+		<referenceBlock name="breadcrumbs" remove="true" />
+
+		<referenceContainer name="product.info.stock.sku" remove="true" />
+
+		<referenceBlock name="customer-login-popup" remove="true" />
+
+		<move element="page.main.title.mobile" destination="title-market-desginer" after="market.designer-new" />
+		<block class="Ntz\Productpage\Block\Product\View\Title" name="page.main.title.mobile" template="Magento_Catalog::product/view/title.phtml" >
+
+		<arguments>
+				<argument name="css_class" xsi:type="string">product</argument>
+				<argument name="add_base_attribute" xsi:type="string">itemprop="name"</argument>
+			</arguments>
+		</block>
+
+		<referenceContainer name="content">
+
+			<container name="breadcrumb-product" as="breadcrumb-product" label="breadcrumb-product" htmlTag="div" htmlClass="breadcrumb-product" before="-">
+				<block class="Ntz\Productpage\Block\Product\View\Crumbblock" name="crumbs" as="crumbs" template="Ntz_Productpage::product/view/crumbs.phtml" />
+			</container>
+
+			<container name="product-essential" as="product-essential" label="product-essential" htmlTag="div" htmlClass="container-fluid product-essential" before="-">
+				<container name="main_div_row" as="row" label="row" htmlTag="div" htmlClass="row" before="-">
+					<container name="title-market-desginer" as="title-market-desginer" label="row" htmlTag="div" htmlClass="col-md-12 title-market-desginer-mobile" before="-">
+					<block class="Ntz\Productpage\Block\Product\View\ListProduct" name="market.designer-new" template="Ntz_Productpage::market_designer.phtml" before="-"/>
+
+					</container>
+
+					<container name="product.info.media.desktop" htmlTag="div" htmlClass="col-md-8 product-img-box product-img-box-desktops" before="-">
+						<block class="Magento\Framework\View\Element\Template" name="skip_gallery_after.target" before="skip_gallery_before.wrapper" template="Magento_Theme::html/skiptarget.phtml">
+							<arguments>
+								<argument name="target_id" xsi:type="string">gallery-prev-area</argument>
+							</arguments>
+						</block>
+						<container name="skip_gallery_before.wrapper" htmlTag="div" htmlClass="action-skip-wrapper">
+							<block class="Magento\Framework\View\Element\Template" before="product.info.media.image.desktop" name="skip_gallery_before" template="Magento_Theme::html/skip.phtml">
+								<arguments>
+									<argument name="target" xsi:type="string">gallery-next-area</argument>
+									<argument name="label" translate="true" xsi:type="string">Skip to the end of the images gallery</argument>
+								</arguments>
+							</block>
+						</container>
+						<block class="Magento\Catalog\Block\Product\View\Gallery" name="product.info.media.image.desktop" template="Magento_Catalog::product/view/gallery.phtml">
+							<action method="setTemplate" ifconfig="productimage/general/enabled">
+								<argument name="template" xsi:type="string">Ulmod_Productimage::product/view/gallery.phtml</argument>
+							</action>
+							<arguments>
+								<argument name="gallery_options" xsi:type="object">Magento\Catalog\Block\Product\View\GalleryOptions</argument>
+								<argument name="imageHelper" xsi:type="object">Magento\Catalog\Helper\Image</argument>
+							</arguments>
+						</block>
+						<container name="skip_gallery_after.wrapper" htmlTag="div" htmlClass="action-skip-wrapper">
+							<block class="Magento\Framework\View\Element\Template" after="product.info.media.image.desktop" name="skip_gallery_after" template="Magento_Theme::html/skip.phtml">
+								<arguments>
+									<argument name="target" xsi:type="string">gallery-prev-area</argument>
+									<argument name="label" translate="true" xsi:type="string">Skip to the beginning of the images gallery</argument>
+								</arguments>
+							</block>
+						</container>
+
+						<container name="candid-section" as="candid-section" label="candid-section" htmlTag="div" htmlClass="candid-section">
+							<block class="Ntz\Productpage\Block\Product\View\ProductsCategory" name="product.tabs" template="Ntz_Productpage::product/view/details.phtml" />
+						</container>
+
+
+						<block class="Magento\Framework\View\Element\Template" name="skip_gallery_before.target" after="skip_gallery_after.wrapper" template="Magento_Theme::html/skiptarget.phtml">
+							<arguments>
+								<argument name="target_id" xsi:type="string">gallery-next-area</argument>
+							</arguments>
+						</block>
+					
+					</container>
+					<!--					 Gallery Section End -->
+
+					<!-- Right Sidebar Area -->
+					<container name="product.info.main" htmlTag="div" htmlClass="col-md-4 product-shop desktop-show product-info-main" before="-">
+						<container name="market-designer" as="market-designer" label="market-designer" htmlTag="div" htmlClass="market-designer" before="custom-options">
+							<block class="Magento\Wishlist\Block\Catalog\Product\View\AddTo\Wishlist" name="view.addto.wishlist" template="Magento_Wishlist::catalog/product/view/addto/wishlist.phtml" />
+							<block class="Ntz\Productpage\Block\Product\View\ListProduct" name="market.designer" template="Ntz_Productpage::market_designer.phtml" />
+						</container>
+
+						<container name="custom-options" as="custom-options" label="custom-options" htmlTag="div" htmlClass="custom-options" before="product.info.price">
+							<container name="custom-options-new" as="custom-options-new" label="custom-options-new" htmlTag="div" htmlClass="config_custom_options" before="-">
+							<block class="Ntz\Productpage\Block\Product\View\ListProduct" name="custom.options" template="Ntz_Productpage::custom_options.phtml" />
+							</container>
+						</container>
+
+
+						<block class="Magento\Catalog\Block\Product\View" name="product.loginlink" template="Ntz_Productpage::product/view/loginlink.phtml" before="product.info.price" />
+
+						<container name="product.info.price" label="Product info auxiliary container" htmlTag="div" htmlClass="product-price price-box">
+							<container name="product.info.stock.sku" label="Product auxiliary info" htmlTag="div" htmlClass="product-info-stock-sku" before="product.price.final">
+								<container name="product.info.type" before="-"/>
+								<block class="Magento\Catalog\Block\Product\View\Description" name="product.info.sku" template="Magento_Catalog::product/view/attribute.phtml" after="product.info.type">
+									<arguments>
+										<argument name="at_call" xsi:type="string">getSku</argument>
+										<argument name="at_code" xsi:type="string">sku</argument>
+										<argument name="css_class" xsi:type="string">sku</argument>
+										<argument name="at_label" xsi:type="string">default</argument>
+										<argument name="add_attribute" xsi:type="string">itemprop="sku"</argument>
+									</arguments>
+								</block>
+							</container>
+							<block class="Magento\Catalog\Block\Product\View" name="product.info.review" template="Magento_Catalog::product/view/review.phtml" after="product.info.stock.sku" />
+							<block class="Magento\Catalog\Pricing\Render" name="product.price.final" after="product.info.stock.sku">
+								<arguments>
+									<argument name="price_render" xsi:type="string">product.price.render.default</argument>
+									<argument name="price_type_code" xsi:type="string">final_price</argument>
+									<argument name="zone" xsi:type="string">item_view</argument>
+								</arguments>
+							</block>
+						</container>
+						<block class="Magento\Catalog\Pricing\Render" name="product.price.tier" after="product.info.stock.sku">
+							<arguments>
+								<argument name="price_render" xsi:type="string">product.price.render.default</argument>
+								<argument name="price_type_code" xsi:type="string">tier_price</argument>
+								<argument name="zone" xsi:type="string">item_view</argument>
+							</arguments>
+						</block>
+						<container name="alert.urls" as="alert_urls" label="Alert Urls" after="product.price.tier">
+							<block class="Magento\Catalog\Block\Product\View" name="product.info" template="Magento_Catalog::product/view/form.phtml" after="alert.urls">
+								<container name="product.info.form.content" as="product_info_form_content">
+									<!-- <block class="Magento\Catalog\Block\Product\View" name="product.info.addtocarts" as="addtocarts" template="Magento_Catalog::product/view/addtocart.phtml"/> -->
+								</container>
+								<block class="Magento\Framework\View\Element\Template" name="product.info.form.options" as="options_container">
+									<block class="Magento\Catalog\Block\Product\View" name="product.info.options.wrapper" as="product_options_wrapper" template="Magento_Catalog::product/view/options/wrapper.phtml">
+										<block class="Magento\Catalog\Block\Product\View\Options" name="product.info.options" as="product_options" template="Magento_Catalog::product/view/options.phtml">
+											<block class="Magento\Catalog\Block\Product\View\Options\Type\DefaultType" name="product.info.options.default" as="default" template="Magento_Catalog::product/view/options/type/default.phtml"/>
+											<block class="Magento\Catalog\Block\Product\View\Options\Type\Text" name="product.info.options.text" as="text" template="Magento_Catalog::product/view/options/type/text.phtml"/>
+											<block class="Magento\Catalog\Block\Product\View\Options\Type\File" name="product.info.options.file" as="file" template="Magento_Catalog::product/view/options/type/file.phtml"/>
+											<block class="Magento\Catalog\Block\Product\View\Options\Type\Select" name="product.info.options.select" as="select" template="Magento_Catalog::product/view/options/type/select.phtml"/>
+											<block class="Magento\Catalog\Block\Product\View\Options\Type\Date" name="product.info.options.date" as="date" template="Magento_Catalog::product/view/options/type/date.phtml"/></block>
+										<block class="Magento\Framework\View\Element\Html\Calendar" name="html_calendar" as="html_calendar" template="Magento_Theme::js/calendar.phtml"/></block>
+									<block class="Magento\Catalog\Block\Product\View" name="product.info.options.wrapper.bottom" as="product_options_wrapper_bottom" template="Magento_Catalog::product/view/options/wrapper/bottom.phtml">
+										<block class="Magento\Catalog\Block\Product\View" name="product.info.addtocart.additional" as="product.info.addtocart.additional" template="Magento_Catalog::product/view/addtocart.phtml"> <block class="Magento\Wishlist\Block\Catalog\Product\View\AddTo\Wishlist" name="view.addto.wishlists" template="Magento_Wishlist::catalog/product/view/addto/wishlist.phtml" /> </block>
+									</block>
+								</block>
+							</block>
+						</container>
+						<container name="product.info.extrahint" as="extrahint" label="Product View Extra Hint">
+							<container name="product.info.social" label="Product social links container" htmlTag="div" htmlClass="desktop-show">
+								<block class="Magento\Catalog\Block\Product\View" name="product.info.addto" as="addto" template="Magento_Catalog::product/view/addto.phtml">
+									<block class="Magento\Catalog\Block\Product\View\AddTo\Compare" name="view.addto.compare" after="view.addto.wishlist"
+										   template="Magento_Catalog::product/view/addto/compare.phtml" >
+										<arguments>
+											<argument name="addToCompareViewModel" xsi:type="object">Magento\Catalog\ViewModel\Product\Checker\AddToCompareAvailability</argument>
+										</arguments>
+									</block>
+								</block>
+								<block class="Magento\Catalog\Block\Product\View" name="product.info.mailto" template="Magento_Catalog::product/view/mailto.phtml"/>
+							</container>
+						</container>
+
+						<container name="attributes-accordeon" as="attributes-accordeon" label="attributes-accordeon" htmlTag="div" htmlClass="attributes-accordeon">
+							<block class="Ntz\Productpage\Block\Product\View\Attributes" name="products.attributesgroup" as="attributesgroup" template="Ntz_Productpage::product/view/attributes.phtml" after="product.tabs" />
+						</container>
+
+						<block class="Magento\Catalog\Block\Product\View\Description" name="product.info.overview" template="Magento_Catalog::product/view/attribute.phtml" group="detailed_info" before="product.info.extrahint">
+							<arguments>
+								<argument name="at_call" xsi:type="string">getShortDescription</argument>
+								<argument name="at_code" xsi:type="string">short_description</argument>
+								<argument name="css_class" xsi:type="string">overview</argument>
+								<argument name="at_label" xsi:type="string">none</argument>
+								<argument name="title" translate="true" xsi:type="string">Overview</argument>
+								<argument name="add_attribute" xsi:type="string">itemprop="description"</argument>
+							</arguments>
+						</block>
+
+						<block class="Magento\Catalog\Block\Product\View\Details" name="product.info.details" template="Magento_Catalog::product/view/details.phtml" after="product.info.media">
+							<block class="Magento\Catalog\Block\Product\View\Description" name="product.info.description" as="description" template="Magento_Catalog::product/view/attribute.phtml" group="detailed_info">
+								<arguments>
+									<argument name="at_call" xsi:type="string">getDescription</argument>
+									<argument name="at_code" xsi:type="string">description</argument>
+									<argument name="css_class" xsi:type="string">description</argument>
+									<argument name="at_label" xsi:type="string">none</argument>
+									<argument name="title" translate="true" xsi:type="string">Details</argument>
+									<argument name="sort_order" xsi:type="string">10</argument>
+								</arguments>
+							</block>
+							<block class="Magento\Catalog\Block\Product\View\Attributes" name="product.attributes" as="additional" template="Magento_Catalog::product/view/attributes.phtml" group="detailed_info">
+								<arguments>
+									<argument translate="true" name="title" xsi:type="string">More Information</argument>
+									<argument name="sort_order" xsi:type="string">20</argument>
+								</arguments>
+							</block>
+						</block>
+					</container>
+					<!-- Right Sidebar Area End -->
+
+				</container>
+			</container>
+
+
+		</referenceContainer>
+
+		<referenceBlock name="product.info.social">
+			<block class="Ntz\Productpage\Block\Product\View\ListProduct" name="product.social" template="Ntz_Productpage::product/view/social.phtml" before="product.info.addto" />
+		</referenceBlock>
+		<referenceBlock name="product.info.price">
+		
+			<block class="Ntz\Productpage\Block\Product\View\ListProduct" name="product.msrp" template="Ntz_Productpage::product/view/msrp.phtml" before="product.price.final" />
+			<block class="Ntz\Productpage\Block\Product\View\ListProduct" name="product.groupprice" template="Ntz_Productpage::product/view/groupprice.phtml" after="product.price.final" />
+			<block class="Ntz\Productpage\Block\Product\View\ListProduct" name="product.saleprice" template="Ntz_Productpage::product/view/saleprice.phtml" after="product.groupprice" />
+			<block class="Ntz\Productpage\Block\Product\View\Finishoption" name="additional.finishoption" as="additionalfinishoption" template="Ntz_Productpage::product/view/finishoption.phtml" after ="product.saleprice"/>
+		</referenceBlock>
+		<referenceBlock name="product.info.main">
+			<block class="Ntz\Productpage\Block\Product\View\ListProduct" name="additional.product" as="additionaldescription" template="Ntz_Productpage::product/view/additional_detail.phtml" after ="product.info.overview"/>
+			
+		</referenceBlock>
+		<!-- RECEIVE STOCK ALERTS -->
+		<referenceContainer name="product.info.main">
+			<block class="Ntz\Instock\Block\Product\View\Enquiry" name="product.info.enquiry" before="product.info.overview"
+				   template="Ntz_Instock::product/view/stock.phtml">
+			</block>
+		</referenceContainer>
+<!--		<referenceContainer name="columns.top">-->
+<!--			<block class="Ntz\Productpage\Block\Product\View\Title" name="page.main.title.mobile" template="Magento_Theme::html/title.phtml" />-->
+
+
+<!--			<container name="page.messages.mobile" htmlTag="div" htmlClass="page messages">-->
+<!--				<block class="Magento\Framework\View\Element\Template" name="ajax.message.placeholder.mobile" template="Magento_Theme::html/messages.phtml"/>-->
+<!--				<block class="Magento\Framework\View\Element\Messages" name="messages.mobile" as="messages" template="Magento_Theme::messages.phtml"/>-->
+<!--			</container>-->
+<!--		</referenceContainer>-->
+		<!-- RECEIVE STOCK ALERTS -->
+
+	</body>
+</page>

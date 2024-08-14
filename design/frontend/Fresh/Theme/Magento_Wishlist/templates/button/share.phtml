@@ -1,0 +1,17 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var \Magento\Wishlist\Block\Customer\Wishlist\Button $block */
+
+$helper = $this->helper('Ntz\Productpage\Helper\Data');
+$baseUrl = $helper->getBaseUrl();
+?>
+<?php if ($block->getWishlist()->getItemsCount() && $block->getWishlist()->getShared() < $block->getConfig()->getSharingEmailLimit()) : ?>
+    <button type="submit" name="save_and_share" title="<?= $block->escapeHtmlAttr(__('Share Portfolio')) ?>" class="button btn-share">
+        <span><?= $block->escapeHtml(__('SHARE PORTFOLIO')) ?></span>
+    </button>
+<?php endif;?>
+<p class="back-link"><a href="<?php echo $baseUrl.'customer/account/'; ?>" title="Back"><small>« </small>Back</a></p>

@@ -1,0 +1,76 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var \Magento\ConfigurableProduct\Pricing\Render\FinalPriceBox$block */
+/** @var \Magento\Framework\Pricing\Price\PriceInterface $priceModel */
+$priceModel = $block->getPriceType('regular_price');
+/** @var \Magento\Framework\Pricing\Price\PriceInterface $finalPriceModel */
+$finalPriceModel = $block->getPriceType('final_price');
+$idSuffix = $block->getIdSuffix() ? $block->getIdSuffix() : '';
+$schema = ($block->getZone() == 'item_view') ? true : false;
+
+
+$customHelper = $this->helper('Ntz\Productpage\Helper\Data');
+$groupName = $customHelper->getCustomerGroupName();
+$listPrduct = $block->getLayout()->createBlock('Ntz\Productpage\Block\Product\View\ListProduct');
+$priceRange = $listPrduct->getPriceRange();
+$priceArapper = "";
+$vatPrice="";
+$productMsrp = $customHelper->getProduct();
+$msrp ="";
+if ($productMsrp){
+    $msrp = $productMsrp->getMsrp();
+}
+?>
+
+<?php 
+if($groupName!='NOPRICE'){
+    $label = __('NET:');
+    $price = $block->getPriceType('tier_price');
+    $tier_price_amt = $price->getAmount()->getBaseAmount();
+    if(isset($price) && ($tier_price_amt!="" || $tier_price_amt!=0)) {
+        $group_4ML = array("4MLDNET","4MLNOVAT","4MLRRP","4MLTELT","4MLWHSL");
+        if(in_array($groupName, $group_4ML)) {
+            $label = __('RRP:');
+            $vatPrice = 'vat_rrp_class';
+        }
+        if ($msrp != $price->getAmount()) {
+       
+        ?>
+
+        <div class="configurable-final-price" style="display: none;">
+        <?= $priceArapper =  /* @noEscape */ $block->renderAmount($price->getAmount(), ["vat_rrp_class"   => $vatPrice,"price_range"=>$priceRange ,"final_price_amount"   => 'final_price_amount',"display_label"   => $label,"price_id"   => $block->getPriceId("product-price-" . $idSuffix),"price_type"   => "finalPrice","include_container" => true,"schema" => $schema]); ?>
+         
+        </div>
+        <?php 
+     
+        }
+        if($priceRange){ ?>
+        <div class="config-net-pricerange">
+              <p itemscope itemtype="https://schema.org/Offer" class="net-price ">
+                <span class="price-label"><?= __('Net:'); ?></span>
+                <span itemprop="price" class="price" content="<?= $priceRange; ?>"><?= $priceRange; ?></span>
+               
+            </p>
+        </div>
+        <?php } ?>
+    <?php
+    }
+} ?>
+
+
+
+<?php if ($block->showMinimalPrice()) : ?>
+    <?php if ($block->getUseLinkForAsLowAs()) :?>
+        <a href="<?= $block->escapeUrl($block->getSaleableItem()->getProductUrl()) ?>" class="minimal-price-link">
+            <?= /* @noEscape */ $block->renderAmountMinimal() ?>
+        </a>
+    <?php else :?>
+        <span class="minimal-price-link">
+            <?= /* @noEscape */ $block->renderAmountMinimal() ?>
+        </span>
+    <?php endif?>
+<?php endif; ?>

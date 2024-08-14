@@ -1,0 +1,20 @@
+<div style="width:100%;margin:auto;clear:both;padding:15px;">
+    <div class="candid-banner-title candid-banner-title-home"><?php echo __('#ARTERIORSHOME — INSPIRED BY YOU') ?></div>
+    <div class="view-gallery"><a href="<?php echo $this->getUrl('inspiration');?>" title="VIEW GALLERY"><?php echo __('VIEW GALLERY') ?></a></div>
+    <!-- BEGIN: Candid Widget -->
+    <div style="text-align: center;">
+        <script type="text/javascript" src="https://api.getcandid.com/scripts/widget.js"></script>
+        <script type="text/javascript">// <![CDATA[
+            candid.init({
+                id: '2509528b-e2a9-40f4-848f-f6f0099ef7af',
+                tag: 'homepage_feature',
+                theme: 'ct-basic',
+                overlayTheme: 'ct-basic',
+                cluster: 'prod-3',
+                margin: 10,
+                width: 200
+            });
+            // ]]></script>
+    </div>
+    <!-- END: Candid Widget -->
+</div>

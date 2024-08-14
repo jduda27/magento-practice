@@ -1,0 +1,7 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<button type="button" title="<?= $block->escapeHtmlAttr(__('Delete Portfolio')) ?>" data-wishlist-delete='{"wishlistId":"<?= $block->escapeHtmlAttr($block->getWishlistInstance()->getId()) ?>", "redirectUrl":"<?= $block->escapeUrl($block->getRedirectUrl()) ?>", "deleteUrl":"<?= $block->escapeUrl($block->getDeleteUrl()) ?>"}'  class="button btn-share btn-del left"><span><?= $block->escapeHtmlAttr(__('Delete Portfolio')) ?></span></button>

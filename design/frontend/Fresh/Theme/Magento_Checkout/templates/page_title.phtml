@@ -1,0 +1,95 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+$customHelper = $this->helper('Ntz\Productpage\Helper\Data');
+$groupname = $customHelper->getCustomerGroupName();
+$cart = $this->helper('\Magento\Checkout\Helper\Cart');
+$cartCount = $cart->getItemsCount();
+$restrictedHelper = $this->helper('Ntz\Arteriors\Helper\GetRestrictCheckout');
+$value = $restrictedHelper->getRestricted();
+$countryCode = $restrictedHelper->currentCountry();
+
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$customApiManagement = $objectManager->get("\Ntz\Customapi\Model\CustomModel\CustomApiManagement");
+
+$checkoutRestrict =$customHelper->getCustomVariableValue('checkout_restrict');
+$checkoutRestrictArray = explode(',', $checkoutRestrict);
+$customerSession = $customHelper->getCustomerSession();
+
+
+
+if ($countryCode) {
+	$blockName = strtolower($countryCode).'-message';
+} 
+if ($countryCode=='GB') {
+	$blockName = 'vat-message';
+}
+
+	
+
+$vatMessage="";
+?>
+<div class="title-wrap">
+	<div class="container-fluid">
+			<?php if($cartCount == 0): ?>
+			<div class="page-title category-title text-center col-sm-12 col-lg-12">
+			<h1 class="cartempty"><?= __('Shopping Cart is Empty'); ?></h1>
+			<?php else: ?>
+			<div class="page-title category-title col-sm-4 col-lg-4">
+			<h1 class="cart-title"><?= __('Shopping Cart'); ?></h1>
+		    <?php endif; ?>
+			
+		</div>
+
+	</div>
+</div>
+<?php
+ if ($groupname == "4MLRRP" || $groupname == "4MLWHSL" || $groupname == "4MLDNET" || $groupname == "4MLWASL"): ?>
+	<div class="cart-vat-message">
+		<?php echo $vatMessage = $this->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('vat-message')->toHtml();
+
+	 	?> 
+	  </div>
+<?php endif;  ?>
+<?php
+
+$messageBlock = $this->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId($blockName)->toHtml();
+?>
+
+<?php if ($value == 1 && $vatMessage==''){ ?>
+<div class="cart-vat-message">
+		<?php 
+		if ($messageBlock!='') {
+			echo $messageBlock;
+		}else{
+			echo $this->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('generic-cart-message')->toHtml();
+		}
+	 	?> 
+</div>	 
+<?php }else if($customerSession->isLoggedIn()){
+            $customerId =$customerSession->getCustomer()->getId();
+            $company = $customApiManagement->getCompanyData($customerId);
+            if ($company) {
+            	$countryCode = $company->getContinentsCountry();
+            	$blockName = 'vat-message';
+            	if ($countryCode && $countryCode !="GB" ) {
+					$blockName = strtolower($countryCode).'-message';
+				} 
+				
+            	$messageBlock = $this->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId($blockName)->toHtml();
+				if(in_array($company->getContinentsCountry(),$checkoutRestrictArray)){ 
+					?>
+					<div class="cart-vat-message">
+                    <?php if ($messageBlock!='') {
+						echo $messageBlock;
+					}else{
+						echo $this->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('generic-cart-message')->toHtml();
+				  	} ?>
+				  	 </div>
+           		<?php }
+			}
+} ?>
+ </div>
